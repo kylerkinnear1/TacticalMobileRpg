@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.GameEngine.RuleEngine;
+﻿namespace Rpg.Mobile.GameSdk;
 
 public interface IRng
 {
@@ -6,6 +6,9 @@ public interface IRng
 
     double Double(double min, double max);
     double Double(double max);
+
+    int Int(int min, int max);
+    int Int(int max);
 }
 
 public class Rng : IRng
@@ -17,11 +20,11 @@ public class Rng : IRng
 
     public double Percent() => Double(0, 1);
     public double Double(double max) => Double(0, max);
-
     public double Double(double min, double max)
         => GetWithLock(x => x.NextDouble() * (min - max) + min);
 
-    public double Double(Range<double> range) => Double(range.Start, range.End);
+    public int Int(int max) => Int(0, max);
+    public int Int(int min, int max) => GetWithLock(x => x.Next(min, max));
 
     private T GetWithLock<T>(Func<Random, T> getValue)
     {
@@ -31,5 +34,3 @@ public class Rng : IRng
         }
     }
 }
-
-public record Range<T>(T Start, T End);

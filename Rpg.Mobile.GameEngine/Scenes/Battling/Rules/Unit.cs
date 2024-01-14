@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Rpg.Mobile.GameEngine.RuleEngine.Battling;
+namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules;
 
 public record UnitId(int Id);
 public record Unit(

@@ -1,4 +1,7 @@
-﻿namespace Rpg.Mobile.GameEngine.RuleEngine.Battling.Calculators;
+﻿using Rpg.Mobile.GameEngine.Scenes.Battling.Rules;
+using Rpg.Mobile.GameSdk;
+
+namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
 
 public record Attack(
     Unit Attacker,

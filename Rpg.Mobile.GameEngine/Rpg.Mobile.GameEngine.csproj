@@ -1,9 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rpg.Mobile.GameSdk\Rpg.Mobile.GameSdk.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Rules\Battling\" />
+    <Folder Include="Scenes\Battling\GameObjects\" />
+    <Folder Include="Scenes\Common\" />
+  </ItemGroup>
 
 </Project>

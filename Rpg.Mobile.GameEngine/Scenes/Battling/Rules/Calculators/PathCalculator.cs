@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Rpg.Mobile.GameEngine.RuleEngine.Battling.Calculators;
+namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
 
 public interface IPathCalculator
 {
