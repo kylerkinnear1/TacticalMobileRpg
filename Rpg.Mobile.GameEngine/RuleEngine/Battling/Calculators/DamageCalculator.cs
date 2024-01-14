@@ -22,9 +22,9 @@ public class DamageCalculator : IDamageCalculator
         // Shining Force Algorithm
         var (attacker, defender) = attack;
         var deterministicDamage = Math.Max(1, attacker.Stats.Current.Attack - defender.Stats.Current.Defense);
-        var damageRangeModifier = _rng.Double(0, .25) * deterministicDamage;
+        var damageRangeModifier = _rng.Double(0.25) * deterministicDamage;
 
-        var damage = Math.Round(deterministicDamage - damageRangeModifier);
-        return new((int)Math.Max(1, damage));
+        var damage = deterministicDamage - (int)Math.Round(damageRangeModifier);
+        return new(Math.Max(1, damage));
     }
 }

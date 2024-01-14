@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.Mobile.GameEngine", "Rpg.Mobile.GameEngine\Rpg.Mobile.GameEngine.csproj", "{080743FD-784A-4641-AF90-B73A8EB7A7D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rpg.Mobile.GameEngine", "Rpg.Mobile.GameEngine\Rpg.Mobile.GameEngine.csproj", "{080743FD-784A-4641-AF90-B73A8EB7A7D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rpg.Mobile.App", "Rpg.Mobile.App\Rpg.Mobile.App.csproj", "{0D56D071-205E-4758-9B64-BD55A10E8B12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,12 @@ Global
 		{080743FD-784A-4641-AF90-B73A8EB7A7D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{080743FD-784A-4641-AF90-B73A8EB7A7D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{080743FD-784A-4641-AF90-B73A8EB7A7D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D56D071-205E-4758-9B64-BD55A10E8B12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D56D071-205E-4758-9B64-BD55A10E8B12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D56D071-205E-4758-9B64-BD55A10E8B12}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0D56D071-205E-4758-9B64-BD55A10E8B12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D56D071-205E-4758-9B64-BD55A10E8B12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D56D071-205E-4758-9B64-BD55A10E8B12}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

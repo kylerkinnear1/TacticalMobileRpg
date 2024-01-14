@@ -5,7 +5,7 @@ namespace Rpg.Mobile.GameEngine.RuleEngine.Battling.Calculators;
 public interface IPathCalculator
 {
     int Distance(Point a, Point b);
-    IEnumerable<Point> FanOutArea(Point source, Point bounds, int range);
+    IEnumerable<Point> CreateFanOutArea(Point source, Point bounds, int range);
 }
 
 public class PathCalculator : IPathCalculator
@@ -17,7 +17,7 @@ public class PathCalculator : IPathCalculator
         return xDistance + yDistance;
     }
 
-    public IEnumerable<Point> FanOutArea(Point source, Point bounds, int range)
+    public IEnumerable<Point> CreateFanOutArea(Point source, Point bounds, int range)
     {
         var xRanges = Enumerable.Range(
             Math.Max(0, source.X - range),
@@ -28,7 +28,8 @@ public class PathCalculator : IPathCalculator
             Math.Min(bounds.Y, source.Y + range));
 
         var legalPoints = xRanges
-            // TODO: Better yRanges here for more performance.
+            // TODO: Better yRanges here for more performance. This checks stuff that will never
+            // be in range.
             .SelectMany(x => yRanges.Select(y => new Point(x, y)))
             .Where(pos => Distance(source, pos) <= range)
             .ToList();

@@ -4,8 +4,8 @@ public interface IRng
 {
     double Percent();
 
-    double Double(double start, double end);
-    double Double(double end);
+    double Double(double min, double max);
+    double Double(double max);
 }
 
 public class Rng : IRng
@@ -16,10 +16,10 @@ public class Rng : IRng
     public Rng(Random random) => _random = random;
 
     public double Percent() => Double(0, 1);
-    public double Double(double end) => Double(0, end);
+    public double Double(double max) => Double(0, max);
 
-    public double Double(double start, double end)
-        => GetWithLock(x => x.NextDouble() * (start - end) + start);
+    public double Double(double min, double max)
+        => GetWithLock(x => x.NextDouble() * (min - max) + min);
 
     public double Double(Range<double> range) => Double(range.Start, range.End);
 

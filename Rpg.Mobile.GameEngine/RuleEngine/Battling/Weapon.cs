@@ -1,3 +1,3 @@
 ﻿namespace Rpg.Mobile.GameEngine.RuleEngine.Battling;
 
-public record Weapon;
+public record Weapon(int Range);
