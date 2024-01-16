@@ -87,6 +87,7 @@ public interface IGameBuilder
     //          .AddRenderer2d(r => r.StaticImageFromFile("/tree.png")
     //      .AddEntity<Hero>(e => e
     //          .AddCalculator<HeroStateCalculator>()
+    //          .AddPythonCalculator("/scripts/dynamicStuff.py")
     //          .AddRenderer2d(r => 
     //          {
     //              var idleTileSet = _tileBuilder.Load<TileSet>("hero_idle_tiles.png");
