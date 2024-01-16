@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Rules\Battling\" />
     <Folder Include="Scenes\Battling\GameObjects\" />
     <Folder Include="Scenes\Common\" />
   </ItemGroup>

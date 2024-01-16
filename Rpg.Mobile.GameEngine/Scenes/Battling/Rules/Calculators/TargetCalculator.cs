@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.GameEngine.Scenes.Battling.Rules;
+﻿using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 
 namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
 

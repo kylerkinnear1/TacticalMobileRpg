@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
-using static Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Turn;
+using static Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models.Turn;
 
-namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules;
+namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 
 public record PlayerId(int Id);
 
