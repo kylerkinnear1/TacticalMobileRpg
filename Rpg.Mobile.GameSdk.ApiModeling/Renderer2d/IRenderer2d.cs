@@ -1,6 +1,6 @@
 ﻿using Microsoft.Maui.Graphics;
 
-namespace Rpg.Mobile.GameSdk.Game2d;
+namespace Rpg.Mobile.GameSdk.ApiModeling.Renderer2d;
 
 public interface IRenderer2d
 {

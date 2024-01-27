@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.GameSdk.Core;
+﻿using Rpg.Mobile.GameSdk.ApiModeling.Core;
 
-namespace Rpg.Mobile.GameSdk.Game2d;
+namespace Rpg.Mobile.GameSdk.ApiModeling.Renderer2d;
 
 public static class Renderer2dExtensions
 {

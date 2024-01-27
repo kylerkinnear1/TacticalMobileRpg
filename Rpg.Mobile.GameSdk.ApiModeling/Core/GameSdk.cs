@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.GameSdk.Core;
+﻿namespace Rpg.Mobile.GameSdk.ApiModeling.Core;
 
 // TODO: Move to readme + markdown
 // FLUENT API SDK for 2D Gaming. No base classes.
@@ -87,7 +87,7 @@ public interface IGameBuilder
     //          .AddRenderer2d(r => r.StaticImageFromFile("/tree.png")
     //      .AddEntity<Hero>(e => e
     //          .AddCalculator<HeroStateCalculator>()
-    //          .AddPythonCalculator("/scripts/dynamicStuff.py")
+    //          .AddPythonCalculator("/scripts/dynamicStuff.py")g
     //          .AddRenderer2d(r => 
     //          {
     //              var idleTileSet = _tileBuilder.Load<TileSet>("hero_idle_tiles.png");

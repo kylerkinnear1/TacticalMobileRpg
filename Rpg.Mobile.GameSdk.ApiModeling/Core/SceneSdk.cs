@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.GameSdk.SceneLayers;
+﻿using Rpg.Mobile.GameSdk.ApiModeling.SceneLayers;
 
-namespace Rpg.Mobile.GameSdk.Core;
+namespace Rpg.Mobile.GameSdk.ApiModeling.Core;
 
 public interface ISceneBuilder
 {

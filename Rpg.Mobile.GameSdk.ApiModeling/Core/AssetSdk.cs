@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.GameSdk.Core;
+﻿namespace Rpg.Mobile.GameSdk.ApiModeling.Core;
 
 public interface IAssetBuilder
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Maui.Graphics;
-using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.ApiModeling.Core;
 
-namespace Rpg.Mobile.GameSdk.SceneLayers;
+namespace Rpg.Mobile.GameSdk.ApiModeling.SceneLayers;
 
 public interface ILayerBuilder
 {
