@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.App.Stuff;
+﻿using Rpg.Mobile.App.Assets;
+using Rpg.Mobile.App.Stuff;
 using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App;
@@ -21,8 +22,8 @@ public class TestDraw : IDrawable
 
     public TestDraw(GraphicsView view)
     {
-        var imageLoader = new EmbeddedResourceImageLoader(new (GetType().Assembly, "Rpg.Mobile.App.Assets.Sprites.Units"));
-        var heroSprite = imageLoader.Load("Warrior.png");
+        var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly, Consts.Assets.Paths.Sprites));
+        var heroSprite = spriteLoader.Load("Warrior.png");
         _unit = new BattleUnit(new(100f, 100f), heroSprite);
 
         _view = view;
@@ -35,11 +36,7 @@ public class TestDraw : IDrawable
 
         canvas.DrawImage(_unit.Sprite, 100f + _times, 100f + _times, 64f, 64f);
 
-        _times++;
-        if (_times > 300f)
-        {
-            _times = 1f;
-        }
+        _times = _times <= 300f ? _times + 1f : 1f;
         _view.Invalidate();
     }
 }
