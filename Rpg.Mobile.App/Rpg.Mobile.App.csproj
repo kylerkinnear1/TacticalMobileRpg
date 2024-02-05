@@ -76,8 +76,4 @@
 	  <ProjectReference Include="..\Rpg.Mobile.GameEngine\Rpg.Mobile.GameEngine.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Views\" />
-	</ItemGroup>
-
 </Project>

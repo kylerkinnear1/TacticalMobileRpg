@@ -1,6 +1,6 @@
 ﻿using IImage = Microsoft.Maui.Graphics.IImage;
 
-namespace Rpg.Mobile.App.Stuff;
+namespace Rpg.Mobile.App.States;
 
 public class BattleUnit
 {
