@@ -5,8 +5,6 @@ namespace Rpg.Mobile.App;
 
 internal class GameSceneView : GraphicsView
 {
-    private readonly BattleUnit _hero;
-
     public GameSceneView()
     {
         BackgroundColor = Colors.Transparent;
@@ -23,8 +21,8 @@ public class TestDraw : IDrawable
 
     public TestDraw(GraphicsView view)
     {
-        var imageLoader = new EmbeddedResourceImageLoader(GetType().Assembly);
-        var heroSprite = imageLoader.Load("Rpg.Mobile.App.Assets.Sprites.Units.Warrior.png");
+        var imageLoader = new EmbeddedResourceImageLoader(new (GetType().Assembly, "Rpg.Mobile.App.Assets.Sprites.Units"));
+        var heroSprite = imageLoader.Load("Warrior.png");
         _unit = new BattleUnit(new(100f, 100f), heroSprite);
 
         _view = view;

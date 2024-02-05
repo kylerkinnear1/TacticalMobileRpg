@@ -10,14 +10,18 @@ public interface IImageLoader
 
 public class EmbeddedResourceImageLoader : IImageLoader
 {
-    private readonly Assembly _assembly;
+    public record Options(Assembly Assembly, string BasePath = "");
 
-    public EmbeddedResourceImageLoader(Assembly assembly) => _assembly = assembly;
+    private readonly Options _options;
+
+    public EmbeddedResourceImageLoader(Options options) => _options = options;
 
     public IImage Load(string path)
     {
-        var names = _assembly.GetManifestResourceNames();
-        using var stream = _assembly.GetManifestResourceStream(path);
+        var combined = Combine(_options.BasePath, path);
+        using var stream = _options.Assembly.GetManifestResourceStream(combined);
         return Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(stream);
     }
+
+    private static string Combine(params string[] paths) => string.Join('.', paths.Where(x => !x.IsEmpty()));
 }

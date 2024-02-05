@@ -7,7 +7,6 @@ public static class Renderer2dExtensions
     public static IEntityBuilder<TEntity> AddRenderer2d<TEntity>(this IEntityBuilder<TEntity> builder, Action<IRender2dBuilder<TEntity>> configure)
     {
         throw new NotImplementedException();
-        configure(default);
     }
 }
 
