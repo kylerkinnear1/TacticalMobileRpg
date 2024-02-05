@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.GameSdk;
+﻿namespace Rpg.Mobile.GameSdk.Extensions;
 
 public static class StringExtensions
 {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
+using Rpg.Mobile.GameSdk.Extensions;
 using System.Reflection;
 
 namespace Rpg.Mobile.GameSdk;
