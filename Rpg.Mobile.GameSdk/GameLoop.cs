@@ -1,5 +1,4 @@
-﻿using Microsoft.Maui;
-using Microsoft.Maui.Dispatching;
+﻿using Microsoft.Maui.Dispatching;
 
 namespace Rpg.Mobile.GameSdk;
 
@@ -11,24 +10,32 @@ public interface IGameLoop
 public class GameLoop : IGameLoop
 {
     private readonly IDispatcher _dispatcher;
-    private readonly IGraphicsView _view;
+    private readonly IScene _scene;
+
+    private DateTime _lastUpdate;
 
     private const int LoopTimeLimitMs = 16;
 
-    public GameLoop(IDispatcher dispatcher, IGraphicsView view)
+    public GameLoop(IDispatcher dispatcher, IScene scene)
     {
         _dispatcher = dispatcher;
-        _view = view;
+        _scene = scene;
+        _lastUpdate = DateTime.UtcNow;
     }
 
     public void Start()
     {
-        var currentUpdate = DateTime.UtcNow;
+        var startTime = DateTime.UtcNow;
+        var delta = startTime - _lastUpdate;
 
-        _view.Invalidate();
+        _scene.Update(delta);
 
-        var postUpdate = DateTime.UtcNow;
-        var updateDuration = LoopTimeLimitMs - (postUpdate - currentUpdate).TotalMilliseconds;
+        _lastUpdate = startTime;
+
+        var postTime = DateTime.UtcNow;
+        var updateDuration = LoopTimeLimitMs - (postTime - startTime).TotalMilliseconds;
+
+        _scene.Render();
 
         // TODO: Could add a safety check, but that would be slow for a performance critical area.
         // TODO: Any bit math that can be done with 16 to make the game just skip if it can't render in time instead of crash?

@@ -15,6 +15,6 @@ public class DamageCalculatorTests
     [Fact]
     public void DamageCalculator_LessAttackThanDefense_DoesOneDamage()
     {
-        // TODO: Autofixture, overrides for records.
+        // TODO: AutoFixture, overrides for records.
     }
 }

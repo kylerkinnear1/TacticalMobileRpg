@@ -57,11 +57,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Assets\Sprites\Units\Warrior.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="Assets\Sprites\Units\Warrior.png">
+	  <EmbeddedResource Include="Resources\EmbeddedResources\Warrior.png">
 	    <CustomToolNamespace></CustomToolNamespace>
 	  </EmbeddedResource>
 	</ItemGroup>

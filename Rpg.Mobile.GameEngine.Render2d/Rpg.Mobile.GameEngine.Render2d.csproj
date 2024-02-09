@@ -7,16 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="8.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Rpg.Mobile.GameSdk\Rpg.Mobile.GameSdk.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Scenes\Battling\GameObjects\" />
-    <Folder Include="Scenes\Common\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
-﻿namespace Rpg.Mobile.GameSdk.Extensions;
+﻿using Microsoft.Maui.Graphics;
+
+namespace Rpg.Mobile.GameSdk.Extensions;
 
 public static class FloatExtensions
 {
@@ -11,4 +13,10 @@ public static class FloatExtensions
     {
         throw new NotImplementedException();
     }
+}
+
+public static class DrawExtensions
+{
+    public static void Draw(this ICanvas canvas, IImage image, PointF pos, float scale = 1f) => 
+        canvas.DrawImage(image, pos.X, pos.Y, image.Width * scale, image.Height * scale);
 }

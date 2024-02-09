@@ -11,7 +11,7 @@ public interface IImageLoader
 
 public class EmbeddedResourceImageLoader : IImageLoader
 {
-    public record Options(Assembly Assembly, string BasePath = "");
+    public record Options(Assembly Assembly, string BasePath = "Rpg.Mobile.App.Resources.EmbeddedResources");
 
     private readonly Options _options;
 
