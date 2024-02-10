@@ -2,14 +2,14 @@
 
 namespace Rpg.Mobile.GameSdk;
 
-public interface IUpdateState<TState>
+public interface IUpdateGameObject
 {
-    void Update(TState state);
+    void Update(TimeSpan delta);
 }
 
-public interface IRenderState<TState>
+public interface IRenderGameObject
 {
-    void Render(TState state, ICanvas canvas, RectF dirtyRect);
+    void Render(ICanvas canvas, RectF dirtyRect);
 }
 
-public interface IGameObject<TState> : IUpdateState<TState>, IRenderState<TState> { }
+public interface IGameObject : IUpdateGameObject, IRenderGameObject { }

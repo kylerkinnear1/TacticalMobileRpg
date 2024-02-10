@@ -18,15 +18,21 @@ public class GenericUnitState
     }
 }
 
-public class GenericUnitGameObject : IUpdateState<GenericUnitState>, IRenderState<GenericUnitState>
+public class GenericUnitGameObject : IUpdateGameObject, IRenderGameObject
 {
-    public void Update(GenericUnitState state)
+    private readonly GenericUnitState _state;
+
+    public GenericUnitGameObject(GenericUnitState state) => _state = state;
+
+    public void Update(TimeSpan delta)
     {
-        state.Location = state.Location.X > 300 ? new PointF(100f, 100f) : new PointF(state.Location.X + 1f, state.Location.Y + 1f);
+        _state.Location = _state.Location.X > 300f
+            ? new(100f, 100f)
+            : new(_state.Location.X + 1, _state.Location.Y + 1);
     }
 
-    public void Render(GenericUnitState state, ICanvas canvas, RectF dirtyRect)
+    public void Render(ICanvas canvas, RectF dirtyRect)
     {
-        canvas.Draw(state.Sprite, state.Location, state.Scale);
+        canvas.Draw(_state.Sprite, _state.Location, _state.Scale);
     }
 }
