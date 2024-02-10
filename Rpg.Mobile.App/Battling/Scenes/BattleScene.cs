@@ -5,7 +5,8 @@ namespace Rpg.Mobile.App.Battling.Scenes;
 
 public record BattleSceneState(
     GenericUnitState GenericUnit,
-    GridState Grid);
+    GridState Grid,
+    ButtonState TestButton);
 
 public class BattleScene : IScene, IDrawable
 {
@@ -22,15 +23,18 @@ public class BattleScene : IScene, IDrawable
 
         var unitState = new GenericUnitState(new(100f, 100f), warriorSprite, 0.5f);
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
-        _state = new(unitState, gridState);
+        var buttonState = new ButtonState("Test Button", new(100f, 100f, 200f, 75f));
+        _state = new(unitState, gridState, buttonState);
 
         var genericGameObject = new GenericUnitGameObject(_state.GenericUnit, _state);
         var gridGameObject = new GridGameObject(_state.Grid);
         var mapGameObject = new MapGameObject();
+        var buttonGameObject = new ButtonGameObject(buttonState);
 
         AddGameObject(mapGameObject);
         AddGameObject(gridGameObject);
         AddGameObject(genericGameObject);
+        AddGameObject(buttonGameObject);
 
         _view = view;
 
