@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.GameSdk;
+﻿using Rpg.Mobile.App.Battling.Scenes;
+using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
 using IImage = Microsoft.Maui.Graphics.IImage;
 
@@ -18,21 +19,42 @@ public class GenericUnitState
     }
 }
 
-public class GenericUnitGameObject : IUpdateGameObject, IRenderGameObject
+public class GenericUnitGameObject : IGameObject
 {
-    private readonly GenericUnitState _state;
+    private readonly GenericUnitState _thisState;
+    private readonly BattleSceneState _sceneState;
+    private int _currentPosition = 0;
+    private DateTime _nextUpdate = DateTime.MinValue;
+    private readonly int _totalPositions;
 
-    public GenericUnitGameObject(GenericUnitState state) => _state = state;
+    public GenericUnitGameObject(GenericUnitState thisState, BattleSceneState sceneState)
+    {
+        _thisState = thisState;
+        _sceneState = sceneState;
+
+        _totalPositions = sceneState.Grid.RowCount * sceneState.Grid.ColumnCount;
+    }
 
     public void Update(TimeSpan delta)
     {
-        _state.Location = _state.Location.X > 300f
-            ? new(100f, 100f)
-            : new(_state.Location.X + 1, _state.Location.Y + 1);
+        if (DateTime.Now < _nextUpdate)
+        {
+            return;
+        }
+
+        _nextUpdate = DateTime.Now.AddSeconds(1);
+        _currentPosition = _currentPosition < _totalPositions - 1 ? _currentPosition + 1 : 0;
+
+        var row = _currentPosition / _sceneState.Grid.ColumnCount;
+        var col = _currentPosition % _sceneState.Grid.RowCount;
+        var width = _thisState.Sprite.Width * _thisState.Scale;
+        var height = _thisState.Sprite.Height * _thisState.Scale;
+
+        _thisState.Location = new(col * width + _sceneState.Grid.Position.X, row * height + _sceneState.Grid.Position.Y);
     }
 
     public void Render(ICanvas canvas, RectF dirtyRect)
     {
-        canvas.Draw(_state.Sprite, _state.Location, _state.Scale);
+        canvas.Draw(_thisState.Sprite, _thisState.Location, _thisState.Scale);
     }
 }

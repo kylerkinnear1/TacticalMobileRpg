@@ -23,13 +23,13 @@ public class GridGameObject : IGameObject
         for (int row = 0; row < _state.ColumnCount + 1; row++)
         {
             var y = row * _state.Size + _state.Position.X;
-            canvas.DrawLine(0f, y, right, y);
+            canvas.DrawLine(_state.Position.X, y, right, y);
         }
 
         for (int col = 0; col < _state.RowCount + 1; col++)
         {
             var x = col * _state.Size + _state.Position.Y;
-            canvas.DrawLine(x, 0f, x, bottom);
+            canvas.DrawLine(x, _state.Position.Y, x, bottom);
         }
 
         // TODO: dirty rect
