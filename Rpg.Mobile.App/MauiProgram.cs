@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Rpg.Mobile.App.Battling.GameObjects;
 using Rpg.Mobile.GameSdk.Infrastructure;
 
 namespace Rpg.Mobile.App;
@@ -15,8 +16,6 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
-
-        builder.Services.AddFactory<GenericUnitGameObject>();
 
 #if DEBUG
 		builder.Logging.AddDebug();
