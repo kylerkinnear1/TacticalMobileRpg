@@ -19,7 +19,7 @@ public class BattleScene : IScene, IDrawable
         _unitState = new GenericUnitState(new(100f, 100f), warriorSprite, 5f);
         _unitGameObject = new GenericUnitGameObject(_unitState);
 
-        _gridState = new GridState(new(0f, 0f), 40, 40, 32);
+        _gridState = new GridState(new(0f, 0f), 60, 30, 20);
         _gridGameObject = new GridGameObject(_gridState);
 
         _view = view;
