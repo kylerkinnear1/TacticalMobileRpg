@@ -47,10 +47,11 @@ public class GenericUnitGameObject : IGameObject
 
         var row = _currentPosition / _sceneState.Grid.ColumnCount;
         var col = _currentPosition % _sceneState.Grid.RowCount;
-        var width = _thisState.Sprite.Width * _thisState.Scale;
-        var height = _thisState.Sprite.Height * _thisState.Scale;
 
-        _thisState.Location = new(col * width + _sceneState.Grid.Position.X, row * height + _sceneState.Grid.Position.Y);
+        var left = _sceneState.Grid.Size * row + _sceneState.Grid.Position.X;
+        var top = _sceneState.Grid.Size * col + _sceneState.Grid.Position.Y;
+
+        _thisState.Location = new(left, top);
     }
 
     public void Render(ICanvas canvas, RectF dirtyRect)
