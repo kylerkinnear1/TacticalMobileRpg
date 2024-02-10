@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Rpg.Mobile.App.Battling.Units;
 using Rpg.Mobile.GameSdk.Infrastructure;
 
 namespace Rpg.Mobile.App;
