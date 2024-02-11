@@ -7,7 +7,8 @@ public record BattleSceneState(
     GenericUnitState GenericUnit,
     GridState Grid,
     ButtonState TestButton,
-    BattleUnitState BattleUnit);
+    BattleUnitState BattleUnit,
+    ShadowOverlayState ShadowUnit);
 
 public class BattleScene : IScene, IDrawable
 {
@@ -26,17 +27,22 @@ public class BattleScene : IScene, IDrawable
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
         var buttonState = new ButtonState("Test Button", new(100f, 100f, 200f, 75f));
         var battleUnitState = new BattleUnitState(warriorSprite, 3, 10);
+        var shadowState = new ShadowOverlayState();
+        shadowState.ShadowPoints.Add(new(1, 5));
+        shadowState.ShadowPoints.Add(new(4, 20));
 
-        _state = new(unitState, gridState, buttonState, battleUnitState);
+        _state = new(unitState, gridState, buttonState, battleUnitState, shadowState);
 
         var genericGameObject = new GenericUnitGameObject(_state.GenericUnit, _state);
         var gridGameObject = new GridGameObject(_state.Grid);
         var mapGameObject = new MapGameObject();
         var buttonGameObject = new ButtonGameObject(buttonState);
         var battleUnitGameObject = new BattleUnitGameObject(_state, battleUnitState);
+        var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
 
         AddGameObject(mapGameObject);
         AddGameObject(gridGameObject);
+        AddGameObject(shadowGameObject);
         AddGameObject(genericGameObject);
         AddGameObject(battleUnitGameObject);
         AddGameObject(buttonGameObject);

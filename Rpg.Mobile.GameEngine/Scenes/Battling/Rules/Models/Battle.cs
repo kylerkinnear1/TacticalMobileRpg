@@ -21,7 +21,7 @@ public record Board(
     Map Map,
     Dictionary<UnitId, Unit> Units,
     Dictionary<ObstacleId, Obstacle> Obstacles,
-    Point Bounds);
+    Coordinate Bounds);
 
 public record Map(
     Dictionary<Point, Tile> Tiles,

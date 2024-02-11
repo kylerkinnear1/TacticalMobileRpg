@@ -1,13 +1,11 @@
-﻿using System.Drawing;
-
-namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
+﻿namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 
 public record UnitId(int Id);
 public record Unit(
     UnitId Id,
     PlayerId PlayerId,
     string Name,
-    Point Position,
+    Coordinate Position,
     Modified<UnitStats> Stats,
     int RemainingStamina,
     List<Ability> Abilities);
