@@ -43,6 +43,9 @@ public class BattleUnitGameObject : IGameObject
 
     public void Render(ICanvas canvas, RectF dirtyRect)
     {
-        canvas.Draw(_state.Sprite, new(_state.X * _scene.Grid.Size, _state.Y * _scene.Grid.Size), .5f);
+        canvas.Draw(_state.Sprite, new(
+            _state.X * _scene.Grid.Size + _scene.Grid.Position.X,
+            _state.Y * _scene.Grid.Size + _scene.Grid.Position.Y), 
+            .5f);
     }
 }
