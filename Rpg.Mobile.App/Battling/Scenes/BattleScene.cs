@@ -58,4 +58,16 @@ public class BattleScene : IScene, IDrawable
         foreach (var renderer in _renderers)
             renderer.Render(canvas, dirtyRect);
     }
+
+    public void OnClickDown(TouchEventArgs touchEventArgs)
+    {
+    }
+
+    public void OnClickUp(TouchEventArgs touchEventArgs)
+    {
+        var point = touchEventArgs.Touches.First();
+        _state.TestButton.Text = _state.TestButton.Bounds.Contains(point)
+            ? "Clicked me"
+            : "Missed me";
+    }
 }

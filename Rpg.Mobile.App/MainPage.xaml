@@ -6,7 +6,9 @@
              x:Class="Rpg.Mobile.App.MainPage">
 
     <Grid>
-        <app:GameSceneView x:Name="GameView" />
+        <app:GameSceneView x:Name="GameView"
+                           StartInteraction="GameView_OnStartInteraction" 
+                           EndInteraction="GameView_OnEndInteraction"/>
     </Grid>
 
 </ContentPage>
