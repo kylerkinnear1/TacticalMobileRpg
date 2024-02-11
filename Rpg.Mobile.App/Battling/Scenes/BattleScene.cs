@@ -1,4 +1,6 @@
 ﻿using Rpg.Mobile.App.Battling.GameObjects;
+using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
+using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App.Battling.Scenes;
@@ -17,6 +19,9 @@ public class BattleScene : IScene, IDrawable
     private readonly List<IUpdateGameObject> _updates = new();
     private readonly List<IRenderGameObject> _renderers = new();
 
+    private readonly PathCalculator _pathCalc = new();
+    private readonly Coordinate _lastPosition = new(10, 15);
+
     public BattleScene(IGraphicsView view)
     {
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
@@ -24,7 +29,7 @@ public class BattleScene : IScene, IDrawable
 
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
         var buttonState = new ButtonState("Test Button", new(1300f, 50f, 100f, 50f));
-        var battleUnitState = new BattleUnitState(warriorSprite, 3, 10);
+        var battleUnitState = new BattleUnitState(warriorSprite) { X = _lastPosition.X, Y = _lastPosition.Y };
         var shadowState = new ShadowOverlayState();
 
         _state = new(gridState, buttonState, battleUnitState, shadowState);
@@ -52,6 +57,14 @@ public class BattleScene : IScene, IDrawable
 
     public void Update(TimeSpan delta)
     {
+        var walkablePath = _pathCalc.CreateFanOutArea(
+            new(_state.BattleUnit.X, _state.BattleUnit.Y),
+            new(_state.Grid.ColumnCount, _state.Grid.RowCount),
+            _state.BattleUnit.Movement);
+
+        _state.ShadowUnit.ShadowPoints.Clear();
+        _state.ShadowUnit.ShadowPoints.AddRange(walkablePath);
+
         foreach (var update in _updates) 
             update.Update(delta);
     }

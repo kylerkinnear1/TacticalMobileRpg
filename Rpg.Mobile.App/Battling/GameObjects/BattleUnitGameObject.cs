@@ -10,17 +10,11 @@ public class BattleUnitState
     public bool IsVisible { get; set; }
     public int X { get; set; }
     public int Y { get; set; }
+    public int Movement { get; set; } = 4;
     public IImage Sprite { get; set; }
 
-    public BattleUnitState(
-        IImage sprite, 
-        int x = 0,
-        int y = 0,
-        bool isVisible = true)
+    public BattleUnitState(IImage sprite)
     {
-        IsVisible = isVisible;
-        X = x;
-        Y = y;
         Sprite = sprite;
     }
 }
