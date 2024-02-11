@@ -7,9 +7,9 @@ namespace Rpg.Mobile.App.Battling.GameObjects;
 
 public class BattleUnitState
 {
-    public bool IsVisible { get; set; }
-    public int X { get; set; }
-    public int Y { get; set; }
+    public bool IsVisible { get; set; } = true;
+    public int X { get; set; } = 0;
+    public int Y { get; set; } = 0;
     public int Movement { get; set; } = 4;
     public IImage Sprite { get; set; }
 
