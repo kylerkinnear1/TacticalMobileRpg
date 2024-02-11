@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
+using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
 
@@ -19,20 +20,26 @@ public class PathCalculator : IPathCalculator
 
     public IEnumerable<Coordinate> CreateFanOutArea(Coordinate source, Coordinate boundingCorner, int range)
     {
-        var xRanges = Enumerable.Range(
-            Math.Max(0, source.X - range),
-            Math.Min(boundingCorner.X, source.X - range));
+        var legalPoints = new List<Coordinate>(100);
+        var left = Math.Max(0, source.X - range);
+        var right = Math.Min(source.X + range + 1, boundingCorner.X);
+        for (var x = left; x < right && x.IsBetweenInclusive(0, boundingCorner.X); x++)
+        {
+            var leftDistance = (source.X - x).Abs();
+            var yRemaining = range - leftDistance + 1;
 
-        var yRanges = Enumerable.Range(
-            Math.Max(0, source.Y - range),
-            Math.Min(boundingCorner.Y, source.Y + range));
+            if (source.Y.IsBetweenInclusive(0, boundingCorner.Y - 1))
+            legalPoints.Add(new(x, source.Y));
 
-        var legalPoints = xRanges
-            // TODO: Better yRanges here for more performance. This checks stuff that will never
-            // be in range.
-            .SelectMany(x => yRanges.Select(y => new Coordinate(x, y)))
-            .Where(pos => Distance(source, pos) <= range)
-            .ToList();
+            for (var i = 1; i < yRemaining; i++)
+            {
+                if ((source.Y + i).IsBetweenInclusive(0, boundingCorner.Y - 1))
+                    legalPoints.Add(new(x, source.Y + i));
+
+                if ((source.Y - i).IsBetweenInclusive(0, boundingCorner.Y - 1))
+                    legalPoints.Add(new(x, source.Y - i));
+            }
+        }
 
         return legalPoints;
     }

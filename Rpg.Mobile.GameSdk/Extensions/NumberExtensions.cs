@@ -15,6 +15,12 @@ public static class FloatExtensions
     }
 }
 
+public static class IntExtensions
+{
+    public static bool IsBetweenInclusive(this int value, int a, int b) => value >= a && value <= b;
+    public static int Abs(this int value) => Math.Abs(value);
+}
+
 public static class DrawExtensions
 {
     public static void Draw(this ICanvas canvas, IImage image, PointF pos, float scale = 1f) => 

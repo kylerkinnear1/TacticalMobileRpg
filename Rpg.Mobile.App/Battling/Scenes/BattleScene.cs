@@ -59,7 +59,7 @@ public class BattleScene : IScene, IDrawable
     {
         var walkablePath = _pathCalc.CreateFanOutArea(
             new(_state.BattleUnit.X, _state.BattleUnit.Y),
-            new(_state.Grid.ColumnCount, _state.Grid.RowCount),
+            new(_state.Grid.RowCount, _state.Grid.ColumnCount),
             _state.BattleUnit.Movement);
 
         _state.ShadowUnit.ShadowPoints.Clear();
