@@ -71,8 +71,13 @@ public class BattleScene : IScene, IDrawable
     public void OnClickUp(TouchEventArgs touchEventArgs)
     {
         var point = touchEventArgs.Touches.First();
-        _state.TestButton.Text = _state.TestButton.Bounds.Contains(point)
-            ? "Clicked me"
-            : "Missed me";
+        var relativeX = point.X - _state.Grid.Position.X;
+        var relativeY = point.Y - _state.Grid.Position.Y;
+
+        var col = (int)(relativeX / _state.Grid.Size);
+        var row = (int)(relativeY / _state.Grid.Size);
+
+        _state.BattleUnit.X = col;
+        _state.BattleUnit.Y = row;
     }
 }
