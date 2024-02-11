@@ -2,6 +2,7 @@
 using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
 using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.App.Battling.Scenes;
 
@@ -86,11 +87,19 @@ public class BattleScene : IScene, IDrawable
         var point = touchEventArgs.Touches.First();
         var relativeX = point.X - _state.Grid.Position.X;
         var relativeY = point.Y - _state.Grid.Position.Y;
-
+        
         var col = (int)(relativeX / _state.Grid.Size);
         var row = (int)(relativeY / _state.Grid.Size);
 
-        _state.BattleUnit.X = col;
-        _state.BattleUnit.Y = row;
+        if (!_state.ShadowUnit.ShadowPoints.Contains(new(col, row)))
+        {
+            return;
+        }
+
+        if (_state.BattleUnit.X.IsBetweenInclusive(0, _state.Grid.ColumnCount))
+            _state.BattleUnit.X = col;
+
+        if (_state.BattleUnit.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
+            _state.BattleUnit.Y = row;
     }
 }
