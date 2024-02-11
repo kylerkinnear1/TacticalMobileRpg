@@ -31,8 +31,7 @@ public class ShadowOverlayGameObject : IGameObject
             return;
         }
 
-        var shadowColor = Colors.Gold;
-        canvas.FillColor = Color.FromRgba(shadowColor.Red, shadowColor.Blue, shadowColor.Green, 0.5f);
+        canvas.FillColor = Colors.DarkSlateGrey.WithAlpha(.5f);
 
         foreach (var point in _state.ShadowPoints)
         {

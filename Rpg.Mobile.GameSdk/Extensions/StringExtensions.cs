@@ -1,4 +1,6 @@
-﻿namespace Rpg.Mobile.GameSdk.Extensions;
+﻿using Microsoft.Maui.Graphics;
+
+namespace Rpg.Mobile.GameSdk.Extensions;
 
 public static class StringExtensions
 {

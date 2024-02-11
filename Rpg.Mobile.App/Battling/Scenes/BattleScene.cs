@@ -4,7 +4,6 @@ using Rpg.Mobile.GameSdk;
 namespace Rpg.Mobile.App.Battling.Scenes;
 
 public record BattleSceneState(
-    GenericUnitState GenericUnit,
     GridState Grid,
     ButtonState TestButton,
     BattleUnitState BattleUnit,
@@ -23,17 +22,13 @@ public class BattleScene : IScene, IDrawable
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var warriorSprite = spriteLoader.Load("Warrior.png"); 
 
-        var unitState = new GenericUnitState(new(100f, 100f), warriorSprite, 0.5f);
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
-        var buttonState = new ButtonState("Test Button", new(100f, 100f, 200f, 75f));
+        var buttonState = new ButtonState("Test Button", new(1300f, 50f, 100f, 50f));
         var battleUnitState = new BattleUnitState(warriorSprite, 3, 10);
         var shadowState = new ShadowOverlayState();
-        shadowState.ShadowPoints.Add(new(1, 5));
-        shadowState.ShadowPoints.Add(new(4, 20));
 
-        _state = new(unitState, gridState, buttonState, battleUnitState, shadowState);
+        _state = new(gridState, buttonState, battleUnitState, shadowState);
 
-        var genericGameObject = new GenericUnitGameObject(_state.GenericUnit, _state);
         var gridGameObject = new GridGameObject(_state.Grid);
         var mapGameObject = new MapGameObject();
         var buttonGameObject = new ButtonGameObject(buttonState);
@@ -43,7 +38,6 @@ public class BattleScene : IScene, IDrawable
         AddGameObject(mapGameObject);
         AddGameObject(gridGameObject);
         AddGameObject(shadowGameObject);
-        AddGameObject(genericGameObject);
         AddGameObject(battleUnitGameObject);
         AddGameObject(buttonGameObject);
 

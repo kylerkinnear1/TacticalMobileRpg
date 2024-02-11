@@ -43,6 +43,9 @@ public class BattleUnitGameObject : IGameObject
 
     public void Render(ICanvas canvas, RectF dirtyRect)
     {
+        if (!_state.IsVisible)
+            return;
+
         canvas.Draw(_state.Sprite, new(
             _state.X * _scene.Grid.Size + _scene.Grid.Position.X,
             _state.Y * _scene.Grid.Size + _scene.Grid.Position.Y), 
