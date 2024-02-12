@@ -76,6 +76,10 @@ public class BattleScene : IScene, IDrawable
             new(_state.Grid.RowCount, _state.Grid.ColumnCount),
             _state.ActiveUnit.Movement);
 
+        walkablePath = walkablePath
+            .Where(shadow => !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow.X == unit.X && shadow.Y == unit.Y))
+            .ToList();
+
         _state.ShadowUnit.ShadowPoints.AddRange(walkablePath);
 
         foreach (var update in _updates) 
