@@ -9,8 +9,11 @@ namespace Rpg.Mobile.App.Battling.Scenes;
 public record BattleSceneState(
     GridState Grid,
     ButtonState TestButton,
-    BattleUnitState BattleUnit,
-    ShadowOverlayState ShadowUnit);
+    List<BattleUnitState> BattleUnits,
+    ShadowOverlayState ShadowUnit)
+{
+    public BattleUnitState? ActiveUnit { get; set; }
+}
 
 public class BattleScene : IScene, IDrawable
 {
@@ -30,21 +33,27 @@ public class BattleScene : IScene, IDrawable
 
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
         var buttonState = new ButtonState("Test Button", new(1300f, 50f, 100f, 50f));
-        var battleUnitState = new BattleUnitState(warriorSprite) { X = _lastPosition.X, Y = _lastPosition.Y };
+        var battleState1 = new BattleUnitState(warriorSprite) { X = _lastPosition.X, Y = _lastPosition.Y };
+        var battleState2 = new BattleUnitState(warriorSprite) { X = 20, Y = 4 };
         var shadowState = new ShadowOverlayState();
 
-        _state = new(gridState, buttonState, battleUnitState, shadowState);
+        _state = new(gridState, buttonState, new() { battleState1, battleState2 }, shadowState)
+        {
+            ActiveUnit = battleState1
+        };
 
         var gridGameObject = new GridGameObject(_state.Grid);
         var mapGameObject = new MapGameObject();
         var buttonGameObject = new ButtonGameObject(buttonState);
-        var battleUnitGameObject = new BattleUnitGameObject(_state, battleUnitState);
+        var battleObject1 = new BattleUnitGameObject(_state, battleState1);
+        var battleObject2 = new BattleUnitGameObject(_state, battleState2);
         var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
 
         AddGameObject(mapGameObject);
         AddGameObject(gridGameObject);
         AddGameObject(shadowGameObject);
-        AddGameObject(battleUnitGameObject);
+        AddGameObject(battleObject1);
+        AddGameObject(battleObject2);
         AddGameObject(buttonGameObject);
 
         _view = view;
@@ -58,12 +67,15 @@ public class BattleScene : IScene, IDrawable
 
     public void Update(TimeSpan delta)
     {
-        var walkablePath = _pathCalc.CreateFanOutArea(
-            new(_state.BattleUnit.X, _state.BattleUnit.Y),
-            new(_state.Grid.RowCount, _state.Grid.ColumnCount),
-            _state.BattleUnit.Movement);
-
         _state.ShadowUnit.ShadowPoints.Clear();
+        if (_state.ActiveUnit is null)
+            return;
+
+        var walkablePath = _pathCalc.CreateFanOutArea(
+            new(_state.ActiveUnit.X, _state.ActiveUnit.Y),
+            new(_state.Grid.RowCount, _state.Grid.ColumnCount),
+            _state.ActiveUnit.Movement);
+
         _state.ShadowUnit.ShadowPoints.AddRange(walkablePath);
 
         foreach (var update in _updates) 
@@ -84,6 +96,9 @@ public class BattleScene : IScene, IDrawable
 
     public void OnClickUp(TouchEventArgs touchEventArgs)
     {
+        if (_state.ActiveUnit is null)
+            return;
+        
         var point = touchEventArgs.Touches.First();
         var relativeX = point.X - _state.Grid.Position.X;
         var relativeY = point.Y - _state.Grid.Position.Y;
@@ -96,10 +111,10 @@ public class BattleScene : IScene, IDrawable
             return;
         }
 
-        if (_state.BattleUnit.X.IsBetweenInclusive(0, _state.Grid.ColumnCount))
-            _state.BattleUnit.X = col;
+        if (_state.ActiveUnit.X.IsBetweenInclusive(0, _state.Grid.ColumnCount))
+            _state.ActiveUnit.X = col;
 
-        if (_state.BattleUnit.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
-            _state.BattleUnit.Y = row;
+        if (_state.ActiveUnit.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
+            _state.ActiveUnit.Y = row;
     }
 }
