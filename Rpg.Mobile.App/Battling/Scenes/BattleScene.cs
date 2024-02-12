@@ -8,7 +8,7 @@ namespace Rpg.Mobile.App.Battling.Scenes;
 
 public record BattleSceneState(
     GridState Grid,
-    ButtonState TestButton,
+    List<ButtonState> Buttons,
     List<BattleUnitState> BattleUnits,
     ShadowOverlayState ShadowUnit)
 {
@@ -33,19 +33,42 @@ public class BattleScene : IScene, IDrawable
         var warriorSprite = spriteLoader.Load("Warrior.png"); 
 
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
-        var buttonState = new ButtonState("Test Button", new(1300f, 50f, 100f, 50f));
+        var buttonState1 = new ButtonState("Attack", new(1275f, 50f,  150f, 50f));
+        var buttonState2 = new ButtonState("...", new(1275f, 150f, 150f, 50f));
+        var buttonState3 = new ButtonState("...", new(1275f, 250f, 150f, 50f));
+        var buttonState4 = new ButtonState("Wait", new(1275f, 350f, 150f, 50f));
+        var buttonState5 = new ButtonState("Back", new(1275f, 450f, 150f, 50f));
         var battleState1 = new BattleUnitState(warriorSprite) { X = _lastPosition.X, Y = _lastPosition.Y };
         var battleState2 = new BattleUnitState(warriorSprite) { X = 20, Y = 4 };
         var shadowState = new ShadowOverlayState();
 
-        _state = new(gridState, buttonState, new() { battleState1, battleState2 }, shadowState)
+        _state = new(
+            gridState,
+            new()
+            {
+                buttonState1,
+                buttonState2,
+                buttonState3,
+                buttonState4,
+                buttonState5
+            },
+            new()
+            {
+                battleState1,
+                battleState2
+            },
+            shadowState)
         {
             ActiveUnitIndex = 0
         };
 
         var gridGameObject = new GridGameObject(_state.Grid);
         var mapGameObject = new MapGameObject();
-        var buttonGameObject = new ButtonGameObject(buttonState);
+        var buttonGameObject1 = new ButtonGameObject(buttonState1);
+        var buttonGameObject2 = new ButtonGameObject(buttonState2);
+        var buttonGameObject3 = new ButtonGameObject(buttonState3);
+        var buttonGameObject4 = new ButtonGameObject(buttonState4);
+        var buttonGameObject5 = new ButtonGameObject(buttonState5);
         var battleObject1 = new BattleUnitGameObject(_state, battleState1);
         var battleObject2 = new BattleUnitGameObject(_state, battleState2);
         var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
@@ -55,7 +78,11 @@ public class BattleScene : IScene, IDrawable
         AddGameObject(shadowGameObject);
         AddGameObject(battleObject1);
         AddGameObject(battleObject2);
-        AddGameObject(buttonGameObject);
+        AddGameObject(buttonGameObject1);
+        AddGameObject(buttonGameObject2);
+        AddGameObject(buttonGameObject3);
+        AddGameObject(buttonGameObject4);
+        AddGameObject(buttonGameObject5);
 
         _view = view;
 
