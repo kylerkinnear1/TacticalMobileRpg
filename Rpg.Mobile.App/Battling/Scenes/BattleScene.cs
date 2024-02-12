@@ -12,7 +12,8 @@ public record BattleSceneState(
     List<BattleUnitState> BattleUnits,
     ShadowOverlayState ShadowUnit)
 {
-    public BattleUnitState? ActiveUnit { get; set; }
+    public int? ActiveUnitIndex { get; set; }
+    public BattleUnitState? ActiveUnit => ActiveUnitIndex.HasValue ? BattleUnits[ActiveUnitIndex.Value] : null;
 }
 
 public class BattleScene : IScene, IDrawable
@@ -39,7 +40,7 @@ public class BattleScene : IScene, IDrawable
 
         _state = new(gridState, buttonState, new() { battleState1, battleState2 }, shadowState)
         {
-            ActiveUnit = battleState1
+            ActiveUnitIndex = 0
         };
 
         var gridGameObject = new GridGameObject(_state.Grid);
@@ -120,5 +121,7 @@ public class BattleScene : IScene, IDrawable
 
         if (_state.ActiveUnit.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
             _state.ActiveUnit.Y = row;
+
+        _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
     }
 }
