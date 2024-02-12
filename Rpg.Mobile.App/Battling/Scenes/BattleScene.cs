@@ -33,11 +33,11 @@ public class BattleScene : IScene, IDrawable
         var warriorSprite = spriteLoader.Load("Warrior.png"); 
 
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
-        var buttonState1 = new ButtonState("Attack", new(1275f, 50f,  150f, 50f));
-        var buttonState2 = new ButtonState("...", new(1275f, 150f, 150f, 50f));
-        var buttonState3 = new ButtonState("...", new(1275f, 250f, 150f, 50f));
-        var buttonState4 = new ButtonState("Wait", new(1275f, 350f, 150f, 50f));
-        var buttonState5 = new ButtonState("Back", new(1275f, 450f, 150f, 50f));
+        var buttonState1 = new ButtonState("Attack", new(1275f, 50f,  150f, 50f), Button1Clicked);
+        var buttonState2 = new ButtonState("...", new(1275f, 150f, 150f, 50f), Button2Clicked);
+        var buttonState3 = new ButtonState("...", new(1275f, 250f, 150f, 50f), Button3Clicked);
+        var buttonState4 = new ButtonState("Wait", new(1275f, 350f, 150f, 50f), Button4Clicked);
+        var buttonState5 = new ButtonState("Back", new(1275f, 450f, 150f, 50f), Button5Clicked);
         var battleState1 = new BattleUnitState(warriorSprite) { X = _lastPosition.X, Y = _lastPosition.Y };
         var battleState2 = new BattleUnitState(warriorSprite) { X = 20, Y = 4 };
         var shadowState = new ShadowOverlayState();
@@ -93,6 +93,31 @@ public class BattleScene : IScene, IDrawable
         }
     }
 
+    private void Button1Clicked()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void Button2Clicked()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void Button3Clicked()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void Button4Clicked()
+    {
+        throw new NotImplementedException();
+    }
+
+    private void Button5Clicked()
+    {
+        throw new NotImplementedException();
+    }
+
     public void Update(TimeSpan delta)
     {
         _state.ShadowUnit.ShadowPoints.Clear();
@@ -128,13 +153,19 @@ public class BattleScene : IScene, IDrawable
 
     public void OnClickUp(TouchEventArgs touchEventArgs)
     {
+        HandleGridClick(touchEventArgs);
+        HandleButtonClick(touchEventArgs);
+    }
+
+    private void HandleGridClick(TouchEventArgs touchEventArgs)
+    {
         if (_state.ActiveUnit is null)
             return;
-        
+
         var point = touchEventArgs.Touches.First();
         var relativeX = point.X - _state.Grid.Position.X;
         var relativeY = point.Y - _state.Grid.Position.Y;
-        
+
         var col = (int)(relativeX / _state.Grid.Size);
         var row = (int)(relativeY / _state.Grid.Size);
 
@@ -150,5 +181,12 @@ public class BattleScene : IScene, IDrawable
             _state.ActiveUnit.Y = row;
 
         _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
+    }
+
+    private void HandleButtonClick(TouchEventArgs touchEventArgs)
+    {
+        var point = touchEventArgs.Touches.First();
+        var clickedButton = _state.Buttons.FirstOrDefault(x => x.IsVisible && x.Bounds.Contains(point));
+        clickedButton?.Handler();
     }
 }

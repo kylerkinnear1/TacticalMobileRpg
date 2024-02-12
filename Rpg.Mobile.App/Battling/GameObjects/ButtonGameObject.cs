@@ -11,12 +11,14 @@ public class ButtonState
     public IFont Font { get; set; }
     public Color BackgroundColor { get; set; } = Colors.SlateGray;
     public bool IsVisible { get; set; } = true;
-
-    public ButtonState(string text, RectF bounds, IFont? font = null)
+    public Action Handler { get; set; }
+    
+    public ButtonState(string text, RectF bounds, Action handler, IFont? font = null)
     {
         Text = text;
         Bounds = bounds;
         Font = font ?? new Font("Arial");
+        Handler = handler;
     }
 }
 
