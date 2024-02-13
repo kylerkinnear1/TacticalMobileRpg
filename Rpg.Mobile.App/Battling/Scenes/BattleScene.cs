@@ -26,6 +26,8 @@ public class BattleScene : IScene, IDrawable
 
     private readonly PathCalculator _pathCalc = new();
     private readonly Coordinate _lastPosition = new(10, 15);
+    private bool _isSelectingAction = false;
+    private const float ButtonSpacing = 100f;
 
     public BattleScene(IGraphicsView view)
     {
@@ -33,11 +35,9 @@ public class BattleScene : IScene, IDrawable
         var warriorSprite = spriteLoader.Load("Warrior.png"); 
 
         var gridState = new GridState(new(50f, 50f), 60, 30, 20);
-        var buttonState1 = new ButtonState("Attack", new(1275f, 50f,  150f, 50f), Button1Clicked);
-        var buttonState2 = new ButtonState("...", new(1275f, 150f, 150f, 50f), Button2Clicked);
-        var buttonState3 = new ButtonState("...", new(1275f, 250f, 150f, 50f), Button3Clicked);
-        var buttonState4 = new ButtonState("Wait", new(1275f, 350f, 150f, 50f), Button4Clicked);
-        var buttonState5 = new ButtonState("Back", new(1275f, 450f, 150f, 50f), Button5Clicked);
+        var attackButtonState = new ButtonState("Attack", new(1275f, 50f,  150f, 50f), AttackButtonClicked);
+        var waitButtonState = new ButtonState("Wait", new(1275f, 50f + ButtonSpacing, 150f, 50f), WaitButtonClicked);
+        var backButtonState = new ButtonState("Back", new(1275f, 50f + (2 * ButtonSpacing), 150f, 50f), BackButtonClicked);
         var battleState1 = new BattleUnitState(warriorSprite) { X = _lastPosition.X, Y = _lastPosition.Y };
         var battleState2 = new BattleUnitState(warriorSprite) { X = 20, Y = 4 };
         var shadowState = new ShadowOverlayState();
@@ -46,11 +46,11 @@ public class BattleScene : IScene, IDrawable
             gridState,
             new()
             {
-                buttonState1,
-                buttonState2,
-                buttonState3,
-                buttonState4,
-                buttonState5
+                attackButtonState,
+                waitButtonState,
+                backButtonState,
+                waitButtonState,
+                backButtonState
             },
             new()
             {
@@ -64,11 +64,11 @@ public class BattleScene : IScene, IDrawable
 
         var gridGameObject = new GridGameObject(_state.Grid);
         var mapGameObject = new MapGameObject();
-        var buttonGameObject1 = new ButtonGameObject(buttonState1);
-        var buttonGameObject2 = new ButtonGameObject(buttonState2);
-        var buttonGameObject3 = new ButtonGameObject(buttonState3);
-        var buttonGameObject4 = new ButtonGameObject(buttonState4);
-        var buttonGameObject5 = new ButtonGameObject(buttonState5);
+        var buttonGameObject1 = new ButtonGameObject(attackButtonState);
+        var buttonGameObject2 = new ButtonGameObject(waitButtonState);
+        var buttonGameObject3 = new ButtonGameObject(backButtonState);
+        var buttonGameObject4 = new ButtonGameObject(waitButtonState);
+        var buttonGameObject5 = new ButtonGameObject(backButtonState);
         var battleObject1 = new BattleUnitGameObject(_state, battleState1);
         var battleObject2 = new BattleUnitGameObject(_state, battleState2);
         var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
@@ -86,6 +86,8 @@ public class BattleScene : IScene, IDrawable
 
         _view = view;
 
+        UpdateButtons();
+
         void AddGameObject(IGameObject obj)
         {
             _updates.Add(obj);
@@ -93,47 +95,43 @@ public class BattleScene : IScene, IDrawable
         }
     }
 
-    private void Button1Clicked()
+    private void AttackButtonClicked()
     {
-        throw new NotImplementedException();
+        UpdateButtons();
+        _isSelectingAction = false;
+        _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
     }
 
-    private void Button2Clicked()
+    private void WaitButtonClicked()
     {
-        throw new NotImplementedException();
+        UpdateButtons();
+        _isSelectingAction = false;
+        _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
     }
 
-    private void Button3Clicked()
+    private void BackButtonClicked()
     {
-        throw new NotImplementedException();
-    }
-
-    private void Button4Clicked()
-    {
-        throw new NotImplementedException();
-    }
-
-    private void Button5Clicked()
-    {
-        throw new NotImplementedException();
+        UpdateButtons();
+        _isSelectingAction = false;
     }
 
     public void Update(TimeSpan delta)
     {
         _state.ShadowUnit.ShadowPoints.Clear();
-        if (_state.ActiveUnit is null)
-            return;
+        if (_state.ActiveUnit is not null && !_isSelectingAction)
+        {
+            var walkablePath = _pathCalc.CreateFanOutArea(
+                new(_state.ActiveUnit.X, _state.ActiveUnit.Y),
+                new(_state.Grid.RowCount, _state.Grid.ColumnCount),
+                _state.ActiveUnit.Movement);
 
-        var walkablePath = _pathCalc.CreateFanOutArea(
-            new(_state.ActiveUnit.X, _state.ActiveUnit.Y),
-            new(_state.Grid.RowCount, _state.Grid.ColumnCount),
-            _state.ActiveUnit.Movement);
+            walkablePath = walkablePath
+                .Where(shadow =>
+                    !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow.X == unit.X && shadow.Y == unit.Y))
+                .ToList();
 
-        walkablePath = walkablePath
-            .Where(shadow => !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow.X == unit.X && shadow.Y == unit.Y))
-            .ToList();
-
-        _state.ShadowUnit.ShadowPoints.AddRange(walkablePath);
+            _state.ShadowUnit.ShadowPoints.AddRange(walkablePath);
+        }
 
         foreach (var update in _updates) 
             update.Update(delta);
@@ -180,7 +178,8 @@ public class BattleScene : IScene, IDrawable
         if (_state.ActiveUnit.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
             _state.ActiveUnit.Y = row;
 
-        _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
+        _isSelectingAction = true;
+        UpdateButtons();
     }
 
     private void HandleButtonClick(TouchEventArgs touchEventArgs)
@@ -189,4 +188,6 @@ public class BattleScene : IScene, IDrawable
         var clickedButton = _state.Buttons.FirstOrDefault(x => x.IsVisible && x.Bounds.Contains(point));
         clickedButton?.Handler();
     }
+
+    private void UpdateButtons() => _state.Buttons.ForEach(x => x.IsVisible = _isSelectingAction);
 }
