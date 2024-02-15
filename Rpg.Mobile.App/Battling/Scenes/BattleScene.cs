@@ -25,7 +25,7 @@ public class BattleScene : IScene, IDrawable
     private readonly List<IRenderGameObject> _renderers = new();
 
     private readonly PathCalculator _pathCalc = new();
-    private readonly Coordinate _lastPosition = new(10, 15);
+    private Coordinate _lastPosition = new(10, 15);
     private bool _isSelectingAction = false;
     private const float ButtonSpacing = 100f;
 
@@ -38,8 +38,8 @@ public class BattleScene : IScene, IDrawable
         var attackButtonState = new ButtonState("Attack", new(1275f, 50f,  150f, 50f), AttackButtonClicked);
         var waitButtonState = new ButtonState("Wait", new(1275f, 50f + ButtonSpacing, 150f, 50f), WaitButtonClicked);
         var backButtonState = new ButtonState("Back", new(1275f, 50f + (2 * ButtonSpacing), 150f, 50f), BackButtonClicked);
-        var battleState1 = new BattleUnitState(warriorSprite) { X = _lastPosition.X, Y = _lastPosition.Y };
-        var battleState2 = new BattleUnitState(warriorSprite) { X = 20, Y = 4 };
+        var battleState1 = new BattleUnitState(warriorSprite) { Position = _lastPosition };
+        var battleState2 = new BattleUnitState(warriorSprite) { Position = new(4, 20) };
         var shadowState = new ShadowOverlayState();
 
         _state = new(
@@ -47,8 +47,6 @@ public class BattleScene : IScene, IDrawable
             new()
             {
                 attackButtonState,
-                waitButtonState,
-                backButtonState,
                 waitButtonState,
                 backButtonState
             },
@@ -97,22 +95,28 @@ public class BattleScene : IScene, IDrawable
 
     private void AttackButtonClicked()
     {
-        UpdateButtons();
         _isSelectingAction = false;
         _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
+        UpdateButtons();
     }
 
     private void WaitButtonClicked()
     {
-        UpdateButtons();
         _isSelectingAction = false;
         _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
+        _lastPosition = _state.ActiveUnit.Position;
+        UpdateButtons();
     }
 
     private void BackButtonClicked()
     {
-        UpdateButtons();
+        if (_state.ActiveUnit is null)
+            return;
+
+        _state.ActiveUnit.Position = _lastPosition;
         _isSelectingAction = false;
+
+        UpdateButtons();
     }
 
     public void Update(TimeSpan delta)
@@ -121,13 +125,13 @@ public class BattleScene : IScene, IDrawable
         if (_state.ActiveUnit is not null && !_isSelectingAction)
         {
             var walkablePath = _pathCalc.CreateFanOutArea(
-                new(_state.ActiveUnit.X, _state.ActiveUnit.Y),
+                _state.ActiveUnit.Position,
                 new(_state.Grid.RowCount, _state.Grid.ColumnCount),
                 _state.ActiveUnit.Movement);
 
             walkablePath = walkablePath
                 .Where(shadow =>
-                    !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow.X == unit.X && shadow.Y == unit.Y))
+                    !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow == unit.Position))
                 .ToList();
 
             _state.ShadowUnit.ShadowPoints.AddRange(walkablePath);
@@ -172,11 +176,11 @@ public class BattleScene : IScene, IDrawable
             return;
         }
 
-        if (_state.ActiveUnit.X.IsBetweenInclusive(0, _state.Grid.ColumnCount))
-            _state.ActiveUnit.X = col;
-
-        if (_state.ActiveUnit.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
-            _state.ActiveUnit.Y = row;
+        if (_state.ActiveUnit.Position.X.IsBetweenInclusive(0, _state.Grid.ColumnCount) &&
+            _state.ActiveUnit.Position.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
+        {
+            _state.ActiveUnit.Position = new(col, row);
+        }
 
         _isSelectingAction = true;
         UpdateButtons();
@@ -189,5 +193,11 @@ public class BattleScene : IScene, IDrawable
         clickedButton?.Handler();
     }
 
-    private void UpdateButtons() => _state.Buttons.ForEach(x => x.IsVisible = _isSelectingAction);
+    private void UpdateButtons()
+    {
+        foreach (var x in _state.Buttons)
+        {
+            x.IsVisible = _isSelectingAction;
+        }
+    }
 }

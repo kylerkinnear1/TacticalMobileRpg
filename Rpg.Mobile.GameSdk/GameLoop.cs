@@ -1,5 +1,4 @@
-﻿using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Dispatching;
+﻿using Microsoft.Maui.Dispatching;
 
 namespace Rpg.Mobile.GameSdk;
 

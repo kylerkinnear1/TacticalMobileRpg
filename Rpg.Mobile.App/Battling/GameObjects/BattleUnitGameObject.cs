@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.App.Battling.Scenes;
+using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
 using IImage = Microsoft.Maui.Graphics.IImage;
@@ -8,8 +9,7 @@ namespace Rpg.Mobile.App.Battling.GameObjects;
 public class BattleUnitState
 {
     public bool IsVisible { get; set; } = true;
-    public int X { get; set; } = 0;
-    public int Y { get; set; } = 0;
+    public Coordinate Position { get; set; } = new(0, 0);
     public int Movement { get; set; } = 4;
     public IImage Sprite { get; set; }
 
@@ -41,8 +41,8 @@ public class BattleUnitGameObject : IGameObject
             return;
 
         canvas.Draw(_state.Sprite, new(
-            _state.X * _scene.Grid.Size + _scene.Grid.Position.X,
-            _state.Y * _scene.Grid.Size + _scene.Grid.Position.Y), 
+            _state.Position.X * _scene.Grid.Size + _scene.Grid.Position.X,
+            _state.Position.Y * _scene.Grid.Size + _scene.Grid.Position.Y), 
             .5f);
     }
 }
