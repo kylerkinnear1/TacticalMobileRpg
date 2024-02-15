@@ -110,11 +110,13 @@ public class BattleScene : IScene, IDrawable
         _menuState = BattleMenuOptions.SelectingTarget;
     }
 
-    private void WaitButtonClicked()
+    private void WaitButtonClicked() => AdvanceToNextUnit();
+
+    private void AdvanceToNextUnit()
     {
         _menuState = BattleMenuOptions.SelectingMove;
         _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
-        _lastPosition = _state.ActiveUnit.Position;
+        _lastPosition = _state.ActiveUnit!.Position;
         UpdateButtons();
     }
 
@@ -197,20 +199,27 @@ public class BattleScene : IScene, IDrawable
 
         var col = (int)(relativeX / _state.Grid.Size);
         var row = (int)(relativeY / _state.Grid.Size);
+        var position = new Coordinate(col, row);
 
-        if (!_state.MovementShadows.ShadowPoints.Contains(new(col, row)))
+        if (!_state.ActiveUnit.Position.X.IsBetweenInclusive(0, _state.Grid.ColumnCount) ||
+            !_state.ActiveUnit.Position.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
         {
             return;
         }
 
-        if (_state.ActiveUnit.Position.X.IsBetweenInclusive(0, _state.Grid.ColumnCount) &&
-            _state.ActiveUnit.Position.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
+        if (_state.MovementShadows.ShadowPoints.Contains(position))
         {
             _state.ActiveUnit.Position = new(col, row);
+            _menuState = BattleMenuOptions.SelectingAction;
+            UpdateButtons();
         }
 
-        _menuState = BattleMenuOptions.SelectingAction;
-        UpdateButtons();
+        var defender = _state.BattleUnits.FirstOrDefault(x => x.Position == position);
+        if (defender is null || !_state.AttackShadows.ShadowPoints.Contains(position)) 
+            return;
+
+        // ATTACK
+        AdvanceToNextUnit();
     }
 
     private void HandleButtonClick(TouchEventArgs touchEventArgs)
