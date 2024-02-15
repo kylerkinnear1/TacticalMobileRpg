@@ -11,6 +11,7 @@ public class BattleUnitState
     public bool IsVisible { get; set; } = true;
     public Coordinate Position { get; set; } = new(0, 0);
     public int Movement { get; set; } = 4;
+    public int Health { get; set; } = 12;
     public IImage Sprite { get; set; }
 
     public BattleUnitState(IImage sprite)

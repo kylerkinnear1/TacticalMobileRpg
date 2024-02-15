@@ -10,10 +10,18 @@ public record BattleSceneState(
     GridState Grid,
     List<ButtonState> Buttons,
     List<BattleUnitState> BattleUnits,
-    ShadowOverlayState ShadowUnit)
+    ShadowOverlayState MovementShadows,
+    ShadowOverlayState AttackShadows)
 {
     public int? ActiveUnitIndex { get; set; }
     public BattleUnitState? ActiveUnit => ActiveUnitIndex.HasValue ? BattleUnits[ActiveUnitIndex.Value] : null;
+}
+
+public enum BattleMenuOptions
+{
+    SelectingMove,
+    SelectingAction,
+    SelectingTarget,
 }
 
 public class BattleScene : IScene, IDrawable
@@ -26,7 +34,7 @@ public class BattleScene : IScene, IDrawable
 
     private readonly PathCalculator _pathCalc = new();
     private Coordinate _lastPosition = new(10, 15);
-    private bool _isSelectingAction = false;
+    private BattleMenuOptions _menuState = BattleMenuOptions.SelectingMove;
     private const float ButtonSpacing = 100f;
 
     public BattleScene(IGraphicsView view)
@@ -41,6 +49,7 @@ public class BattleScene : IScene, IDrawable
         var battleState1 = new BattleUnitState(warriorSprite) { Position = _lastPosition };
         var battleState2 = new BattleUnitState(warriorSprite) { Position = new(4, 20) };
         var shadowState = new ShadowOverlayState();
+        var attackShadows = new ShadowOverlayState();
 
         _state = new(
             gridState,
@@ -55,7 +64,8 @@ public class BattleScene : IScene, IDrawable
                 battleState1,
                 battleState2
             },
-            shadowState)
+            shadowState,
+            attackShadows)
         {
             ActiveUnitIndex = 0
         };
@@ -95,14 +105,18 @@ public class BattleScene : IScene, IDrawable
 
     private void AttackButtonClicked()
     {
-        _isSelectingAction = false;
-        _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
-        UpdateButtons();
+        _menuState = BattleMenuOptions.SelectingTarget;
+        if (false) // legal targets
+        {
+            throw new NotImplementedException();
+        }
+
+        BackButtonClicked();
     }
 
     private void WaitButtonClicked()
     {
-        _isSelectingAction = false;
+        _menuState = BattleMenuOptions.SelectingMove;
         _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.BattleUnits.Count ? _state.ActiveUnitIndex + 1 : 0;
         _lastPosition = _state.ActiveUnit.Position;
         UpdateButtons();
@@ -114,15 +128,15 @@ public class BattleScene : IScene, IDrawable
             return;
 
         _state.ActiveUnit.Position = _lastPosition;
-        _isSelectingAction = false;
+        _menuState = BattleMenuOptions.SelectingMove;
 
         UpdateButtons();
     }
 
     public void Update(TimeSpan delta)
     {
-        _state.ShadowUnit.ShadowPoints.Clear();
-        if (_state.ActiveUnit is not null && !_isSelectingAction)
+        _state.MovementShadows.ShadowPoints.Clear();
+        if (_state.ActiveUnit is not null && _menuState == BattleMenuOptions.SelectingMove)
         {
             var walkablePath = _pathCalc.CreateFanOutArea(
                 _state.ActiveUnit.Position,
@@ -134,7 +148,7 @@ public class BattleScene : IScene, IDrawable
                     !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow == unit.Position))
                 .ToList();
 
-            _state.ShadowUnit.ShadowPoints.AddRange(walkablePath);
+            _state.MovementShadows.ShadowPoints.AddRange(walkablePath);
         }
 
         foreach (var update in _updates) 
@@ -171,7 +185,7 @@ public class BattleScene : IScene, IDrawable
         var col = (int)(relativeX / _state.Grid.Size);
         var row = (int)(relativeY / _state.Grid.Size);
 
-        if (!_state.ShadowUnit.ShadowPoints.Contains(new(col, row)))
+        if (!_state.MovementShadows.ShadowPoints.Contains(new(col, row)))
         {
             return;
         }
@@ -182,7 +196,7 @@ public class BattleScene : IScene, IDrawable
             _state.ActiveUnit.Position = new(col, row);
         }
 
-        _isSelectingAction = true;
+        _menuState = BattleMenuOptions.SelectingAction;
         UpdateButtons();
     }
 
@@ -197,7 +211,7 @@ public class BattleScene : IScene, IDrawable
     {
         foreach (var x in _state.Buttons)
         {
-            x.IsVisible = _isSelectingAction;
+            x.IsVisible = _menuState == BattleMenuOptions.SelectingAction;
         }
     }
 }
