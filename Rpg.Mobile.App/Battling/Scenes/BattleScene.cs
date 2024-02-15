@@ -49,7 +49,7 @@ public class BattleScene : IScene, IDrawable
         var battleState1 = new BattleUnitState(warriorSprite) { Position = _lastPosition };
         var battleState2 = new BattleUnitState(warriorSprite) { Position = new(4, 20) };
         var shadowState = new ShadowOverlayState();
-        var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.3f) };
+        var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.7f) };
 
         _state = new(
             gridState,
@@ -142,7 +142,7 @@ public class BattleScene : IScene, IDrawable
 
             walkablePath = walkablePath
                 .Where(shadow =>
-                    !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow == unit.Position))
+                    !_state.BattleUnits.Exists(unit => unit.IsVisible && shadow == unit.Position && unit != _state.ActiveUnit))
                 .ToList();
 
             _state.MovementShadows.ShadowPoints.AddRange(walkablePath);
