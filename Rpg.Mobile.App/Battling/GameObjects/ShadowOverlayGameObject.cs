@@ -7,6 +7,7 @@ namespace Rpg.Mobile.App.Battling.GameObjects;
 public class ShadowOverlayState
 {
     public List<Coordinate> ShadowPoints { get; } = new();
+    public Color Color { get; set; } = Colors.DarkSlateGray.WithAlpha(.5f);
 }
 
 public class ShadowOverlayGameObject : IGameObject
@@ -31,7 +32,7 @@ public class ShadowOverlayGameObject : IGameObject
             return;
         }
 
-        canvas.FillColor = Colors.DarkSlateGrey.WithAlpha(.5f);
+        canvas.FillColor = _state.Color;
 
         foreach (var point in _state.ShadowPoints)
         {

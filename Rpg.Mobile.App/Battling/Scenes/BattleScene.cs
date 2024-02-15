@@ -49,7 +49,7 @@ public class BattleScene : IScene, IDrawable
         var battleState1 = new BattleUnitState(warriorSprite) { Position = _lastPosition };
         var battleState2 = new BattleUnitState(warriorSprite) { Position = new(4, 20) };
         var shadowState = new ShadowOverlayState();
-        var attackShadows = new ShadowOverlayState();
+        var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.3f) };
 
         _state = new(
             gridState,
@@ -80,10 +80,12 @@ public class BattleScene : IScene, IDrawable
         var battleObject1 = new BattleUnitGameObject(_state, battleState1);
         var battleObject2 = new BattleUnitGameObject(_state, battleState2);
         var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
+        var attackShadowGameObject = new ShadowOverlayGameObject(attackShadows, _state);
 
         AddGameObject(mapGameObject);
         AddGameObject(gridGameObject);
         AddGameObject(shadowGameObject);
+        AddGameObject(attackShadowGameObject);
         AddGameObject(battleObject1);
         AddGameObject(battleObject2);
         AddGameObject(buttonGameObject1);
@@ -106,12 +108,6 @@ public class BattleScene : IScene, IDrawable
     private void AttackButtonClicked()
     {
         _menuState = BattleMenuOptions.SelectingTarget;
-        if (false) // legal targets
-        {
-            throw new NotImplementedException();
-        }
-
-        BackButtonClicked();
     }
 
     private void WaitButtonClicked()
@@ -136,6 +132,7 @@ public class BattleScene : IScene, IDrawable
     public void Update(TimeSpan delta)
     {
         _state.MovementShadows.ShadowPoints.Clear();
+        _state.AttackShadows.ShadowPoints.Clear();
         if (_state.ActiveUnit is not null && _menuState == BattleMenuOptions.SelectingMove)
         {
             var walkablePath = _pathCalc.CreateFanOutArea(
@@ -149,6 +146,22 @@ public class BattleScene : IScene, IDrawable
                 .ToList();
 
             _state.MovementShadows.ShadowPoints.AddRange(walkablePath);
+        }
+
+        if (_state.ActiveUnit is not null && _menuState == BattleMenuOptions.SelectingTarget)
+        {
+            var pos = _state.ActiveUnit.Position;
+            if (pos.X > 0)
+                _state.AttackShadows.ShadowPoints.Add(new(pos.X - 1, pos.Y));
+
+            if (pos.X + 1 < _state.Grid.ColumnCount)
+                _state.AttackShadows.ShadowPoints.Add(new(pos.X + 1, pos.Y));
+
+            if (pos.Y > 0)
+                _state.AttackShadows.ShadowPoints.Add(new(pos.X, pos.Y - 1));
+
+            if (pos.Y + 1 < _state.Grid.RowCount)
+                _state.AttackShadows.ShadowPoints.Add(new(pos.X, pos.Y + 1));
         }
 
         foreach (var update in _updates) 
