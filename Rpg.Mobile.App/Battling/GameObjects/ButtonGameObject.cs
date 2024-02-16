@@ -9,6 +9,7 @@ public class ButtonState
     public float FontSize { get; set; } = 16f;
     public RectF Bounds { get; set; }
     public IFont Font { get; set; }
+    public Color FontColor { get; set; } = Colors.Orange;
     public Color BackgroundColor { get; set; } = Colors.SlateGray;
     public bool IsVisible { get; set; } = true;
     public Action Handler { get; set; }
@@ -40,6 +41,7 @@ public class ButtonGameObject : IGameObject
         canvas.Font = _state.Font;
         canvas.FontSize = _state.FontSize;
         canvas.FillColor = _state.BackgroundColor;
+        canvas.FontColor = _state.FontColor;
         canvas.FillRectangle(_state.Bounds);
         canvas.DrawString(_state.Text, _state.Bounds, HorizontalAlignment.Center, VerticalAlignment.Center);
     }
