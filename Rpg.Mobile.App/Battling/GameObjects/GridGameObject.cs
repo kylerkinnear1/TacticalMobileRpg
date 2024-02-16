@@ -18,7 +18,7 @@ public class GridGameObject : IGameObject
         var bottom = _state.Position.Y + (_state.Size * _state.ColumnCount);
 
         canvas.StrokeSize = 2;
-        canvas.StrokeColor = Colors.GhostWhite;
+        canvas.StrokeColor = Colors.GhostWhite.WithAlpha(.3f);
 
         for (int row = 0; row < _state.ColumnCount + 1; row++)
         {

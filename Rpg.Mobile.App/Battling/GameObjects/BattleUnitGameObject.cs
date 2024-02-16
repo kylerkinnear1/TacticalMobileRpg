@@ -50,7 +50,7 @@ public class BattleUnitGameObject : IGameObject
 
         var x = _state.Position.X * _scene.Grid.Size + _scene.Grid.Position.X;
         var y = _state.Position.Y * _scene.Grid.Size + _scene.Grid.Position.Y;
-        canvas.Draw(_state.Sprite, new(x, y), _state.Scale);
+        canvas.Draw(_state.Sprite, new(x, y - 3f), _state.Scale);
         canvas.FontSize = 22f;
         canvas.FontColor = Colors.Red;
         canvas.DrawString($"{_state.RemainingHealth}", x - 10f, y + 40f, HorizontalAlignment.Left);
