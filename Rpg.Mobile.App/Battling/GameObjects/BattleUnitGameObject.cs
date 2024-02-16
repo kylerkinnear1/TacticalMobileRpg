@@ -8,6 +8,7 @@ namespace Rpg.Mobile.App.Battling.GameObjects;
 
 public class BattleUnitState
 {
+    public int PlayerId { get; set; }
     public bool IsVisible { get; set; } = true;
     public Coordinate Position { get; set; } = new(0, 0);
     public int Movement { get; set; } = 4;
@@ -15,10 +16,13 @@ public class BattleUnitState
     public int MaxHealth { get; set; } = 12;
     public IImage Sprite { get; set; }
     public int Attack { get; set; } = 8;
+    public int AttackRange { get; set; } = 1;
     public int Defense { get; set; } = 5;
+    public float Scale { get; set; } = 1f;
 
-    public BattleUnitState(IImage sprite)
+    public BattleUnitState(int playerId, IImage sprite)
     {
+        PlayerId = playerId;
         Sprite = sprite;
     }
 }
@@ -46,9 +50,9 @@ public class BattleUnitGameObject : IGameObject
 
         var x = _state.Position.X * _scene.Grid.Size + _scene.Grid.Position.X;
         var y = _state.Position.Y * _scene.Grid.Size + _scene.Grid.Position.Y;
-        canvas.Draw(_state.Sprite, new(x, y), .5f);
-        canvas.FontSize = 16f;
+        canvas.Draw(_state.Sprite, new(x, y), _state.Scale);
+        canvas.FontSize = 22f;
         canvas.FontColor = Colors.Red;
-        canvas.DrawString($"{_state.RemainingHealth}", x - 10f, y + 30f, HorizontalAlignment.Left);
+        canvas.DrawString($"{_state.RemainingHealth}", x - 10f, y + 40f, HorizontalAlignment.Left);
     }
 }

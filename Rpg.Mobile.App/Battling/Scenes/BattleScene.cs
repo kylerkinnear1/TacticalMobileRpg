@@ -35,7 +35,7 @@ public class BattleScene : IScene, IDrawable
     private readonly List<IRenderGameObject> _renderers = new();
 
     private readonly PathCalculator _pathCalc = new();
-    private Coordinate _lastPosition = new(10, 15);
+    private Coordinate _lastPosition = new(3, 3);
     private BattleMenuOptions _menuState = BattleMenuOptions.SelectingMove;
     private const float ButtonSpacing = 100f;
 
@@ -44,12 +44,12 @@ public class BattleScene : IScene, IDrawable
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var warriorSprite = spriteLoader.Load("Warrior.png"); 
 
-        var gridState = new GridState(new(50f, 50f), 60, 30, 20);
+        var gridState = new GridState(new(50f, 50f), 30, 20, 32f);
         var attackButtonState = new ButtonState("Attack", new(1275f, 50f,  150f, 50f), AttackButtonClicked);
         var waitButtonState = new ButtonState("Wait", new(1275f, 50f + ButtonSpacing, 150f, 50f), WaitButtonClicked);
         var backButtonState = new ButtonState("Back", new(1275f, 50f + (2 * ButtonSpacing), 150f, 50f), BackButtonClicked);
-        var battleState1 = new BattleUnitState(warriorSprite) { Position = _lastPosition };
-        var battleState2 = new BattleUnitState(warriorSprite) { Position = new(4, 20) };
+        var battleState1 = new BattleUnitState(0, warriorSprite) { Position = _lastPosition, AttackRange = 3};
+        var battleState2 = new BattleUnitState(1, warriorSprite) { Position = new(15, 15) };
         var shadowState = new ShadowOverlayState();
         var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.7f) };
 
@@ -155,18 +155,15 @@ public class BattleScene : IScene, IDrawable
 
         if (_state.ActiveUnit is not null && _menuState == BattleMenuOptions.SelectingTarget)
         {
-            var pos = _state.ActiveUnit.Position;
-            if (pos.X > 0)
-                _state.AttackShadows.ShadowPoints.Add(new(pos.X - 1, pos.Y));
+            var attackPath = _pathCalc.CreateFanOutArea(
+                _state.ActiveUnit.Position,
+                new(_state.Grid.RowCount, _state.Grid.ColumnCount),
+                _state.ActiveUnit.AttackRange)
+                .Where(a => a != _state.ActiveUnit.Position && 
+                            a.X >= 0 && a.Y >= 0 && a.X < _state.Grid.ColumnCount && a.Y < _state.Grid.RowCount)
+                .ToList();
 
-            if (pos.X + 1 < _state.Grid.ColumnCount)
-                _state.AttackShadows.ShadowPoints.Add(new(pos.X + 1, pos.Y));
-
-            if (pos.Y > 0)
-                _state.AttackShadows.ShadowPoints.Add(new(pos.X, pos.Y - 1));
-
-            if (pos.Y + 1 < _state.Grid.RowCount)
-                _state.AttackShadows.ShadowPoints.Add(new(pos.X, pos.Y + 1));
+            _state.AttackShadows.ShadowPoints.AddRange(attackPath);
         }
 
         foreach (var update in _updates) 
@@ -217,7 +214,7 @@ public class BattleScene : IScene, IDrawable
             UpdateButtons();
         }
 
-        var defender = _state.BattleUnits.FirstOrDefault(x => x.Position == position);
+        var defender = _state.BattleUnits.FirstOrDefault(x => x.Position == position && _state.ActiveUnit.PlayerId != x.PlayerId);
         if (defender is null || !_state.AttackShadows.ShadowPoints.Contains(position)) 
             return;
 
