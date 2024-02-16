@@ -28,6 +28,8 @@ public class BattleScene : IScene, IDrawable
 {
     private readonly BattleSceneState _state;
     private readonly IGraphicsView _view;
+    private readonly Rng _rng = new(new());
+    private readonly IDamageCalculator _damageCalculator;
 
     private readonly List<IUpdateGameObject> _updates = new();
     private readonly List<IRenderGameObject> _renderers = new();
@@ -95,6 +97,7 @@ public class BattleScene : IScene, IDrawable
         AddGameObject(buttonGameObject5);
 
         _view = view;
+        _damageCalculator = new DamageCalculator(_rng);
 
         UpdateButtons();
 
@@ -218,7 +221,14 @@ public class BattleScene : IScene, IDrawable
         if (defender is null || !_state.AttackShadows.ShadowPoints.Contains(position)) 
             return;
 
-        // ATTACK
+        var damage = _damageCalculator.CalcDamage(_state.ActiveUnit.Attack, defender.Defense);
+        defender.RemainingHealth = Math.Max(0, defender.RemainingHealth - damage);
+        if (defender.RemainingHealth <= 0)
+        {
+            _state.BattleUnits.Remove(defender);
+            defender.IsVisible = false;
+        }
+
         AdvanceToNextUnit();
     }
 

@@ -11,8 +11,11 @@ public class BattleUnitState
     public bool IsVisible { get; set; } = true;
     public Coordinate Position { get; set; } = new(0, 0);
     public int Movement { get; set; } = 4;
-    public int Health { get; set; } = 12;
+    public int RemainingHealth { get; set; } = 12;
+    public int MaxHealth { get; set; } = 12;
     public IImage Sprite { get; set; }
+    public int Attack { get; set; } = 8;
+    public int Defense { get; set; } = 5;
 
     public BattleUnitState(IImage sprite)
     {
@@ -41,9 +44,11 @@ public class BattleUnitGameObject : IGameObject
         if (!_state.IsVisible)
             return;
 
-        canvas.Draw(_state.Sprite, new(
-            _state.Position.X * _scene.Grid.Size + _scene.Grid.Position.X,
-            _state.Position.Y * _scene.Grid.Size + _scene.Grid.Position.Y), 
-            .5f);
+        var x = _state.Position.X * _scene.Grid.Size + _scene.Grid.Position.X;
+        var y = _state.Position.Y * _scene.Grid.Size + _scene.Grid.Position.Y;
+        canvas.Draw(_state.Sprite, new(x, y), .5f);
+        canvas.FontSize = 16f;
+        canvas.FontColor = Colors.Red;
+        canvas.DrawString($"{_state.RemainingHealth}", x - 10f, y + 30f, HorizontalAlignment.Left);
     }
 }
