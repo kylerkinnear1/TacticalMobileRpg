@@ -101,8 +101,6 @@ public class BattleScene : IScene, IDrawable
         var buttonGameObject1 = new ButtonGameObject(attackButtonState);
         var buttonGameObject2 = new ButtonGameObject(waitButtonState);
         var buttonGameObject3 = new ButtonGameObject(backButtonState);
-        var buttonGameObject4 = new ButtonGameObject(waitButtonState);
-        var buttonGameObject5 = new ButtonGameObject(backButtonState);
         var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
         var attackShadowGameObject = new ShadowOverlayGameObject(attackShadows, _state);
 
@@ -117,8 +115,6 @@ public class BattleScene : IScene, IDrawable
         AddGameObject(buttonGameObject1);
         AddGameObject(buttonGameObject2);
         AddGameObject(buttonGameObject3);
-        AddGameObject(buttonGameObject4);
-        AddGameObject(buttonGameObject5);
 
         _view = view;
         _damageCalculator = new DamageCalculator(_rng);
