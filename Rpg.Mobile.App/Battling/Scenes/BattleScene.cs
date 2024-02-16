@@ -55,9 +55,13 @@ public class BattleScene : IScene, IDrawable
         var warrior2 = spriteLoader.Load("WarriorIdle02.png");
 
         var gridState = new GridState(new(50f, 50f), 20, 20, 32f);
-        var attackButtonState = new ButtonState("Attack", new(1275f, 50f,  150f, 50f), AttackButtonClicked);
-        var waitButtonState = new ButtonState("Wait", new(1275f, 50f + ButtonSpacing, 150f, 50f), WaitButtonClicked);
-        var backButtonState = new ButtonState("Back", new(1275f, 50f + (2 * ButtonSpacing), 150f, 50f), BackButtonClicked);
+        var buttonLeft = gridState.ColumnCount * gridState.Size + gridState.Position.X + ButtonSpacing;
+        var buttonTop = 50f;
+        const float buttonWidth = 150f;
+        const float buttonHeight = 50f;
+        var attackButtonState = new ButtonState("Attack", new(buttonLeft, buttonTop, buttonWidth, buttonHeight), AttackButtonClicked);
+        var waitButtonState = new ButtonState("Wait", new(buttonLeft,  buttonTop += ButtonSpacing, buttonWidth, buttonHeight), WaitButtonClicked);
+        var backButtonState = new ButtonState("Back", new(buttonLeft, buttonTop += ButtonSpacing, buttonWidth, buttonHeight), BackButtonClicked);
         var shadowState = new ShadowOverlayState();
         var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.7f) };
 
