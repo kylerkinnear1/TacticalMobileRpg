@@ -130,7 +130,6 @@ public class BattleScene : IScene
         _touchUpHandlers.Add((HandleGridClick, () => gridState.Bounds));
 
         AdvanceToNextUnit();
-        UpdateButtons();
 
         void AddGameObject(IGameObject obj)
         {
@@ -139,19 +138,15 @@ public class BattleScene : IScene
         }
     }
 
-    private void AttackButtonClicked()
-    {
-        _menuState = BattleMenuOptions.SelectingTarget;
-    }
+    private void AttackButtonClicked() => UpdateMenuState(BattleMenuOptions.SelectingTarget);
 
     private void WaitButtonClicked() => AdvanceToNextUnit();
 
     private void AdvanceToNextUnit()
     {
-        _menuState = BattleMenuOptions.SelectingMove;
         _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _state.TurnOrder.Count ? _state.ActiveUnitIndex + 1 : 0;
         _lastPosition = _state.ActiveUnit!.Position;
-        UpdateButtons();
+        UpdateMenuState(BattleMenuOptions.SelectingMove);
     }
 
     private void BackButtonClicked()
@@ -160,9 +155,7 @@ public class BattleScene : IScene
             return;
 
         _state.ActiveUnit.Position = _lastPosition;
-        _menuState = BattleMenuOptions.SelectingMove;
-
-        UpdateButtons();
+        UpdateMenuState(BattleMenuOptions.SelectingMove);
     }
 
     public void Update(TimeSpan delta)
@@ -230,8 +223,7 @@ public class BattleScene : IScene
         if (_state.MovementShadows.ShadowPoints.Contains(position))
         {
             _state.ActiveUnit.Position = new(col, row);
-            _menuState = BattleMenuOptions.SelectingAction;
-            UpdateButtons();
+            UpdateMenuState(BattleMenuOptions.SelectingAction);
         }
 
         var defender = _state.TurnOrder.FirstOrDefault(x => x.Position == position && _state.ActiveUnit.PlayerId != x.PlayerId);
@@ -249,11 +241,12 @@ public class BattleScene : IScene
         AdvanceToNextUnit();
     }
 
-    private void UpdateButtons()
+    private void UpdateMenuState(BattleMenuOptions options)
     {
+        _menuState = options;
         foreach (var x in _state.Buttons)
         {
-            x.IsVisible = _menuState == BattleMenuOptions.SelectingAction;
+            x.IsVisible = options != BattleMenuOptions.SelectingMove;
         }
     }
 }
