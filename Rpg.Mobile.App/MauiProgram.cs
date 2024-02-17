@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Rpg.Mobile.App.Battling.GameObjects;
+using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Infrastructure;
 
 namespace Rpg.Mobile.App;
@@ -21,6 +22,8 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
+        builder.Services.AddSingleton<IGameLoopFactory, GameLoopFactory>();
+        
         return builder.Build();
     }
 }

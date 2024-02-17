@@ -1,7 +1,9 @@
-﻿namespace Rpg.Mobile.GameSdk;
+﻿using Microsoft.Maui.Graphics;
+
+namespace Rpg.Mobile.GameSdk;
 
 public interface IScene
 {
     void Update(TimeSpan delta);
-    void Render();
+    void Render(ICanvas canvas, RectF dirtyRect);
 }

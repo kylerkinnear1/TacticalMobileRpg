@@ -25,23 +25,27 @@ public enum BattleMenuOptions
     SelectingTarget,
 }
 
-public class BattleScene : IScene, IDrawable
+public class BattleScene : IScene
 {
     private readonly BattleSceneState _state;
-    private readonly IGraphicsView _view;
     private readonly Rng _rng = new(new());
     private readonly IDamageCalculator _damageCalculator;
 
-    private readonly List<IUpdateGameObject> _updates = new();
-    private readonly List<IRenderGameObject> _renderers = new();
+    private readonly List<IUpdateGameObject> _updates;
+    private readonly List<IRenderGameObject> _renderers;
 
     private readonly PathCalculator _pathCalc = new();
     private Coordinate _lastPosition = new(3, 3);
     private BattleMenuOptions _menuState = BattleMenuOptions.SelectingMove;
     private const float ButtonSpacing = 100f;
 
-    public BattleScene(IGraphicsView view)
+    public BattleScene(
+        List<IUpdateGameObject> updates,
+        List<IRenderGameObject> renders)
     {
+        _updates = updates;
+        _renderers = renders;
+
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var archer1 = spriteLoader.Load("ArcherIdle01.png");
         var archer2 = spriteLoader.Load("ArcherIdle02.png");
@@ -115,10 +119,10 @@ public class BattleScene : IScene, IDrawable
         AddGameObject(buttonGameObject1);
         AddGameObject(buttonGameObject2);
         AddGameObject(buttonGameObject3);
-
-        _view = view;
+        
         _damageCalculator = new DamageCalculator(_rng);
 
+        AdvanceToNextUnit();
         UpdateButtons();
 
         void AddGameObject(IGameObject obj)
@@ -185,17 +189,10 @@ public class BattleScene : IScene, IDrawable
 
             _state.AttackShadows.ShadowPoints.AddRange(attackPath);
         }
-
-        foreach (var update in _updates) 
-            update.Update(delta);
     }
 
-    public void Render() => _view.Invalidate();
-
-    public void Draw(ICanvas canvas, RectF dirtyRect)
+    public void Render(ICanvas canvas, RectF dirtyRect)
     {
-        foreach (var renderer in _renderers)
-            renderer.Render(canvas, dirtyRect);
     }
 
     public void OnClickDown(TouchEventArgs touchEventArgs)
