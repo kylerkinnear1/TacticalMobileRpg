@@ -224,13 +224,19 @@ public class BattleScene : IScene
         {
             _state.ActiveUnit.Position = new(col, row);
             UpdateMenuState(BattleMenuOptions.SelectingAction);
+            return;
         }
 
         var defender = _state.TurnOrder.FirstOrDefault(x => x.Position == position && _state.ActiveUnit.PlayerId != x.PlayerId);
         if (defender is null || !_state.AttackShadows.ShadowPoints.Contains(position)) 
             return;
 
-        var damage = _damageCalculator.CalcDamage(_state.ActiveUnit.Attack, defender.Defense);
+        HandleAttack(_state.ActiveUnit, defender);
+    }
+
+    private void HandleAttack(BattleUnitState attacker, BattleUnitState defender)
+    {
+        var damage = _damageCalculator.CalcDamage(attacker.Attack, defender.Defense);
         defender.RemainingHealth = Math.Max(0, defender.RemainingHealth - damage);
         if (defender.RemainingHealth <= 0)
         {
