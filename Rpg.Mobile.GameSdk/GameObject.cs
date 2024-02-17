@@ -15,13 +15,3 @@ public interface IRenderGameObject
 public interface IGameObject : IUpdateGameObject, IRenderGameObject { }
 
 public record TouchEvent(PointF[] Touches);
-
-public interface IHandleTouchDown
-{
-    void OnTouchDown(TouchEvent touch);
-}
-
-public interface IHandleTouchUp
-{
-    void OnTouchUp(TouchEvent touches);
-}

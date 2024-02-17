@@ -66,9 +66,9 @@ public class BattleScene : IScene
         var buttonTop = 50f;
         const float buttonWidth = 150f;
         const float buttonHeight = 50f;
-        var attackButtonState = new ButtonState("Attack", new(buttonLeft, buttonTop, buttonWidth, buttonHeight), AttackButtonClicked);
-        var waitButtonState = new ButtonState("Wait", new(buttonLeft,  buttonTop += ButtonSpacing, buttonWidth, buttonHeight), WaitButtonClicked);
-        var backButtonState = new ButtonState("Back", new(buttonLeft, buttonTop += ButtonSpacing, buttonWidth, buttonHeight), BackButtonClicked);
+        var attackButtonState = new ButtonState("Attack", new(buttonLeft, buttonTop, buttonWidth, buttonHeight));
+        var waitButtonState = new ButtonState("Wait", new(buttonLeft,  buttonTop += ButtonSpacing, buttonWidth, buttonHeight));
+        var backButtonState = new ButtonState("Back", new(buttonLeft, buttonTop += ButtonSpacing, buttonWidth, buttonHeight));
         var shadowState = new ShadowOverlayState();
         var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.7f) };
 
@@ -87,14 +87,11 @@ public class BattleScene : IScene
         };
         var turnOrder = battleUnits.OrderBy(x => Guid.NewGuid()).ToList(); // pseudo random for now.
         _lastPosition = turnOrder.First().Position;
+
+        var buttons = new List<ButtonState> { attackButtonState, waitButtonState, backButtonState };
         _state = new(
             gridState,
-            new()
-            {
-                attackButtonState,
-                waitButtonState,
-                backButtonState
-            },
+            buttons,
             battleUnits,
             turnOrder,
             shadowState,
@@ -124,9 +121,9 @@ public class BattleScene : IScene
         AddGameObject(buttonGameObject3);
         
         _damageCalculator = new DamageCalculator(_rng);
-        _touchUpHandlers.Add((buttonGameObject1.OnTouchUp, () => _state.Buttons[0].Bounds));
-        _touchUpHandlers.Add((buttonGameObject2.OnTouchUp, () => _state.Buttons[1].Bounds));
-        _touchUpHandlers.Add((buttonGameObject3.OnTouchUp, () => _state.Buttons[2].Bounds));
+        _touchUpHandlers.Add((_ => AttackButtonClicked(), () => attackButtonState.Bounds));
+        _touchUpHandlers.Add((_ => WaitButtonClicked(), () => waitButtonState.Bounds));
+        _touchUpHandlers.Add((_ => BackButtonClicked(), () => backButtonState.Bounds));
         _touchUpHandlers.Add((HandleGridClick, () => gridState.Bounds));
 
         AdvanceToNextUnit();
@@ -160,41 +157,6 @@ public class BattleScene : IScene
 
     public void Update(TimeSpan delta)
     {
-        _state.MovementShadows.ShadowPoints.Clear();
-        _state.AttackShadows.ShadowPoints.Clear();
-
-        if (_state.ActiveUnit is null)
-            return;
-
-        if (_menuState == BattleMenuOptions.SelectingMove)
-        {
-            var walkablePath = _pathCalc.CreateFanOutArea(
-                _state.ActiveUnit.Position,
-                new(_state.Grid.RowCount, _state.Grid.ColumnCount),
-                _state.ActiveUnit.Movement);
-
-            walkablePath = walkablePath
-                .Where(shadow =>
-                    !_state.TurnOrder.Exists(unit => unit.IsVisible && shadow == unit.Position && unit != _state.ActiveUnit))
-                .ToList();
-
-            _state.MovementShadows.ShadowPoints.AddRange(walkablePath);
-        }
-
-        if (_menuState == BattleMenuOptions.SelectingTarget)
-        {
-            var attackPath = _pathCalc.CreateFanOutArea(
-                _state.ActiveUnit.Position,
-                new(_state.Grid.RowCount, _state.Grid.ColumnCount),
-                _state.ActiveUnit.AttackRange);
-
-            attackPath = attackPath
-                .Where(a => a != _state.ActiveUnit.Position && 
-                            a.X >= 0 && a.Y >= 0 && a.X < _state.Grid.ColumnCount && a.Y < _state.Grid.RowCount)
-                .ToList();
-
-            _state.AttackShadows.ShadowPoints.AddRange(attackPath);
-        }
     }
 
     public void Render(ICanvas canvas, RectF dirtyRect)
@@ -253,6 +215,42 @@ public class BattleScene : IScene
         foreach (var x in _state.Buttons)
         {
             x.IsVisible = options != BattleMenuOptions.SelectingMove;
+        }
+
+        _state.MovementShadows.ShadowPoints.Clear();
+        _state.AttackShadows.ShadowPoints.Clear();
+
+        if (_state.ActiveUnit is null)
+            return;
+
+        if (_menuState == BattleMenuOptions.SelectingMove)
+        {
+            var walkablePath = _pathCalc.CreateFanOutArea(
+                _state.ActiveUnit.Position,
+                new(_state.Grid.RowCount, _state.Grid.ColumnCount),
+                _state.ActiveUnit.Movement);
+
+            walkablePath = walkablePath
+                .Where(shadow =>
+                    !_state.TurnOrder.Exists(unit => unit.IsVisible && shadow == unit.Position && unit != _state.ActiveUnit))
+                .ToList();
+
+            _state.MovementShadows.ShadowPoints.AddRange(walkablePath);
+        }
+
+        if (_menuState == BattleMenuOptions.SelectingTarget)
+        {
+            var attackPath = _pathCalc.CreateFanOutArea(
+                _state.ActiveUnit.Position,
+                new(_state.Grid.RowCount, _state.Grid.ColumnCount),
+                _state.ActiveUnit.AttackRange);
+
+            attackPath = attackPath
+                .Where(a => a != _state.ActiveUnit.Position &&
+                            a.X >= 0 && a.Y >= 0 && a.X < _state.Grid.ColumnCount && a.Y < _state.Grid.RowCount)
+                .ToList();
+
+            _state.AttackShadows.ShadowPoints.AddRange(attackPath);
         }
     }
 }

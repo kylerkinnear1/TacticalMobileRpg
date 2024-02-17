@@ -7,7 +7,7 @@ public record GridState(PointF Position, int RowCount, int ColumnCount, float Si
     public RectF Bounds { get; init; } = new(Position.X, Position.Y, ColumnCount * Size, RowCount * Size);
 }
 
-public class GridGameObject : IGameObject, IHandleTouchUp
+public class GridGameObject : IGameObject
 {
     private readonly GridState _state;
 

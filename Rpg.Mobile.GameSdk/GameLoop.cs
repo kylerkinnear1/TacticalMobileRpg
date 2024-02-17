@@ -87,7 +87,7 @@ public class GameLoopFactory : IGameLoopFactory
     }
 }
 
-public class UpdateLoop : IUpdateLoop, IHandleTouchUp
+public class UpdateLoop : IUpdateLoop
 {
     private readonly IEnumerable<IUpdateGameObject> _updates;
     private readonly IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers;
