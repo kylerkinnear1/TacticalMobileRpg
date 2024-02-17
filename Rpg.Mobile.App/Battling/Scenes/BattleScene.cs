@@ -30,23 +30,16 @@ public class BattleScene
     private readonly Rng _rng = new(new());
     private readonly IDamageCalculator _damageCalculator;
 
-    private readonly List<IUpdateGameObject> _updates;
-    private readonly List<IRenderGameObject> _renderers;
-    private readonly List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers;
+    private readonly IGameLoop _game;
 
     private readonly PathCalculator _pathCalc = new();
     private Coordinate _lastPosition = new(3, 3);
     private BattleMenuOptions _menuState = BattleMenuOptions.SelectingMove;
     private const float ButtonSpacing = 100f;
 
-    public BattleScene(
-        List<IUpdateGameObject> updates,
-        List<IRenderGameObject> renders,
-        List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers)
+    public BattleScene(IGameLoop game)
     {
-        _updates = updates;
-        _renderers = renders;
-        _touchUpHandlers = touchUpHandlers;
+        _game = game;
 
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var archer1 = spriteLoader.Load("ArcherIdle01.png");
@@ -107,31 +100,25 @@ public class BattleScene
         var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
         var attackShadowGameObject = new ShadowOverlayGameObject(attackShadows, _state);
 
-        AddGameObject(mapGameObject);
-        AddGameObject(gridGameObject);
-        AddGameObject(shadowGameObject);
-        AddGameObject(attackShadowGameObject);
+        _game.AddGameObject(mapGameObject);
+        _game.AddGameObject(gridGameObject);
+        _game.AddGameObject(shadowGameObject);
+        _game.AddGameObject(attackShadowGameObject);
 
         foreach (var unit in battleUnits)
-            AddGameObject(new BattleUnitGameObject(_state, unit));
+            _game.AddGameObject(new BattleUnitGameObject(_state, unit));
 
-        AddGameObject(buttonGameObject1);
-        AddGameObject(buttonGameObject2);
-        AddGameObject(buttonGameObject3);
+        _game.AddGameObject(buttonGameObject1);
+        _game.AddGameObject(buttonGameObject2);
+        _game.AddGameObject(buttonGameObject3);
         
         _damageCalculator = new DamageCalculator(_rng);
-        _touchUpHandlers.Add((_ => AttackButtonClicked(), () => attackButtonState.Bounds));
-        _touchUpHandlers.Add((_ => WaitButtonClicked(), () => waitButtonState.Bounds));
-        _touchUpHandlers.Add((_ => BackButtonClicked(), () => backButtonState.Bounds));
-        _touchUpHandlers.Add((HandleGridClick, () => gridState.Bounds));
+        _game.AddTouchUpHandler(AttackButtonClicked, () => attackButtonState.Bounds);
+        _game.AddTouchUpHandler(WaitButtonClicked, () => waitButtonState.Bounds);
+        _game.AddTouchUpHandler(BackButtonClicked, () => backButtonState.Bounds);
+        _game.AddTouchUpHandler(HandleGridClick, () => gridState.Bounds);
 
         AdvanceToNextUnit();
-
-        void AddGameObject(IGameObject obj)
-        {
-            _updates.Add(obj);
-            _renderers.Add(obj);
-        }
     }
 
     private void AttackButtonClicked() => UpdateMenuState(BattleMenuOptions.SelectingTarget);

@@ -1,5 +1,6 @@
 ﻿using Rpg.Mobile.App.Battling.Scenes;
 using Rpg.Mobile.GameSdk;
+using static Microsoft.Maui.ApplicationModel.Permissions;
 
 namespace Rpg.Mobile.App;
 
@@ -11,12 +12,10 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
 
-        var updates = new List<IUpdateGameObject>();
-        var renders = new List<IRenderGameObject>();
-        var touchUpHandlers = new List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)>();
-        _scene = new BattleScene(updates, renders, touchUpHandlers);
         var gameLoopFactory = new GameLoopFactory();
-        var game = gameLoopFactory.Create(GameView, updates, renders, touchUpHandlers);
+        var game = gameLoopFactory.Create(GameView);
+
+        _scene = new BattleScene(game);
         game.Start();
     }
 }

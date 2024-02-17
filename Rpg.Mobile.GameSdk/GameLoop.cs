@@ -8,6 +8,19 @@ namespace Rpg.Mobile.GameSdk;
 public interface IGameLoop
 {
     void Start();
+
+    void AddUpdate(IUpdateGameObject update);
+    void AddRenderer(IRenderGameObject renders);
+    void AddGameObject(IGameObject gameObject);
+
+    void RemoveUpdate(IUpdateGameObject update);
+    void RemoveRenderer(IRenderGameObject renders);
+    void RemoveGameObject(IGameObject gameObject);
+
+    void AddTouchUpHandler(Action<TouchEvent> handler);
+    void AddTouchUpHandler(Action handler);
+    void AddTouchUpHandler(Action<TouchEvent> handler, Func<RectF> bounds);
+    void AddTouchUpHandler(Action handler, Func<RectF> bounds);
 }
 
 public interface IUpdateLoop
@@ -20,22 +33,24 @@ public interface IRenderLoop
     void Render();
 }
 
-public class GameLoop : IGameLoop
+public class GameLoop : IGameLoop, IDrawable
 {
+    private readonly List<IUpdateGameObject> _updates = new();
+    private readonly List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers = new();
+    private readonly List<IRenderGameObject> _renders = new();
     private readonly IDispatcher _dispatcher;
-    private readonly IUpdateLoop _updateLoop;
-    private readonly IRenderLoop _renderLoop;
+    private readonly IGraphicsView _view;
 
-    private DateTime _lastUpdate;
+    private DateTime _lastUpdate = DateTime.UtcNow;
 
     private const int LoopTimeLimitMs = 16;
 
-    public GameLoop(IDispatcher dispatcher, IUpdateLoop updateLoop, IRenderLoop renderLoop)
+    public GameLoop(
+        IDispatcher dispatcher,
+        IGraphicsView view)
     {
         _dispatcher = dispatcher;
-        _updateLoop = updateLoop;
-        _renderLoop = renderLoop;
-        _lastUpdate = DateTime.UtcNow;
+        _view = view;
     }
 
     public void Start()
@@ -43,13 +58,15 @@ public class GameLoop : IGameLoop
         var startTime = DateTime.UtcNow;
         var delta = startTime - _lastUpdate;
 
-        _updateLoop.Update(delta);
+        foreach (var update in _updates)
+            update.Update(delta);
+
         _lastUpdate = startTime;
 
         var postTime = DateTime.UtcNow;
         var updateDuration = LoopTimeLimitMs - (postTime - startTime).TotalMilliseconds;
 
-        _renderLoop.Render();
+        _view.Invalidate();
 
         // TODO: Could add a safety check, but that would be slow for a performance critical area.
         // TODO: Any bit math that can be done with 16 to make the game just skip if it can't render in time instead of crash?
@@ -57,51 +74,32 @@ public class GameLoop : IGameLoop
         delayUntilNextUpdate = Math.Max(delayUntilNextUpdate, 0);
         _dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(delayUntilNextUpdate), Start);
     }
-}
 
-public interface IGameLoopFactory
-{
-    GameLoop Create(
-        GraphicsView view,
-        IEnumerable<IUpdateGameObject> updates,
-        IEnumerable<IRenderGameObject> renders,
-        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers);
-}
-
-public class GameLoopFactory : IGameLoopFactory
-{
-    public GameLoop Create(
-        GraphicsView view,
-        IEnumerable<IUpdateGameObject> updates,
-        IEnumerable<IRenderGameObject> renders,
-        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers)
+    public void AddUpdate(IUpdateGameObject update) => _updates.Add(update);
+    public void AddRenderer(IRenderGameObject renders) => _renders.Add(renders);
+    public void AddGameObject(IGameObject gameObject)
     {
-        var update = new UpdateLoop(updates, touchUpHandlers);
-        var render = new RenderLoop(view, renders);
-        var game = new GameLoop(view.Dispatcher, update, render);
-        view.Drawable = render;
-        view.EndInteraction += (_, e) => update.OnTouchUp(new(e.Touches));
-        return game;
-    }
-}
-
-public class UpdateLoop : IUpdateLoop
-{
-    private readonly IEnumerable<IUpdateGameObject> _updates;
-    private readonly IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers;
-
-    public UpdateLoop(
-        IEnumerable<IUpdateGameObject> updates,
-        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers)
-    {
-        _updates = updates;
-        _touchUpHandlers = touchUpHandlers;
+        AddUpdate(gameObject);
+        AddRenderer(gameObject);
     }
 
-    public void Update(TimeSpan delta)
+    public void RemoveUpdate(IUpdateGameObject update) => _updates.Remove(update);
+    public void RemoveRenderer(IRenderGameObject renders) => _renders.Remove(renders);
+
+    public void RemoveGameObject(IGameObject gameObject)
     {
-        foreach (var update in _updates)
-            update.Update(delta);
+        _updates.Remove(gameObject);
+    }
+
+    public void AddTouchUpHandler(Action<TouchEvent> handler) => _touchUpHandlers.Add((handler, null));
+    public void AddTouchUpHandler(Action handler) => _touchUpHandlers.Add((_ => handler(), null));
+    public void AddTouchUpHandler(Action<TouchEvent> handler, Func<RectF> bounds) => _touchUpHandlers.Add((handler, bounds));
+    public void AddTouchUpHandler(Action handler, Func<RectF> bounds) => _touchUpHandlers.Add((_ => handler(), bounds));
+
+    public void Draw(ICanvas canvas, RectF dirtyRect)
+    {
+        foreach (var render in _renders)
+            render.Render(canvas, dirtyRect);
     }
 
     public void OnTouchUp(TouchEvent touches)
@@ -109,30 +107,26 @@ public class UpdateLoop : IUpdateLoop
         if (touches.Touches.Length == 0)
             return;
 
-        foreach (var handler in _touchUpHandlers.Where(x => x.BoundsProvider is null || 
-                                                            touches.Touches.Any(y => x.BoundsProvider().Contains(y))))
+        foreach (var handler in _touchUpHandlers.Where(x => 
+                     x.BoundsProvider is null || touches.Touches.Any(y => x.BoundsProvider().Contains(y))))
         {
             handler.Handler(touches);
         }
     }
 }
 
-public class RenderLoop : IRenderLoop, IDrawable
+public interface IGameLoopFactory
 {
-    private readonly IGraphicsView _view;
-    private readonly IEnumerable<IRenderGameObject> _renders;
+    GameLoop Create(GraphicsView view);
+}
 
-    public RenderLoop(IGraphicsView view, IEnumerable<IRenderGameObject> renders)
+public class GameLoopFactory : IGameLoopFactory
+{
+    public GameLoop Create(GraphicsView view)
     {
-        _view = view;
-        _renders = renders;
-    }
-
-    public void Render() => _view.Invalidate();
-
-    public void Draw(ICanvas canvas, RectF dirtyRect)
-    {
-        foreach (var render in _renders)
-            render.Render(canvas, dirtyRect);
+        var game = new GameLoop(view.Dispatcher, view);
+        view.Drawable = game;
+        view.EndInteraction += (_, e) => game.OnTouchUp(new(e.Touches));
+        return game;
     }
 }
