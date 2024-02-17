@@ -63,7 +63,6 @@ public interface IGameLoopFactory
 {
     GameLoop Create(
         GraphicsView view,
-        IScene scene,
         IEnumerable<IUpdateGameObject> updates,
         IEnumerable<IRenderGameObject> renders,
         IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers);
@@ -73,13 +72,12 @@ public class GameLoopFactory : IGameLoopFactory
 {
     public GameLoop Create(
         GraphicsView view,
-        IScene scene,
         IEnumerable<IUpdateGameObject> updates,
         IEnumerable<IRenderGameObject> renders,
         IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers)
     {
-        var update = new UpdateLoop(updates, touchUpHandlers, scene);
-        var render = new RenderLoop(view, scene, renders);
+        var update = new UpdateLoop(updates, touchUpHandlers);
+        var render = new RenderLoop(view, renders);
         var game = new GameLoop(view.Dispatcher, update, render);
         view.Drawable = render;
         view.EndInteraction += (_, e) => update.OnTouchUp(new(e.Touches));
@@ -91,21 +89,17 @@ public class UpdateLoop : IUpdateLoop
 {
     private readonly IEnumerable<IUpdateGameObject> _updates;
     private readonly IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers;
-    private readonly IScene _scene;
 
     public UpdateLoop(
         IEnumerable<IUpdateGameObject> updates,
-        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers,
-        IScene scene)
+        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers)
     {
         _updates = updates;
         _touchUpHandlers = touchUpHandlers;
-        _scene = scene;
     }
 
     public void Update(TimeSpan delta)
     {
-        _scene.Update(delta);
         foreach (var update in _updates)
             update.Update(delta);
     }
@@ -126,13 +120,11 @@ public class UpdateLoop : IUpdateLoop
 public class RenderLoop : IRenderLoop, IDrawable
 {
     private readonly IGraphicsView _view;
-    private readonly IScene _scene;
     private readonly IEnumerable<IRenderGameObject> _renders;
 
-    public RenderLoop(IGraphicsView view, IScene scene, IEnumerable<IRenderGameObject> renders)
+    public RenderLoop(IGraphicsView view, IEnumerable<IRenderGameObject> renders)
     {
         _view = view;
-        _scene = scene;
         _renders = renders;
     }
 
@@ -140,7 +132,6 @@ public class RenderLoop : IRenderLoop, IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        _scene.Render(canvas, dirtyRect);
         foreach (var render in _renders)
             render.Render(canvas, dirtyRect);
     }

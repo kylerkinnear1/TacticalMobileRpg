@@ -16,7 +16,7 @@ public partial class MainPage : ContentPage
         var touchUpHandlers = new List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)>();
         _scene = new BattleScene(updates, renders, touchUpHandlers);
         var gameLoopFactory = new GameLoopFactory();
-        var game = gameLoopFactory.Create(GameView, _scene, updates, renders, touchUpHandlers);
+        var game = gameLoopFactory.Create(GameView, updates, renders, touchUpHandlers);
         game.Start();
     }
 }

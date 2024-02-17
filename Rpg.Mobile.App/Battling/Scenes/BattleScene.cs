@@ -2,7 +2,6 @@
 using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
 using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 using Rpg.Mobile.GameSdk;
-using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.App.Battling.Scenes;
 
@@ -25,7 +24,7 @@ public enum BattleMenuOptions
     SelectingTarget,
 }
 
-public class BattleScene : IScene
+public class BattleScene
 {
     private readonly BattleSceneState _state;
     private readonly Rng _rng = new(new());
@@ -155,14 +154,6 @@ public class BattleScene : IScene
         UpdateMenuState(BattleMenuOptions.SelectingMove);
     }
 
-    public void Update(TimeSpan delta)
-    {
-    }
-
-    public void Render(ICanvas canvas, RectF dirtyRect)
-    {
-    }
-
     private void HandleGridClick(TouchEvent touches)
     {
         if (_state.ActiveUnit is null)
@@ -174,17 +165,11 @@ public class BattleScene : IScene
 
         var col = (int)(relativeX / _state.Grid.Size);
         var row = (int)(relativeY / _state.Grid.Size);
+
         var position = new Coordinate(col, row);
-
-        if (!_state.ActiveUnit.Position.X.IsBetweenInclusive(0, _state.Grid.ColumnCount) ||
-            !_state.ActiveUnit.Position.Y.IsBetweenInclusive(0, _state.Grid.RowCount))
-        {
-            return;
-        }
-
         if (_state.MovementShadows.ShadowPoints.Contains(position))
         {
-            _state.ActiveUnit.Position = new(col, row);
+            _state.ActiveUnit.Position = position;
             UpdateMenuState(BattleMenuOptions.SelectingAction);
             return;
         }
