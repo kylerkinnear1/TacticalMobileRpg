@@ -41,6 +41,17 @@ public class BattleScene
     {
         _game = game;
 
+        var gridState = new GridState(new(50f, 50f), 20, 20, 32f);
+        var buttonLeft = gridState.ColumnCount * gridState.Size + gridState.Position.X + ButtonSpacing;
+        var buttonTop = 50f;
+        const float buttonWidth = 150f;
+        const float buttonHeight = 50f;
+        var attackButtonState = new ButtonState("Attack", new(buttonLeft, buttonTop, buttonWidth, buttonHeight));
+        var waitButtonState = new ButtonState("Wait", new(buttonLeft,  buttonTop += ButtonSpacing, buttonWidth, buttonHeight));
+        var backButtonState = new ButtonState("Back", new(buttonLeft, buttonTop += ButtonSpacing, buttonWidth, buttonHeight));
+        var shadowState = new ShadowOverlayState();
+        var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.7f) };
+
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var archer1 = spriteLoader.Load("ArcherIdle01.png");
         var archer2 = spriteLoader.Load("ArcherIdle02.png");
@@ -52,17 +63,6 @@ public class BattleScene
         var ninja2 = spriteLoader.Load("NinjaIdle02.png");
         var warrior1 = spriteLoader.Load("WarriorIdle01.png");
         var warrior2 = spriteLoader.Load("WarriorIdle02.png");
-
-        var gridState = new GridState(new(50f, 50f), 20, 20, 32f);
-        var buttonLeft = gridState.ColumnCount * gridState.Size + gridState.Position.X + ButtonSpacing;
-        var buttonTop = 50f;
-        const float buttonWidth = 150f;
-        const float buttonHeight = 50f;
-        var attackButtonState = new ButtonState("Attack", new(buttonLeft, buttonTop, buttonWidth, buttonHeight));
-        var waitButtonState = new ButtonState("Wait", new(buttonLeft,  buttonTop += ButtonSpacing, buttonWidth, buttonHeight));
-        var backButtonState = new ButtonState("Back", new(buttonLeft, buttonTop += ButtonSpacing, buttonWidth, buttonHeight));
-        var shadowState = new ShadowOverlayState();
-        var attackShadows = new ShadowOverlayState { Color = Colors.DarkRed.WithAlpha(.7f) };
 
         var battleUnits = new List<BattleUnitState>
         {
