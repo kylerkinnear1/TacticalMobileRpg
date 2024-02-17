@@ -162,7 +162,11 @@ public class BattleScene : IScene
     {
         _state.MovementShadows.ShadowPoints.Clear();
         _state.AttackShadows.ShadowPoints.Clear();
-        if (_state.ActiveUnit is not null && _menuState == BattleMenuOptions.SelectingMove)
+
+        if (_state.ActiveUnit is null)
+            return;
+
+        if (_menuState == BattleMenuOptions.SelectingMove)
         {
             var walkablePath = _pathCalc.CreateFanOutArea(
                 _state.ActiveUnit.Position,
@@ -177,12 +181,14 @@ public class BattleScene : IScene
             _state.MovementShadows.ShadowPoints.AddRange(walkablePath);
         }
 
-        if (_state.ActiveUnit is not null && _menuState == BattleMenuOptions.SelectingTarget)
+        if (_menuState == BattleMenuOptions.SelectingTarget)
         {
             var attackPath = _pathCalc.CreateFanOutArea(
                 _state.ActiveUnit.Position,
                 new(_state.Grid.RowCount, _state.Grid.ColumnCount),
-                _state.ActiveUnit.AttackRange)
+                _state.ActiveUnit.AttackRange);
+
+            attackPath = attackPath
                 .Where(a => a != _state.ActiveUnit.Position && 
                             a.X >= 0 && a.Y >= 0 && a.X < _state.Grid.ColumnCount && a.Y < _state.Grid.RowCount)
                 .ToList();
