@@ -23,7 +23,7 @@ public class ButtonState
     }
 }
 
-public class ButtonGameObject : IGameObject
+public class ButtonGameObject : IGameObject, IHandleTouchUp
 {
     private readonly ButtonState _state;
 
@@ -45,4 +45,6 @@ public class ButtonGameObject : IGameObject
         canvas.FillRectangle(_state.Bounds);
         canvas.DrawString(_state.Text, _state.Bounds, HorizontalAlignment.Center, VerticalAlignment.Center);
     }
+
+    public void OnTouchUp(TouchEvent touches) => _state.Handler();
 }

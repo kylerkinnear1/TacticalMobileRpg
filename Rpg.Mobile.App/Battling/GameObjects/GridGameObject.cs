@@ -2,9 +2,12 @@
 
 namespace Rpg.Mobile.App.Battling.GameObjects;
 
-public record GridState(PointF Position, int RowCount, int ColumnCount, float Size);
+public record GridState(PointF Position, int RowCount, int ColumnCount, float Size)
+{
+    public RectF Bounds { get; init; } = new(Position.X, Position.Y, ColumnCount * Size, RowCount * Size);
+}
 
-public class GridGameObject : IGameObject
+public class GridGameObject : IGameObject, IHandleTouchUp
 {
     private readonly GridState _state;
 
@@ -33,5 +36,10 @@ public class GridGameObject : IGameObject
         }
 
         // TODO: dirty rect
+    }
+
+    public void OnTouchUp(TouchEvent touches)
+    {
+        throw new NotImplementedException();
     }
 }

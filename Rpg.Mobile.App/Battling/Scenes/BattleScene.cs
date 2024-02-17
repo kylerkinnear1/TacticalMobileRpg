@@ -33,6 +33,7 @@ public class BattleScene : IScene
 
     private readonly List<IUpdateGameObject> _updates;
     private readonly List<IRenderGameObject> _renderers;
+    private readonly List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers;
 
     private readonly PathCalculator _pathCalc = new();
     private Coordinate _lastPosition = new(3, 3);
@@ -41,10 +42,12 @@ public class BattleScene : IScene
 
     public BattleScene(
         List<IUpdateGameObject> updates,
-        List<IRenderGameObject> renders)
+        List<IRenderGameObject> renders,
+        List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers)
     {
         _updates = updates;
         _renderers = renders;
+        _touchUpHandlers = touchUpHandlers;
 
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var archer1 = spriteLoader.Load("ArcherIdle01.png");
@@ -121,6 +124,10 @@ public class BattleScene : IScene
         AddGameObject(buttonGameObject3);
         
         _damageCalculator = new DamageCalculator(_rng);
+        _touchUpHandlers.Add((buttonGameObject1.OnTouchUp, () => _state.Buttons[0].Bounds));
+        _touchUpHandlers.Add((buttonGameObject2.OnTouchUp, () => _state.Buttons[1].Bounds));
+        _touchUpHandlers.Add((buttonGameObject3.OnTouchUp, () => _state.Buttons[2].Bounds));
+        _touchUpHandlers.Add((HandleGridClick, () => gridState.Bounds));
 
         AdvanceToNextUnit();
         UpdateButtons();
@@ -201,22 +208,12 @@ public class BattleScene : IScene
     {
     }
 
-    public void OnClickDown(TouchEventArgs touchEventArgs)
-    {
-    }
-
-    public void OnClickUp(TouchEventArgs touchEventArgs)
-    {
-        HandleGridClick(touchEventArgs);
-        HandleButtonClick(touchEventArgs);
-    }
-
-    private void HandleGridClick(TouchEventArgs touchEventArgs)
+    private void HandleGridClick(TouchEvent touches)
     {
         if (_state.ActiveUnit is null)
             return;
 
-        var point = touchEventArgs.Touches.First();
+        var point = touches.Touches.First();
         var relativeX = point.X - _state.Grid.Position.X;
         var relativeY = point.Y - _state.Grid.Position.Y;
 
@@ -250,13 +247,6 @@ public class BattleScene : IScene
         }
 
         AdvanceToNextUnit();
-    }
-
-    private void HandleButtonClick(TouchEventArgs touchEventArgs)
-    {
-        var point = touchEventArgs.Touches.First();
-        var clickedButton = _state.Buttons.FirstOrDefault(x => x.IsVisible && x.Bounds.Contains(point));
-        clickedButton?.Handler();
     }
 
     private void UpdateButtons()

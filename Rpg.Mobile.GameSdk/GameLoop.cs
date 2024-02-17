@@ -65,7 +65,8 @@ public interface IGameLoopFactory
         GraphicsView view,
         IScene scene,
         IEnumerable<IUpdateGameObject> updates,
-        IEnumerable<IRenderGameObject> renders);
+        IEnumerable<IRenderGameObject> renders,
+        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers);
 }
 
 public class GameLoopFactory : IGameLoopFactory
@@ -74,24 +75,31 @@ public class GameLoopFactory : IGameLoopFactory
         GraphicsView view,
         IScene scene,
         IEnumerable<IUpdateGameObject> updates,
-        IEnumerable<IRenderGameObject> renders)
+        IEnumerable<IRenderGameObject> renders,
+        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers)
     {
-        var update = new UpdateLoop(updates, scene);
+        var update = new UpdateLoop(updates, touchUpHandlers, scene);
         var render = new RenderLoop(view, scene, renders);
         var game = new GameLoop(view.Dispatcher, update, render);
         view.Drawable = render;
+        view.EndInteraction += (_, e) => update.OnTouchUp(new(e.Touches));
         return game;
     }
 }
 
-public class UpdateLoop : IUpdateLoop
+public class UpdateLoop : IUpdateLoop, IHandleTouchUp
 {
     private readonly IEnumerable<IUpdateGameObject> _updates;
+    private readonly IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers;
     private readonly IScene _scene;
 
-    public UpdateLoop(IEnumerable<IUpdateGameObject> updates, IScene scene)
+    public UpdateLoop(
+        IEnumerable<IUpdateGameObject> updates,
+        IEnumerable<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> touchUpHandlers,
+        IScene scene)
     {
         _updates = updates;
+        _touchUpHandlers = touchUpHandlers;
         _scene = scene;
     }
 
@@ -100,6 +108,18 @@ public class UpdateLoop : IUpdateLoop
         _scene.Update(delta);
         foreach (var update in _updates)
             update.Update(delta);
+    }
+
+    public void OnTouchUp(TouchEvent touches)
+    {
+        if (touches.Touches.Length == 0)
+            return;
+
+        foreach (var handler in _touchUpHandlers.Where(x => x.BoundsProvider is null || 
+                                                            touches.Touches.Any(y => x.BoundsProvider().Contains(y))))
+        {
+            handler.Handler(touches);
+        }
     }
 }
 

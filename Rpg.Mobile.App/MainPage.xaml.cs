@@ -13,14 +13,11 @@ public partial class MainPage : ContentPage
 
         var updates = new List<IUpdateGameObject>();
         var renders = new List<IRenderGameObject>();
-        _scene = new BattleScene(updates, renders);
+        var touchUpHandlers = new List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)>();
+        _scene = new BattleScene(updates, renders, touchUpHandlers);
         var gameLoopFactory = new GameLoopFactory();
-        var game = gameLoopFactory.Create(GameView, _scene, updates, renders);
+        var game = gameLoopFactory.Create(GameView, _scene, updates, renders, touchUpHandlers);
         game.Start();
     }
-
-    private void GameView_OnStartInteraction(object? sender, TouchEventArgs e) => _scene.OnClickDown(e);
-
-    private void GameView_OnEndInteraction(object? sender, TouchEventArgs e) => _scene.OnClickUp(e);
 }
 
