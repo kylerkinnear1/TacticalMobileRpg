@@ -40,6 +40,7 @@ public class BattleScene
     public BattleScene(IGameLoop game)
     {
         _game = game;
+        _damageCalculator = new DamageCalculator(_rng);
 
         var gridState = new GridState(new(50f, 50f), 20, 20, 32f);
         var buttonLeft = gridState.ColumnCount * gridState.Size + gridState.Position.X + ButtonSpacing;
@@ -112,7 +113,6 @@ public class BattleScene
         _game.AddGameObject(buttonGameObject2);
         _game.AddGameObject(buttonGameObject3);
         
-        _damageCalculator = new DamageCalculator(_rng);
         _game.AddTouchUpHandler(AttackButtonClicked, () => attackButtonState.Bounds);
         _game.AddTouchUpHandler(WaitButtonClicked, () => waitButtonState.Bounds);
         _game.AddTouchUpHandler(BackButtonClicked, () => backButtonState.Bounds);

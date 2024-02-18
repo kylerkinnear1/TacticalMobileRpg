@@ -2,27 +2,34 @@
 
 namespace Rpg.Mobile.GameSdk;
 
-public record Node<T>(T Value, List<Node<T>> Children);
-
-public record Renderer(IRenderGameObject GameObject, Func<CoordinateF> PositionProvider);
-
-public class RenderTree
+public record Node<T>(T Value, List<Node<T>> Children)
 {
-    private readonly IEnumerable<Node<Renderer>> _renderNodes;
+    public Node(T value) : this(value, new()) { }
+}
 
-    public RenderTree(IEnumerable<Node<Renderer>> renderNodes)
-    {
-        _renderNodes = renderNodes;
-    }
+public interface IRenderTree
+{
+    void Render(ICanvas canvas, RectF dirtyRect);
+
+    void Add(IRenderGameObject render);
+    void Add(IRenderGameObject render, IRenderGameObject child0, params IRenderGameObject[] children);
+    void Add(Node<IRenderGameObject> nestedRenders);
+    void AddToParent(IRenderGameObject parent, params IRenderGameObject[] children);
+    void Remove(IRenderGameObject render);
+}
+
+public class RenderTree : IRenderTree
+{
+    private readonly List<Node<IRenderGameObject>> _renderers = new();
 
     public void Render(ICanvas canvas, RectF dirtyRect)
     {
-        var renderQueue = new Queue<Node<Renderer>>();
+        var renderQueue = new Queue<Node<IRenderGameObject>>();
         var transformQueue = new Queue<CoordinateF?>();
-        foreach (var node in _renderNodes)
+        foreach (var node in _renderers)
         {
             renderQueue.Enqueue(node);
-            transformQueue.Enqueue(CoordinateF.Zero);
+            transformQueue.Enqueue(null);
         }
         
         while (renderQueue.TryDequeue(out var node) && transformQueue.TryDequeue(out var transform))
@@ -47,5 +54,22 @@ public class RenderTree
                 transformQueue.Enqueue(childTransform);
             }
         }
+    }
+
+    public void Add(Renderer render) => _renderers.Add(new(render));
+
+    public void Add(Node<Renderer> nestedRenders)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddToParent(IRenderGameObject parent, params Renderer[] children)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Remove(IRenderGameObject render)
+    {
+        throw new NotImplementedException();
     }
 }

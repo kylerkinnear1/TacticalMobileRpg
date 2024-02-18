@@ -9,6 +9,8 @@ public interface IUpdateGameObject
 
 public interface IRenderGameObject
 {
+    RectF? Bounds { get; }
+
     void Render(ICanvas canvas, RectF dirtyRect);
 }
 

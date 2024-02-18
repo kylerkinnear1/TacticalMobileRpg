@@ -7,15 +7,15 @@ namespace Rpg.Mobile.GameSdk;
 
 public interface IGameLoop
 {
+    IRenderTree RenderTree { get; }
+
     void Start();
 
     void AddUpdate(IUpdateGameObject update);
-    void AddRenderer(IRenderGameObject renders);
-    void AddGameObject(IGameObject gameObject);
-
     void RemoveUpdate(IUpdateGameObject update);
-    void RemoveRenderer(IRenderGameObject renders);
-    void RemoveGameObject(IGameObject gameObject);
+    void AddGameObject(IGameObject gameObject);
+    void AddGameObject(Node<IGameObject> nestedGameObject);
+    void AddGameObject(IGameObject parent, params IGameObject[] children);
 
     void AddTouchUpHandler(Action<TouchEvent> handler);
     void AddTouchUpHandler(Action handler);
@@ -37,7 +37,7 @@ public class GameLoop : IGameLoop, IDrawable
 {
     private readonly List<IUpdateGameObject> _updates = new();
     private readonly List<(Action<TouchEvent> Handler, Func<RectF>? BoundsProvider)> _touchUpHandlers = new();
-    private readonly List<IRenderGameObject> _renders = new();
+    private readonly List<Node<Renderer>> _renders = new();
     private readonly IDispatcher _dispatcher;
     private readonly IGraphicsView _view;
 
@@ -52,6 +52,8 @@ public class GameLoop : IGameLoop, IDrawable
         _dispatcher = dispatcher;
         _view = view;
     }
+
+    public IRenderTree RenderTree { get; } = new RenderTree();
 
     public void Start()
     {
@@ -74,19 +76,22 @@ public class GameLoop : IGameLoop, IDrawable
     }
 
     public void AddUpdate(IUpdateGameObject update) => _updates.Add(update);
-    public void AddRenderer(IRenderGameObject renders) => _renders.Add(renders);
+    public void RemoveUpdate(IUpdateGameObject update) => _updates.Remove(update);
+
     public void AddGameObject(IGameObject gameObject)
     {
-        AddUpdate(gameObject);
-        AddRenderer(gameObject);
+        _updates.Add(gameObject);
+        _renders.Add(new(new(gameObject)));
     }
 
-    public void RemoveUpdate(IUpdateGameObject update) => _updates.Remove(update);
-    public void RemoveRenderer(IRenderGameObject renders) => _renders.Remove(renders);
-
-    public void RemoveGameObject(IGameObject gameObject)
+    public void AddGameObject(Node<IGameObject> nestedGameObject)
     {
-        _updates.Remove(gameObject);
+        throw new NotImplementedException();
+    }
+
+    public void AddGameObject(IGameObject parent, params IGameObject[] children)
+    {
+        throw new NotImplementedException();
     }
 
     public void AddTouchUpHandler(Action<TouchEvent> handler) => _touchUpHandlers.Add((handler, null));
@@ -94,11 +99,7 @@ public class GameLoop : IGameLoop, IDrawable
     public void AddTouchUpHandler(Action<TouchEvent> handler, Func<RectF> bounds) => _touchUpHandlers.Add((handler, bounds));
     public void AddTouchUpHandler(Action handler, Func<RectF> bounds) => _touchUpHandlers.Add((_ => handler(), bounds));
 
-    public void Draw(ICanvas canvas, RectF dirtyRect)
-    {
-        foreach (var render in _renders)
-            render.Render(canvas, dirtyRect);
-    }
+    public void Draw(ICanvas canvas, RectF dirtyRect) => RenderTree.Render(canvas, dirtyRect);
 
     public void OnTouchUp(TouchEvent touches)
     {
