@@ -17,15 +17,15 @@ public class RenderTree
 
     public void Render(ICanvas canvas, RectF dirtyRect)
     {
-        var queue = new Queue<Node<Renderer>>();
+        var renderQueue = new Queue<Node<Renderer>>();
         var transformQueue = new Queue<CoordinateF?>();
         foreach (var node in _renderNodes)
         {
-            queue.Enqueue(node);
+            renderQueue.Enqueue(node);
             transformQueue.Enqueue(CoordinateF.Zero);
         }
         
-        while (queue.TryDequeue(out var node) && transformQueue.TryDequeue(out var transform))
+        while (renderQueue.TryDequeue(out var node) && transformQueue.TryDequeue(out var transform))
         {
             if (transform is not null)
                 canvas.Translate(transform.X, transform.Y);
@@ -37,7 +37,7 @@ public class RenderTree
             var position = node.Value.PositionProvider();
             for (var i = 0; i < node.Children.Count; i++)
             {
-                queue.Enqueue(node.Children[i]);
+                renderQueue.Enqueue(node.Children[i]);
                 var childTransform = i switch
                 {
                     0 => position,
