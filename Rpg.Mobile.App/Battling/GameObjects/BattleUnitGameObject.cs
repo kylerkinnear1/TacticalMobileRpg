@@ -53,7 +53,7 @@ public class BattleUnitGameObject : IGameObject
         var x = _state.Position.X * _scene.Grid.Size + _scene.Grid.Position.X;
         var y = _state.Position.Y * _scene.Grid.Size + _scene.Grid.Position.Y;
         canvas.Draw(_state.Sprite, new(x, y - 3f), _state.Scale);
-
+        
         canvas.Font = _state.StatusFont;
         canvas.FontSize = 22f;
         canvas.FontColor = _state.PlayerId == 0 ? Colors.Aqua : Colors.Orange;

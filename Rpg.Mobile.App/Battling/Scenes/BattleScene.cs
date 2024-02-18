@@ -33,7 +33,7 @@ public class BattleScene
     private readonly IGameLoop _game;
 
     private readonly PathCalculator _pathCalc = new();
-    private Coordinate _lastPosition = new(3, 3);
+    private Coordinate _lastPosition;
     private BattleMenuOptions _menuState = BattleMenuOptions.SelectingMove;
     private const float ButtonSpacing = 100f;
 
@@ -77,7 +77,7 @@ public class BattleScene
             new(1, ninja2) { Position = new(17, 12), Attack = 10, Defense = 6, Movement = 7 },
             new(1, warrior2) { Position = new(17, 15), Attack = 10, Defense = 7, Movement = 4 },
         };
-        var turnOrder = battleUnits.OrderBy(x => Guid.NewGuid()).ToList(); // pseudo random for now.
+        var turnOrder = battleUnits.OrderBy(_ => Guid.NewGuid()).ToList(); // pseudo random for now.
         _lastPosition = turnOrder.First().Position;
 
         var buttons = new List<ButtonState> { attackButtonState, waitButtonState, backButtonState };

@@ -13,5 +13,3 @@ public interface IRenderGameObject
 }
 
 public interface IGameObject : IUpdateGameObject, IRenderGameObject { }
-
-public record TouchEvent(PointF[] Touches);

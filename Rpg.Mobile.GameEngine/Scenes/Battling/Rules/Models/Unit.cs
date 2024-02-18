@@ -1,4 +1,6 @@
-﻿namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
+﻿using Rpg.Mobile.GameSdk;
+
+namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 
 public record UnitId(int Id);
 public record Unit(
