@@ -21,17 +21,15 @@ public class ButtonState
     }
 }
 
-public class ButtonGameObject : IGameObject
+public class ButtonGameObject : ComponentBase
 {
     private readonly ButtonState _state;
 
-    public ButtonGameObject(ButtonState state) => _state = state;
+    public ButtonGameObject(ButtonState state) : base(state.Bounds) => _state = state;
 
-    public void Update(TimeSpan delta)
-    {
-    }
+    public override void Update(TimeSpan delta) => Bounds = _state.Bounds;
 
-    public void Render(ICanvas canvas, RectF dirtyRect)
+    public override void Render(ICanvas canvas, RectF dirtyRect)
     {
         if (!_state.IsVisible)
             return;

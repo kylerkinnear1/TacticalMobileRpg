@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.App.Battling.GameObjects;
 using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
-using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
 using Rpg.Mobile.GameSdk;
+using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Battling.Scenes;
 
@@ -24,22 +24,19 @@ public enum BattleMenuOptions
     SelectingTarget,
 }
 
-public class BattleScene
+public class BattleScene : SceneBase
 {
     private readonly BattleSceneState _state;
     private readonly Rng _rng = new(new());
     private readonly IDamageCalculator _damageCalculator;
 
-    private readonly IGameLoop _game;
-
     private readonly PathCalculator _pathCalc = new();
-    private Coordinate _lastPosition;
+    private Point _lastPosition;
     private BattleMenuOptions _menuState = BattleMenuOptions.SelectingMove;
     private const float ButtonSpacing = 100f;
 
-    public BattleScene(IGameLoop game)
+    public BattleScene()
     {
-        _game = game;
         _damageCalculator = new DamageCalculator(_rng);
 
         var gridState = new GridState(new(50f, 50f), 20, 20, 32f);
@@ -94,36 +91,36 @@ public class BattleScene
         };
 
         var gridGameObject = new GridGameObject(_state.Grid);
-        var mapGameObject = new MapGameObject();
+        var mapGameObject = new MapGameObject(ActiveCamera);
         var buttonGameObject1 = new ButtonGameObject(attackButtonState);
         var buttonGameObject2 = new ButtonGameObject(waitButtonState);
         var buttonGameObject3 = new ButtonGameObject(backButtonState);
         var shadowGameObject = new ShadowOverlayGameObject(shadowState, _state);
         var attackShadowGameObject = new ShadowOverlayGameObject(attackShadows, _state);
 
-        _game.AddGameObject(mapGameObject);
-        _game.AddGameObject(gridGameObject);
-        _game.AddGameObject(shadowGameObject);
-        _game.AddGameObject(attackShadowGameObject);
+        Add(mapGameObject);
+        Add(gridGameObject);
+        Add(shadowGameObject);
+        Add(attackShadowGameObject);
 
         foreach (var unit in battleUnits)
-            _game.AddGameObject(new BattleUnitGameObject(_state, unit));
+            Add(new BattleUnitGameObject(_state, unit));
 
-        _game.AddGameObject(buttonGameObject1);
-        _game.AddGameObject(buttonGameObject2);
-        _game.AddGameObject(buttonGameObject3);
+        Add(buttonGameObject1);
+        Add(buttonGameObject2);
+        Add(buttonGameObject3);
         
-        _game.AddTouchUpHandler(AttackButtonClicked, () => attackButtonState.Bounds);
-        _game.AddTouchUpHandler(WaitButtonClicked, () => waitButtonState.Bounds);
-        _game.AddTouchUpHandler(BackButtonClicked, () => backButtonState.Bounds);
-        _game.AddTouchUpHandler(HandleGridClick, () => gridState.Bounds);
+        AddTouchUpHandler(buttonGameObject1, AttackButtonClicked);
+        AddTouchUpHandler(buttonGameObject2, WaitButtonClicked);
+        AddTouchUpHandler(buttonGameObject3, BackButtonClicked);
+        AddTouchUpHandler(gridGameObject, HandleGridClick);
 
         AdvanceToNextUnit();
     }
 
-    private void AttackButtonClicked() => UpdateMenuState(BattleMenuOptions.SelectingTarget);
+    private void AttackButtonClicked(TouchEvent touch) => UpdateMenuState(BattleMenuOptions.SelectingTarget);
 
-    private void WaitButtonClicked() => AdvanceToNextUnit();
+    private void WaitButtonClicked(TouchEvent touch) => AdvanceToNextUnit();
 
     private void AdvanceToNextUnit()
     {
@@ -132,7 +129,7 @@ public class BattleScene
         UpdateMenuState(BattleMenuOptions.SelectingMove);
     }
 
-    private void BackButtonClicked()
+    private void BackButtonClicked(TouchEvent touch)
     {
         if (_state.ActiveUnit is null)
             return;
@@ -153,7 +150,7 @@ public class BattleScene
         var col = (int)(relativeX / _state.Grid.Size);
         var row = (int)(relativeY / _state.Grid.Size);
 
-        var position = new Coordinate(col, row);
+        var position = new Point(col, row);
         if (_state.MovementShadows.ShadowPoints.Contains(position))
         {
             _state.ActiveUnit.Position = position;

@@ -10,9 +10,9 @@ public partial class MainPage : ContentPage
         InitializeComponent();
 
         var gameLoopFactory = new GameLoopFactory();
-        var game = gameLoopFactory.Create(GameView);
-
-        _ = new BattleScene(game);
+        var componentList = new List<IComponent>();
+        var scene = new BattleScene();
+        var game = gameLoopFactory.Create(GameView, scene);
         game.Start();
     }
 }

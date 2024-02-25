@@ -4,8 +4,7 @@ namespace Rpg.Mobile.GameSdk;
 
 public record TouchEvent(PointF[] Touches);
 
-public interface IHandleTouchUp
+public interface IHandleTouchUp : IHaveBounds
 {
-    RectF? Bounds { get; }
     void OnTouchUp(TouchEvent touch);
 }

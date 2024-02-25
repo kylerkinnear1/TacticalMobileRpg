@@ -1,27 +1,26 @@
-﻿using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
-using Rpg.Mobile.GameSdk;
-using Rpg.Mobile.GameSdk.Extensions;
+﻿using Rpg.Mobile.GameSdk.Extensions;
+using System.Drawing;
 
 namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
 
 public interface IPathCalculator
 {
-    int Distance(Coordinate a, Coordinate b);
-    IEnumerable<Coordinate> CreateFanOutArea(Coordinate source, Coordinate boundingCorner, int range);
+    int Distance(Point a, Point b);
+    IEnumerable<Point> CreateFanOutArea(Point source, Point boundingCorner, int range);
 }
 
 public class PathCalculator : IPathCalculator
 {
-    public int Distance(Coordinate a, Coordinate b)
+    public int Distance(Point a, Point b)
     {
         var xDistance = Math.Abs(a.X - b.X);
         var yDistance = Math.Abs(a.Y - b.Y);
         return xDistance + yDistance;
     }
 
-    public IEnumerable<Coordinate> CreateFanOutArea(Coordinate source, Coordinate boundingCorner, int range)
+    public IEnumerable<Point> CreateFanOutArea(Point source, Point boundingCorner, int range)
     {
-        var legalPoints = new List<Coordinate>(100);
+        var legalPoints = new List<Point>(100);
         var left = Math.Max(0, source.X - range);
         var right = Math.Min(source.X + range + 1, boundingCorner.X);
         for (var x = left; x < right && x.IsBetweenInclusive(0, boundingCorner.X); x++)
