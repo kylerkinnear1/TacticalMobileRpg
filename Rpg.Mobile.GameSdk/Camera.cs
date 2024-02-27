@@ -39,7 +39,10 @@ public class Camera : ICamera, IDrawable
 
             node.Render(canvas, dirtyRect);
             if (node.Children.Count <= 0)
+            {
+                transforms.Enqueue(PointF.Zero);
                 continue;
+            }
 
             var position = node.Bounds.Location;
             for (var i = 0; i < node.Children.Count; i++)
