@@ -37,7 +37,11 @@ public class Camera : ICamera, IDrawable
             var transform = transforms.Dequeue();
             canvas.Translate(transform.X, transform.Y);
 
+            canvas.SaveState();
+            canvas.Translate(node.Bounds.X, node.Bounds.Y);
             node.Render(canvas, dirtyRect);
+            canvas.RestoreState();
+
             if (node.Children.Count <= 0)
             {
                 transforms.Enqueue(PointF.Zero);
