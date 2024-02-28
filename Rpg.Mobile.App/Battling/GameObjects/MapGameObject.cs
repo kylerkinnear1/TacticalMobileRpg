@@ -13,7 +13,7 @@ public class MapGameObject : ComponentBase
         Bounds = CalculateBounds(_camera);
     }
 
-    private static RectF CalculateBounds(ICamera camera) => new(camera.Position, new(camera.Width, camera.Height));
+    private static RectF CalculateBounds(ICamera camera) => new(camera.FocalPoint, new(camera.Width, camera.Height));
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {

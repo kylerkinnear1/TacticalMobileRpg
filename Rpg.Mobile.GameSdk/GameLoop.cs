@@ -58,7 +58,7 @@ public class GameLoopFactory : IGameLoopFactory
     {
         var game = new GameLoop(scene, view, view.Dispatcher);
         view.Drawable = scene.ActiveCamera;
-        view.EndInteraction += (_, e) => throw new NotImplementedException();
+        view.EndInteraction += (_, e) => scene.ActiveCamera.FocalPoint = e.Touches.First();
         return game;
     }
 }
