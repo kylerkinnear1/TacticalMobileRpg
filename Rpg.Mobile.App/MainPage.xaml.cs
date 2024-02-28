@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Battling.Scenes;
+﻿using Rpg.Mobile.App.Scenes.BattleGrid;
 using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App;
@@ -10,8 +10,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
 
         var gameLoopFactory = new GameLoopFactory();
-        var componentList = new List<IComponent>();
-        var scene = new BattleScene();
+        var scene = new BattleGridScene();
         var game = gameLoopFactory.Create(GameView, scene);
         game.Start();
     }
