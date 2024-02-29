@@ -26,16 +26,31 @@ public interface IComponent : IUpdateComponent, IRenderComponent
 
     // TODO: Remove the set
     IComponent? Parent { get; set; }
+    IEnumerable<IComponent> Parents { get; }
 
-    void AddChild(IComponent child);
-    void RemoveChild(IComponent child);
+    IComponent AddChild(IComponent child);
+    IComponent RemoveChild(IComponent child);
     void SetParent(IComponent? parent);
 }
 
 public abstract class ComponentBase : IComponent
 {
     public IComponent? Parent { get; set; }
-    
+    public RectF Bounds { get; protected set; }
+
+    public IEnumerable<IComponent> Parents
+    {
+        get
+        {
+            var currentParent = Parent;
+            while (currentParent != null)
+            {
+                yield return currentParent;
+                currentParent = currentParent.Parent;
+            }
+        }
+    }
+
     protected List<IComponent> ChildList = new();
     public IReadOnlyCollection<IComponent> Children => ChildList;
 
@@ -48,19 +63,17 @@ public abstract class ComponentBase : IComponent
     {
         get
         {
-            var currentPosition = Bounds.Location;
-            var parent = Parent;
-            while (parent != null)
+            var x = 0f;
+            var y = 0f;
+            foreach (var parent in Parents)
             {
-                currentPosition = new(currentPosition.X + parent.Bounds.X, currentPosition.Y + parent.Bounds.Y);
-                parent = parent.Parent;
+                x += parent.Bounds.X;
+                y += parent.Bounds.Y;
             }
 
-            return new(currentPosition.X, currentPosition.Y, Bounds.Width, Bounds.Height);
+            return new(x, y, Bounds.Width, Bounds.Height);
         }
     }
-
-    public RectF Bounds { get; protected set; }
 
     public abstract void Update(TimeSpan delta);
     public abstract void Render(ICanvas canvas, RectF dirtyRect);
@@ -81,16 +94,19 @@ public abstract class ComponentBase : IComponent
         }
     }
 
-    public void AddChild(IComponent child)
+    public IComponent AddChild(IComponent child)
     {
         child.Parent = this;
         ChildList.Add(child);
+        return child;
     }
 
-    public void RemoveChild(IComponent child)
+    public IComponent RemoveChild(IComponent child)
     {
         if (ChildList.Remove(child))
             child.Parent = null;
+
+        return child;
     }
 
     public void SetParent(IComponent? parent)

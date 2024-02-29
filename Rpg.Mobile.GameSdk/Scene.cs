@@ -1,22 +1,21 @@
-﻿namespace Rpg.Mobile.GameSdk;
+﻿using Microsoft.Maui;
+
+namespace Rpg.Mobile.GameSdk;
 
 public abstract class SceneBase
 {
     public List<IComponent> ComponentTree { get; } = new();
     public List<(IHaveBounds Bounds, Action<TouchEvent> Handler)> TouchUpHandlers { get; } = new();
-    public ICamera ActiveCamera { get; protected set; }
-
-    private readonly List<ICamera> _cameras = new();
-    public IEnumerable<ICamera> Cameras => _cameras;
+    public Camera ActiveCamera { get; set; }
+    public IGraphicsView View { get; }
 
     private IEnumerable<IUpdateComponent> ComponentUpdates => ComponentTree;
-    public IEnumerable<IUpdateComponent> Updates => ComponentUpdates.Concat(_cameras);
+    public IEnumerable<IUpdateComponent> Updates => ComponentUpdates.Append(ActiveCamera);
 
-    protected SceneBase()
+    protected SceneBase(IGraphicsView view)
     {
-        var camera = new Camera(ComponentTree);
-        _cameras.Add(camera);
-        ActiveCamera = camera;
+        View = view;
+        ActiveCamera = new Camera(ComponentTree, view);
     }
 
     protected void Add(IComponent component) => ComponentTree.Add(component);

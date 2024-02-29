@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.App.Scenes.BattleGrid;
+namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
 
 public class GridState
 {

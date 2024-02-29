@@ -1,27 +1,20 @@
-﻿using Microsoft.Maui.Graphics;
+﻿using Microsoft.Maui;
+using Microsoft.Maui.Graphics;
 
 namespace Rpg.Mobile.GameSdk;
 
-public interface ICamera : IUpdateComponent,
-    IDrawable // TODO: Remove
-{
-    PointF FocalPoint { get; set; }
-    float Width { get; set; }
-    float Height { get; set; }
-}
-
-public class Camera : ICamera
+public class Camera : IUpdateComponent, IDrawable
 {
     private readonly List<IComponent> _components;
+    private readonly IGraphicsView _view;
 
-    public Camera(List<IComponent> components)
+    public Camera(List<IComponent> components, IGraphicsView view)
     {
         _components = components;
+        _view = view;
     }
 
-    public PointF FocalPoint { get; set; }
-    public float Width { get; set; }
-    public float Height { get; set; }
+    public PointF Offset { get; set; }
     public ComponentBase? Target { get; set; }
 
     public void Update(TimeSpan delta)
@@ -31,11 +24,25 @@ public class Camera : ICamera
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
         canvas.SaveState();
-        canvas.Translate(FocalPoint.X - (Width / 2), FocalPoint.Y - (Height) / 2);
+        canvas.Translate(
+            Offset.X - (dirtyRect.Width / 2) + (Target?.Bounds.X ?? 0f), 
+            Offset.Y - (dirtyRect.Height / 2) + (Target?.Bounds.Y ?? 0f));
+
         foreach (var node in _components.SelectMany(x => x.All))
         {
             canvas.SaveState();
-            canvas.Translate(node.Bounds.X, node.Bounds.Y);
+            if (node.Parent is not null)
+            {
+                var x = 0f;
+                var y = 0f;
+                foreach (var parent in node.Parents)
+                {
+                    x += parent.Bounds.X;
+                    y += parent.Bounds.Y;
+                }
+                canvas.Translate(x, y);
+            }
+
             node.Render(canvas, dirtyRect);
             canvas.RestoreState();
         }

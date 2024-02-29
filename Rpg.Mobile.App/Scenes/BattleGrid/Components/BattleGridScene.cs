@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.App.Scenes.BattleGrid;
+namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
 
 public class BattleGridScene : SceneBase
 {
@@ -9,10 +9,10 @@ public class BattleGridScene : SceneBase
         Grid = new GridState { ColCount = 10, RowCount = 8}
     };
 
-    public BattleGridScene()
+    public BattleGridScene(IGraphicsView view) : base(view)
     {
         Add(new MapComponent(new(30f, 10f, 200f, 200f), _map));
 
-        ActiveCamera.FocalPoint = new PointF(400f, 600f);
+        ActiveCamera.Offset = new PointF(400f, 600f);
     }
 }
