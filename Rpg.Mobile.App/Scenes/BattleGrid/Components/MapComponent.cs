@@ -2,22 +2,17 @@
 
 namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
 
-public class MapState
-{
-    public GridState Grid { get; set; } = new();
-}
-
 public class MapComponent : ComponentBase
 {
-    public MapState State { get; }
+    public GridComponent Grid { get; } = new(10, 15);
 
-    public MapComponent(RectF bounds, MapState state) : base(bounds)
+    public MapComponent(RectF bounds) : base(bounds)
     {
-        State = state;
-        AddChild(new GridComponent(state.Grid));
+        AddChild(Grid);
     }
 
-    public override void Update(TimeSpan delta) {}
+    public override void Update(TimeSpan delta) =>
+        Bounds = new(Bounds.X, Bounds.Y, Grid.ColCount * Grid.Size, Grid.RowCount * Grid.Size);
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {

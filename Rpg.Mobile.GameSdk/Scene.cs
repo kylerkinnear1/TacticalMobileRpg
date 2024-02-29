@@ -18,6 +18,11 @@ public abstract class SceneBase
         ActiveCamera = new Camera(ComponentTree, view);
     }
 
-    protected void Add(IComponent component) => ComponentTree.Add(component);
+    protected T Add<T>(T component) where T : IComponent
+    {
+        ComponentTree.Add(component);
+        return component;
+    }
+
     protected void AddTouchUpHandler(IHaveBounds component, Action<TouchEvent> handler) => TouchUpHandlers.Add((component, handler));
 }

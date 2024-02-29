@@ -2,39 +2,39 @@
 
 namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
 
-public class GridState
-{
-    public PointF Position { get; set; } = PointF.Zero;
-    public int ColCount { get; set; } = 1;
-    public int RowCount { get; set; } = 1;
-    public float Size { get; set; } = 30f;
-
-    public RectF Bounds => new(Position, new(ColCount * Size, RowCount * Size));
-}
-
 public class GridComponent : ComponentBase
 {
-    public GridState State { get; }
+    public int ColCount { get; set; }
+    public int RowCount { get; set; }
+    public float Size { get; set; }
 
-    public GridComponent(GridState state) : base(state.Bounds) => State = state;
+    public GridComponent(int colCount, int rowCount, float size = 30f) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
+    {
+        ColCount = colCount;
+        RowCount = rowCount;
+        Size = size;
+    }
 
-    public override void Update(TimeSpan delta) => Bounds = State.Bounds;
+    public override void Update(TimeSpan delta) => Bounds = CalcBounds(Bounds.Location, ColCount, RowCount, Size);
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
         canvas.StrokeSize = 2;
         canvas.StrokeColor = Colors.GhostWhite.WithAlpha(.3f);
 
-        for (var row = 0; row < State.RowCount + 1; row++)
+        for (var row = 0; row < RowCount + 1; row++)
         {
-            var y = row * State.Size;
+            var y = row * Size;
             canvas.DrawLine(0, y, Bounds.Width, y);
         }
 
-        for (var col = 0; col < State.ColCount + 1; col++)
+        for (var col = 0; col < ColCount + 1; col++)
         {
-            var x = col * State.Size;
+            var x = col * Size;
             canvas.DrawLine(x, 0, x, Bounds.Height);
         }
     }
+
+    private static RectF CalcBounds(PointF position, int colCount, int rowCount, float size) => 
+        new(position.X, position.Y, colCount * size, rowCount * size);
 }

@@ -10,7 +10,6 @@ public interface IUpdateComponent
 public interface IHaveBounds
 {
     RectF Bounds { get; }
-    RectF AbsoluteBounds { get; }
 }
 
 public interface IRenderComponent : IHaveBounds
@@ -23,6 +22,8 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     IEnumerable<IComponent> All { get; }
     IReadOnlyCollection<IComponent> Children { get; }
     IEnumerable<IComponent> Descendents { get; }
+
+    RectF AbsoluteBounds { get; }
 
     // TODO: Remove the set
     IComponent? Parent { get; set; }
