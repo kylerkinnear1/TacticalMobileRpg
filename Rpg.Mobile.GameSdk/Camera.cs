@@ -33,8 +33,8 @@ public class Camera : IUpdateComponent, IDrawable
             canvas.SaveState();
             if (node.Parent is not null)
             {
-                var x = 0f;
-                var y = 0f;
+                var x = node.Bounds.X;
+                var y = node.Bounds.Y;
                 foreach (var parent in node.Parents)
                 {
                     x += parent.Bounds.X;

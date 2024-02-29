@@ -9,8 +9,9 @@ public abstract class SceneBase
     public Camera ActiveCamera { get; set; }
     public IGraphicsView View { get; }
 
-    private IEnumerable<IUpdateComponent> ComponentUpdates => ComponentTree;
-    public IEnumerable<IUpdateComponent> Updates => ComponentUpdates.Append(ActiveCamera);
+    private IEnumerable<IComponent> ComponentUpdates => ComponentTree;
+    public IEnumerable<IUpdateComponent> Updates => 
+        ComponentUpdates.SelectMany(x => x.All).Cast<IUpdateComponent>().Append(ActiveCamera);
 
     protected SceneBase(IGraphicsView view)
     {

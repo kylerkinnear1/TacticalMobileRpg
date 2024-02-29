@@ -29,7 +29,6 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     IComponent? Parent { get; set; }
     IEnumerable<IComponent> Parents { get; }
 
-    IComponent AddChild(IComponent child);
     IComponent RemoveChild(IComponent child);
     void SetParent(IComponent? parent);
 }
@@ -95,7 +94,7 @@ public abstract class ComponentBase : IComponent
         }
     }
 
-    public IComponent AddChild(IComponent child)
+    public T AddChild<T>(T child) where T : IComponent
     {
         child.Parent = this;
         ChildList.Add(child);
