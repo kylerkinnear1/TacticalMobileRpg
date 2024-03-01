@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
+using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.GameSdk;
 
@@ -45,6 +46,19 @@ public class GameLoop : IGameLoop
         delayUntilNextUpdate = Math.Max(delayUntilNextUpdate, 0);
         _dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(delayUntilNextUpdate), Start);
     }
+
+    public void OnTouchUp(TouchEventArgs touch)
+    {
+        var touchedComponents = _scene.ComponentTree
+            .SelectMany(x => x.All)
+            .Select(x => new { Bounds = x.AbsoluteBounds.Translate(_scene.ActiveCamera.Offset), Component = x })
+            .Where(x => touch.Touches.Any(x.Bounds.Contains));
+
+        foreach (var component in touchedComponents)
+        {
+            component.Component.OnTouchUp(touch);
+        }
+    }
 }
 
 public interface IGameLoopFactory
@@ -58,7 +72,7 @@ public class GameLoopFactory : IGameLoopFactory
     {
         var game = new GameLoop(scene, view, view.Dispatcher);
         view.Drawable = scene.ActiveCamera;
-        view.EndInteraction += (_, e) => scene.ActiveCamera.Offset = e.Touches.First();
+        view.EndInteraction += (_, e) => game.OnTouchUp(e);
         return game;
     }
 }

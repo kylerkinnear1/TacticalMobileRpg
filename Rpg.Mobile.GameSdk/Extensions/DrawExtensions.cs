@@ -12,4 +12,10 @@ public static class DrawExtensions
 
     public static RectF GetBounds(this IImage image, float scale = 1f) =>
         new(0, 0, image.Width * scale, image.Height * scale);
+
+    public static RectF Translate(this RectF bounds, PointF position) =>
+        new(bounds.X + position.X, bounds.Y + position.Y, bounds.Width, bounds.Height);
+
+    public static RectF Translate(this RectF bounds, float x, float y) =>
+        new(bounds.X + x, bounds.Y + y, bounds.Width, bounds.Height);
 }

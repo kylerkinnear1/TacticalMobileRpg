@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Graphics;
+﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 
 namespace Rpg.Mobile.GameSdk;
 
@@ -29,6 +30,7 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     IComponent? Parent { get; set; }
     IEnumerable<IComponent> Parents { get; }
 
+    void OnTouchUp(TouchEventArgs touch);
     IComponent RemoveChild(IComponent child);
     void SetParent(IComponent? parent);
 }
@@ -74,6 +76,8 @@ public abstract class ComponentBase : IComponent
             return new(x, y, Bounds.Width, Bounds.Height);
         }
     }
+
+    public virtual void OnTouchUp(TouchEventArgs touch) { }
 
     public abstract void Update(TimeSpan delta);
     public abstract void Render(ICanvas canvas, RectF dirtyRect);
