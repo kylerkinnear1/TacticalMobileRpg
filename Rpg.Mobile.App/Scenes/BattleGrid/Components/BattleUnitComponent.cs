@@ -35,7 +35,7 @@ public class BattleUnitComponent : ComponentBase
         HealthBar = AddChild(new BattleUnitHealthBar(State));
     }
 
-    public override void Update(TimeSpan delta) => Bounds = State.Sprite.GetBounds(State.Scale);
+    public override void Update(TimeSpan delta) => Bounds = State.Sprite.GetBounds(Bounds.Location, State.Scale);
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {

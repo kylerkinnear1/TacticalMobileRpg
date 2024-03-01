@@ -5,14 +5,19 @@ namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
 public class MiniMapComponent : ComponentBase
 {
     private readonly Camera _camera;
+    private PointF _target;
 
     public MiniMapComponent(Camera camera, RectF bounds) : base(bounds)
     {
         _camera = camera;
         IgnoreCamera = true;
+        _target = _camera.Offset;
     }
 
-    public override void Update(TimeSpan delta) { }
+    public override void Update(TimeSpan delta)
+    {
+        
+    }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
