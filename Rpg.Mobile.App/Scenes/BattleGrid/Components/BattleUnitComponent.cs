@@ -1,9 +1,7 @@
-﻿using Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Models;
-using Rpg.Mobile.GameSdk;
+﻿using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
 using Font = Microsoft.Maui.Graphics.Font;
 using IImage = Microsoft.Maui.Graphics.IImage;
-using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
 

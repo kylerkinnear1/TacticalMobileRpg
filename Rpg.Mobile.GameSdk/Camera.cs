@@ -6,13 +6,8 @@ namespace Rpg.Mobile.GameSdk;
 public class Camera : IUpdateComponent, IDrawable
 {
     private readonly List<IComponent> _components;
-    private readonly IGraphicsView _view;
 
-    public Camera(List<IComponent> components, IGraphicsView view)
-    {
-        _components = components;
-        _view = view;
-    }
+    public Camera(List<IComponent> components) => _components = components;
 
     public PointF Offset { get; set; }
     public ComponentBase? Target { get; set; }

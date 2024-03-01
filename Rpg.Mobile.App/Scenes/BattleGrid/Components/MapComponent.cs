@@ -33,11 +33,9 @@ public class MapComponent : ComponentBase
         var x = (int)(touch.X / Grid.Size);
         var y = (int)(touch.Y / Grid.Size);
 
-        if (x >= 0 && x <= Grid.ColCount &&
-            y >= 0 && y <= Grid.RowCount)
-        {
-            var unit = BattleUnits.First();
-            unit.MoveTo(x * Grid.Size, y * Grid.Size);
-        }
+        if (x < 0 || x > Grid.ColCount || y < 0 || y > Grid.RowCount)
+            return;
+        
+        BattleUnits.First().MoveTo(x * Grid.Size, y * Grid.Size);
     }
 }

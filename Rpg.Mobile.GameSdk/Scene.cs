@@ -13,10 +13,9 @@ public abstract class SceneBase
     public IEnumerable<IUpdateComponent> Updates => 
         ComponentUpdates.SelectMany(x => x.All).Cast<IUpdateComponent>().Append(ActiveCamera);
 
-    protected SceneBase(IGraphicsView view)
+    protected SceneBase(Camera? camera = null)
     {
-        View = view;
-        ActiveCamera = new Camera(ComponentTree, view);
+        ActiveCamera = camera ?? new(ComponentTree);
     }
 
     protected T Add<T>(T component) where T : IComponent
@@ -24,6 +23,4 @@ public abstract class SceneBase
         ComponentTree.Add(component);
         return component;
     }
-
-    protected void AddTouchUpHandler(IHaveBounds component, Action<TouchEvent> handler) => TouchUpHandlers.Add((component, handler));
 }
