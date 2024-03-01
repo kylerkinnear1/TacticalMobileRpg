@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
+using Microsoft.Maui.Graphics;
 using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.GameSdk;
@@ -51,12 +52,17 @@ public class GameLoop : IGameLoop
     {
         var touchedComponents = _scene.ComponentTree
             .SelectMany(x => x.All)
-            .Select(x => new { Bounds = x.AbsoluteBounds.Translate(_scene.ActiveCamera.Offset), Component = x })
+            .Select(x => new
+            {
+                Bounds = x.IgnoreCamera ? x.AbsoluteBounds : x.AbsoluteBounds.Offset(_scene.ActiveCamera.Offset),
+                Component = x
+            })
             .Where(x => touch.Touches.Any(x.Bounds.Contains));
 
         foreach (var component in touchedComponents)
         {
-            component.Component.OnTouchUp(touch);
+            component.Component.OnTouchUp(touch.Touches
+                .Select(x => new PointF(x.X - component.Bounds.X, x.Y - component.Bounds.Y)));
         }
     }
 }

@@ -1,5 +1,7 @@
-﻿using Microsoft.Maui.Controls;
+﻿
+
 using Microsoft.Maui.Graphics;
+using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.GameSdk;
 
@@ -24,21 +26,24 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     IReadOnlyCollection<IComponent> Children { get; }
     IEnumerable<IComponent> Descendents { get; }
 
+    bool IgnoreCamera { get; }
     RectF AbsoluteBounds { get; }
 
     // TODO: Remove the set
     IComponent? Parent { get; set; }
     IEnumerable<IComponent> Parents { get; }
 
-    void OnTouchUp(TouchEventArgs touch);
+    void OnTouchUp(IEnumerable<PointF> touches);
     IComponent RemoveChild(IComponent child);
     void SetParent(IComponent? parent);
+    void MoveTo(float x, float y);
 }
 
 public abstract class ComponentBase : IComponent
 {
     public IComponent? Parent { get; set; }
     public RectF Bounds { get; protected set; }
+    public bool IgnoreCamera { get; set; } = false;
 
     public IEnumerable<IComponent> Parents
     {
@@ -65,8 +70,8 @@ public abstract class ComponentBase : IComponent
     {
         get
         {
-            var x = 0f;
-            var y = 0f;
+            var x = Bounds.X;
+            var y = Bounds.Y;
             foreach (var parent in Parents)
             {
                 x += parent.Bounds.X;
@@ -77,7 +82,7 @@ public abstract class ComponentBase : IComponent
         }
     }
 
-    public virtual void OnTouchUp(TouchEventArgs touch) { }
+    public virtual void OnTouchUp(IEnumerable<PointF> touches) { }
 
     public abstract void Update(TimeSpan delta);
     public abstract void Render(ICanvas canvas, RectF dirtyRect);
@@ -118,4 +123,6 @@ public abstract class ComponentBase : IComponent
         parent?.RemoveChild(this);
         Parent = parent;
     }
+
+    public void MoveTo(float x, float y) => Bounds = new(x, y, Bounds.Width, Bounds.Height);
 }

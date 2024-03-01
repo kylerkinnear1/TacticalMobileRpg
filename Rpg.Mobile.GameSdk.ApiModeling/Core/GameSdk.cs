@@ -1,6 +1,6 @@
 ﻿namespace Rpg.Mobile.GameSdk.ApiModeling.Core;
 
-// TODO: Move to readme + markdown
+// TODO: MoveTo to readme + markdown
 // FLUENT API SDK for 2D Gaming. No base classes.
 // Extensible via extension methods.
 // Eventually, consider making a base game SDK, with a 2d or 3d background layer.

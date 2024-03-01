@@ -16,6 +16,7 @@ public class Camera : IUpdateComponent, IDrawable
 
     public PointF Offset { get; set; }
     public ComponentBase? Target { get; set; }
+    public SizeF Size { get; private set; } = SizeF.Zero; // TODO: This is a HACK SUPREME!
 
     public void Update(TimeSpan delta)
     {
@@ -23,32 +24,16 @@ public class Camera : IUpdateComponent, IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        //canvas.SaveState();
-        //canvas.Translate(
-        //    Offset.X - (dirtyRect.Width / 2) + (Target?.Bounds.X ?? 0f), 
-        //    Offset.Y - (dirtyRect.Height / 2) + (Target?.Bounds.Y ?? 0f));
-
+        Size = dirtyRect.Size;
         foreach (var node in _components.SelectMany(x => x.All))
         {
             canvas.SaveState();
-            var x = node.Bounds.X + Offset.X;
-            var y = node.Bounds.Y + Offset.Y;
-
-            if (node.Parent is not null)
-            {
-                foreach (var parent in node.Parents)
-                {
-                    x += parent.Bounds.X;
-                    y += parent.Bounds.Y;
-                }
-            }
+            var x = node.AbsoluteBounds.X + (node.IgnoreCamera ? 0f : Offset.X);
+            var y = node.AbsoluteBounds.Y + (node.IgnoreCamera ? 0f : Offset.Y);
 
             canvas.Translate(x, y);
-
             node.Render(canvas, dirtyRect);
             canvas.RestoreState();
         }
-
-        //canvas.RestoreState();
     }
 }

@@ -11,14 +11,8 @@ public class BattleUnitState
 {
     public int PlayerId { get; set; }
     public bool IsVisible { get; set; } = true;
-    public Point Position { get; set; } = new(0, 0);
-    public int Movement { get; set; } = 4;
     public int RemainingHealth { get; set; } = 12;
-    public int MaxHealth { get; set; } = 12;
     public IImage Sprite { get; set; }
-    public int Attack { get; set; } = 8;
-    public int AttackRange { get; set; } = 1;
-    public int Defense { get; set; } = 5;
     public float Scale { get; set; } = 1f;
     
     public BattleUnitState(int playerId, IImage sprite)
@@ -62,7 +56,7 @@ public class BattleUnitHealthBar : ComponentBase
         State = state;
     }
 
-    public override void Update(TimeSpan delta) => Bounds = new(-10f, 20f, 30f, 25f);
+    public override void Update(TimeSpan delta) { }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {

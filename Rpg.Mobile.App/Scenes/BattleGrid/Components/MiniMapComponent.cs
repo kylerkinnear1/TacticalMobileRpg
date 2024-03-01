@@ -9,6 +9,7 @@ public class MiniMapComponent : ComponentBase
     public MiniMapComponent(Camera camera, RectF bounds) : base(bounds)
     {
         _camera = camera;
+        IgnoreCamera = true;
     }
 
     public override void Update(TimeSpan delta) { }
@@ -19,8 +20,11 @@ public class MiniMapComponent : ComponentBase
         canvas.FillRectangle(0, 0, Bounds.Width, Bounds.Height);
     }
     
-    public override void OnTouchUp(TouchEventArgs touch)
+    public override void OnTouchUp(IEnumerable<PointF> touches)
     {
-        _camera.Offset = touch.Touches.First();
+        var touchPoint = touches.First();
+        var xPercent = touchPoint.X / Bounds.Width;
+        var yPercent = touchPoint.Y / Bounds.Height;
+        _camera.Offset = new((_camera.Size.Width * xPercent), (_camera.Size.Height * yPercent));
     }
 }
