@@ -8,39 +8,21 @@ namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
 public class BattleUnitState
 {
     public int PlayerId { get; set; }
-    public bool IsVisible { get; set; } = true;
     public int RemainingHealth { get; set; } = 12;
-    public IImage Sprite { get; set; }
-    public float Scale { get; set; } = 1f;
-    
-    public BattleUnitState(int playerId, IImage sprite)
-    {
-        PlayerId = playerId;
-        Sprite = sprite;
-    }
+
+    public BattleUnitState(int playerId) => PlayerId = playerId;
 }
 
-public class BattleUnitComponent : ComponentBase
+public class BattleUnitComponent : SpriteComponentBase
 {
     public BattleUnitState State { get; }
     public BattleUnitHealthBar HealthBar { get; }
 
-    public BattleUnitComponent(BattleUnitState state) 
-        : base(new(0, 0, state.Sprite.Width * state.Scale, state.Sprite.Height * state.Scale))
+    public BattleUnitComponent(IImage sprite, BattleUnitState state) : base(sprite)
     {
         State = state;
 
         HealthBar = AddChild(new BattleUnitHealthBar(State));
-    }
-
-    public override void Update(TimeSpan delta) => Bounds = State.Sprite.GetBounds(Bounds.Location, State.Scale);
-
-    public override void Render(ICanvas canvas, RectF dirtyRect)
-    {
-        if (!State.IsVisible)
-            return;
-
-        canvas.Draw(State.Sprite);
     }
 }
 

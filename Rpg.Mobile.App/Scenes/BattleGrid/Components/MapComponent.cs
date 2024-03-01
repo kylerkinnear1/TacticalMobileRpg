@@ -12,7 +12,7 @@ public class MapComponent : ComponentBase
     {
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var archer1Sprite = spriteLoader.Load("ArcherIdle01.png");
-        BattleUnits.Add(new(new(0, archer1Sprite)));
+        BattleUnits.Add(new BattleUnitComponent(archer1Sprite, new(0)));
 
         Grid = AddChild(new GridComponent(10, 15));
         BattleUnits.ForEach(x => AddChild(x));
