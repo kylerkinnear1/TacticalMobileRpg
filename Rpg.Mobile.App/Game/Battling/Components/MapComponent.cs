@@ -48,7 +48,6 @@ public class MapComponent : ComponentBase
         var y = (int)(touch.Y / Grid.Size);
 
         var unit = BattleUnits[0];
-        var currentX = (int)(unit.Position.X / Grid.Size);
         var currentY = (int)(unit.Position.Y / Grid.Size);
         if (x < 0 || x > Grid.ColCount || y < 0 || y > Grid.RowCount)
             return;
