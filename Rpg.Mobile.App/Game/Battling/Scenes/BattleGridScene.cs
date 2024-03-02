@@ -15,8 +15,8 @@ public class BattleGridScene : SceneBase
     private readonly TileShadowComponent _moveShadow;
 
     private readonly List<BattleUnitComponent> _battleUnits;
-    private ITween<PointF>? _movingUnit;
-    private SpeedTween? _cameraMove;
+    private ITween<PointF>? _gridTween;
+    private SpeedTween? _cameraTween;
 
     public BattleGridScene()
     {
@@ -75,7 +75,7 @@ public class BattleGridScene : SceneBase
         var xPercent = touch.X / _miniMap.Bounds.Width;
         var yPercent = touch.Y / _miniMap.Bounds.Height;
         var target = new PointF(ActiveCamera.Size.Width * xPercent, ActiveCamera.Size.Height * yPercent);
-        _cameraMove = ActiveCamera.Offset.TweenTo(target, 100f);
+        _cameraTween = ActiveCamera.Offset.TweenTo(target, 100f);
     }
 
     public void GridClicked(int x, int y)
@@ -85,15 +85,15 @@ public class BattleGridScene : SceneBase
         var horizontalTarget = _grid.GetPositionForTile(x, currentY);
         var finalTarget = _grid.GetPositionForTile(x, y);
 
-        _movingUnit = _battleUnits[0].Position.TweenTo(200f, horizontalTarget, finalTarget);
+        _gridTween = _battleUnits[0].Position.TweenTo(200f, horizontalTarget, finalTarget);
     }
 
     public override void Update(float deltaTime)
     {
-        if (_movingUnit is not null)
-            _battleUnits[0].Position = _movingUnit.Advance(deltaTime);
+        if (_gridTween is not null)
+            _battleUnits[0].Position = _gridTween.Advance(deltaTime);
 
-        if (_cameraMove is not null)
-            ActiveCamera.Offset = _cameraMove.Advance(deltaTime);
+        if (_cameraTween is not null)
+            ActiveCamera.Offset = _cameraTween.Advance(deltaTime);
     }
 }
