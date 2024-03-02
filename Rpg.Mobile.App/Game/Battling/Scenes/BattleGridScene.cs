@@ -1,6 +1,7 @@
-﻿using Rpg.Mobile.GameSdk;
+﻿using Rpg.Mobile.App.Game.Battling.Components;
+using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
+namespace Rpg.Mobile.App.Game.Battling.Scenes;
 
 public class BattleGridScene : SceneBase
 {

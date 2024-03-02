@@ -3,6 +3,11 @@ using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.GameSdk;
 
+public class Sprite : SpriteComponentBase
+{
+    public Sprite(IImage sprite) : base(sprite) { }
+}
+
 public abstract class SpriteComponentBase : ComponentBase
 {
     public IImage Sprite { get; set; }

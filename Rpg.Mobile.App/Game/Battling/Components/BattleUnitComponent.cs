@@ -1,9 +1,8 @@
 ﻿using Rpg.Mobile.GameSdk;
-using Rpg.Mobile.GameSdk.Extensions;
 using Font = Microsoft.Maui.Graphics.Font;
 using IImage = Microsoft.Maui.Graphics.IImage;
 
-namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
+namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class BattleUnitState
 {
@@ -27,7 +26,7 @@ public class BattleUnitComponent : SpriteComponentBase
 
     public override void Update(TimeSpan delta)
     {
-        HealthBar.MoveTo(-5f, Sprite.Height - HealthBar.Bounds.Height - 10f);
+        HealthBar.MoveTo(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
     }
 }
 

@@ -1,21 +1,26 @@
 ﻿using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
 
-namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
+namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class MapComponent : ComponentBase
 {
     public GridComponent Grid { get; }
-    public List<BattleUnitComponent> BattleUnits { get; } = new();
+    public List<BattleUnitComponent> BattleUnits { get; }
 
     public MapComponent(RectF bounds) : base(bounds)
     {
+        Grid = AddChild(new GridComponent(10, 15));
+
         var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
         var archer1Sprite = spriteLoader.Load("ArcherIdle01.png");
-        BattleUnits.Add(new BattleUnitComponent(archer1Sprite, new(0)));
 
-        Grid = AddChild(new GridComponent(10, 15));
-        BattleUnits.ForEach(x => AddChild(x));
+        BattleUnits = new()
+        {
+            AddChild(new BattleUnitComponent(archer1Sprite, new(0)))
+        };
+
+        MoveToTile(BattleUnits[0], 6, 8);
     }
 
     public override void Update(TimeSpan delta) =>
@@ -36,6 +41,11 @@ public class MapComponent : ComponentBase
         if (x < 0 || x > Grid.ColCount || y < 0 || y > Grid.RowCount)
             return;
         
-        BattleUnits.First().MoveTo(x * Grid.Size, y * Grid.Size);
+        MoveToTile(BattleUnits.First(), x, y);
+    }
+
+    private void MoveToTile(BattleUnitComponent unit, int x, int y)
+    {
+        unit.MoveTo(x * Grid.Size, y * Grid.Size - 5f);
     }
 }

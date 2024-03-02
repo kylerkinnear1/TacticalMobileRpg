@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.App.Scenes.BattleGrid.Components;
+namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class MiniMapComponent : ComponentBase
 {

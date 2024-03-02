@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Scenes.BattleGrid.Components;
+﻿using Rpg.Mobile.App.Game.Battling.Scenes;
 using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App;
