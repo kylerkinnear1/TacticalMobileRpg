@@ -24,6 +24,8 @@ public static class DrawExtensions
     public static RectF Translate(this RectF bounds, float x, float y) =>
         new(bounds.X + x, bounds.Y + y, bounds.Width, bounds.Height);
 
+    public static PointF Add(this PointF a, PointF b) => new(a.X + b.X, a.Y + b.Y);
+
     public static PointF Normalize(this PointF point)
     {
         var distance = (float)Math.Sqrt(point.X * point.X + point.Y * point.Y);

@@ -32,10 +32,12 @@ public class SpeedTween : ITween<PointF>
 
         Last ??= Start;
         var normal = Last.Value.NormalTo(End);
-        var scaled = normal.Scale(Speed);
+        var scaled = normal
+            .Scale(Speed)
+            .Add(Last.Value);
 
-        var x = End.X >= 0 ? Math.Min(scaled.X - Last.Value.X, End.X) : Math.Max(scaled.X - Last.Value.X, End.X);
-        var y = End.Y >= 0 ? Math.Min(scaled.Y - Last.Value.Y, End.Y) : Math.Max(scaled.Y - Last.Value.Y, End.Y);
+        var x = End.X >= 0 ? Math.Min(scaled.X, End.X) : Math.Max(scaled.X, End.X);
+        var y = End.Y >= 0 ? Math.Min(scaled.Y, End.Y) : Math.Max(scaled.Y, End.Y);
 
         Completed = x >= End.X & y >= End.Y;
         Last = new(x, y);
