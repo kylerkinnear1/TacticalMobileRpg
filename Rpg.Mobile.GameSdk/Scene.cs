@@ -23,4 +23,6 @@ public abstract class SceneBase
         ComponentTree.Add(component);
         return component;
     }
+
+    public abstract void Update(float deltaTime);
 }

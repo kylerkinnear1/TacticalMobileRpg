@@ -1,53 +1,20 @@
 ﻿using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
-using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class MapComponent : ComponentBase
 {
     public GridComponent Grid { get; }
-    public List<BattleUnitComponent> BattleUnits { get; }
 
-    private ITween<PointF>? _movingUnit;
-
-    public MapComponent(RectF bounds) : base(bounds)
+    public MapComponent(Action<int, int> onGridClick, RectF bounds) : base(bounds)
     {
-        Grid = AddChild(new GridComponent(10, 15));
-
-        BattleUnits = new()
-        {
-            AddChild(new BattleUnitComponent(Images.ArcherIdle01, new(0))),
-            AddChild(new BattleUnitComponent(Images.HealerIdle01, new(0))),
-            AddChild(new BattleUnitComponent(Images.MageIdle01, new(0))),
-            AddChild(new BattleUnitComponent(Images.NinjaIdle01, new(0))),
-            AddChild(new BattleUnitComponent(Images.WarriorIdle01, new(0))),
-            AddChild(new BattleUnitComponent(Images.ArcherIdle02, new(1))),
-            AddChild(new BattleUnitComponent(Images.HealerIdle02, new(1))),
-            AddChild(new BattleUnitComponent(Images.MageIdle02, new(1))),
-            AddChild(new BattleUnitComponent(Images.NinjaIdle02, new(1))),
-            AddChild(new BattleUnitComponent(Images.WarriorIdle02, new(1)))
-        };
-
-        foreach (var (unit, index) in BattleUnits.Where(x => x.State.PlayerId == 0).Select((x, i) => (x, i)))
-        {
-            unit.MoveTo(GetPositionForTile(1, (index * 2) + 1));
-        }
-
-        foreach (var (unit, index) in BattleUnits.Where(x => x.State.PlayerId == 1).Select((x, i) => (x, i)))
-        {
-            unit.MoveTo(GetPositionForTile(9, (index * 2) + 1));
-        }
+        Grid = AddChild(new GridComponent(onGridClick, 10, 15));
     }
 
     public override void Update(float deltaTime)
     {
         Bounds = new(Bounds.X, Bounds.Y, Grid.ColCount * Grid.Size, Grid.RowCount * Grid.Size);
-        if (_movingUnit is null)
-            return;
-
-        var next = _movingUnit.Advance(deltaTime);
-        BattleUnits[0].MoveTo(next);
     }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
@@ -55,23 +22,4 @@ public class MapComponent : ComponentBase
         canvas.FillColor = Colors.ForestGreen;
         canvas.Fill(Bounds.Size);
     }
-
-    public override void OnTouchUp(IEnumerable<PointF> touches)
-    {
-        var touch = touches.First();
-        var x = (int)(touch.X / Grid.Size);
-        var y = (int)(touch.Y / Grid.Size);
-
-        var unit = BattleUnits[0];
-        var currentY = (int)(unit.Position.Y / Grid.Size);
-        if (x < 0 || x > Grid.ColCount || y < 0 || y > Grid.RowCount)
-            return;
-
-        var horizontalTarget = GetPositionForTile(x, currentY);
-        var finalTarget = GetPositionForTile(x, y);
-
-        _movingUnit = unit.Position.TweenTo(200f, horizontalTarget, finalTarget);
-    }
-
-    public PointF GetPositionForTile(int x, int y) => new(x * Grid.Size, y * Grid.Size);
 }

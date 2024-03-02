@@ -32,8 +32,11 @@ public class GameLoop : IGameLoop
         var startTime = DateTime.UtcNow;
         var delta = startTime - _lastUpdate;
 
+        var deltaTime = (float)delta.TotalSeconds;
         foreach (var node in _scene.Updates)
-            node.Update((float)delta.TotalSeconds);
+            node.Update(deltaTime);
+
+        _scene.Update(deltaTime);
 
         _lastUpdate = startTime;
 

@@ -8,6 +8,7 @@ public class BattleUnitState
 {
     public int PlayerId { get; set; }
     public int RemainingHealth { get; set; } = 12;
+    public int Movement { get; set; } = 4;
 
     public BattleUnitState(int playerId) => PlayerId = playerId;
 }
