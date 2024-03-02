@@ -4,18 +4,14 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class MiniMapComponent : ComponentBase
 {
-    private readonly Camera _camera;
-    private SpeedTween? _cameraMove;
+    private readonly Action<PointF> _onTouchUp;
 
-    public MiniMapComponent(Camera camera, RectF bounds) : base(bounds) => _camera = camera;
-
-    public override void Update(float deltaTime)
+    public MiniMapComponent(Action<PointF> onTouchUp, RectF bounds) : base(bounds)
     {
-        if (_cameraMove is null)
-            return;
-
-        _camera.Offset = _cameraMove.Advance(deltaTime);
+        _onTouchUp = onTouchUp;
     }
+
+    public override void Update(float deltaTime) { }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
@@ -23,12 +19,5 @@ public class MiniMapComponent : ComponentBase
         canvas.FillRectangle(0, 0, Bounds.Width, Bounds.Height);
     }
     
-    public override void OnTouchUp(IEnumerable<PointF> touches)
-    {
-        var touchPoint = touches.First();
-        var xPercent = touchPoint.X / Bounds.Width;
-        var yPercent = touchPoint.Y / Bounds.Height;
-        var target = new PointF(_camera.Size.Width * xPercent, _camera.Size.Height * yPercent);
-        _cameraMove = _camera.Offset.TweenTo(target, 100f);
-    }
+    public override void OnTouchUp(IEnumerable<PointF> touches) => _onTouchUp(touches.First());
 }
