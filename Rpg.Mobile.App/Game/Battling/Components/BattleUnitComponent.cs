@@ -15,23 +15,23 @@ public class BattleUnitState
 public class BattleUnitComponent : SpriteComponentBase
 {
     public BattleUnitState State { get; }
-    public BattleUnitHealthBar HealthBar { get; }
+    public BattleUnitHealthBarComponent HealthBar { get; }
 
     public BattleUnitComponent(IImage sprite, BattleUnitState state) : base(sprite)
     {
         State = state;
 
-        HealthBar = AddChild(new BattleUnitHealthBar(State));
+        HealthBar = AddChild(new BattleUnitHealthBarComponent(State));
         HealthBar.MoveTo(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
     }
 }
 
-public class BattleUnitHealthBar : ComponentBase
+public class BattleUnitHealthBarComponent : ComponentBase
 {
     public BattleUnitState State { get; }
     public Font Font { get; set; } = new("Arial", FontWeights.ExtraBold, FontStyleType.Italic);
 
-    public BattleUnitHealthBar(BattleUnitState state) : base(new(0f, 0f, 30f, 25f))
+    public BattleUnitHealthBarComponent(BattleUnitState state) : base(new(0f, 0f, 30f, 25f))
     {
         State = state;
     }

@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.App.Game.Menu;
-using Rpg.Mobile.GameSdk;
+﻿using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
+using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 
@@ -15,15 +15,29 @@ public class MapComponent : ComponentBase
     {
         Grid = AddChild(new GridComponent(10, 15));
 
-        var spriteLoader = new EmbeddedResourceImageLoader(new(GetType().Assembly));
-        var archer1Sprite = spriteLoader.Load("ArcherIdle01.png");
-
         BattleUnits = new()
         {
-            AddChild(new BattleUnitComponent(archer1Sprite, new(0)))
+            AddChild(new BattleUnitComponent(Images.ArcherIdle01, new(0))),
+            AddChild(new BattleUnitComponent(Images.HealerIdle01, new(0))),
+            AddChild(new BattleUnitComponent(Images.MageIdle01, new(0))),
+            AddChild(new BattleUnitComponent(Images.NinjaIdle01, new(0))),
+            AddChild(new BattleUnitComponent(Images.WarriorIdle01, new(0))),
+            AddChild(new BattleUnitComponent(Images.ArcherIdle02, new(1))),
+            AddChild(new BattleUnitComponent(Images.HealerIdle02, new(1))),
+            AddChild(new BattleUnitComponent(Images.MageIdle02, new(1))),
+            AddChild(new BattleUnitComponent(Images.NinjaIdle02, new(1))),
+            AddChild(new BattleUnitComponent(Images.WarriorIdle02, new(1)))
         };
 
-        BattleUnits[0].MoveTo(GetPositionForTile(6, 8));
+        foreach (var (unit, index) in BattleUnits.Where(x => x.State.PlayerId == 0).Select((x, i) => (x, i)))
+        {
+            unit.MoveTo(GetPositionForTile(1, (index * 2) + 1));
+        }
+
+        foreach (var (unit, index) in BattleUnits.Where(x => x.State.PlayerId == 1).Select((x, i) => (x, i)))
+        {
+            unit.MoveTo(GetPositionForTile(9, (index * 2) + 1));
+        }
     }
 
     public override void Update(float deltaTime)
