@@ -25,6 +25,7 @@ public interface IComponent : IUpdateComponent, IRenderComponent
 
     bool IgnoreCamera { get; }
     RectF AbsoluteBounds { get; }
+    PointF Position { get; set; }
 
     // TODO: Remove the set
     IComponent? Parent { get; set; }
@@ -33,14 +34,17 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     void OnTouchUp(IEnumerable<PointF> touches);
     IComponent RemoveChild(IComponent child);
     void SetParent(IComponent? parent);
-    void MoveTo(float x, float y);
 }
 
 public abstract class ComponentBase : IComponent
 {
     public IComponent? Parent { get; set; }
     public RectF Bounds { get; protected set; }
-    public PointF Position => Bounds.Location;
+    public PointF Position
+    {
+        get => Bounds.Location;
+        set => Bounds = new(value, Bounds.Size);
+    }
 
     public bool IgnoreCamera { get; set; } = false;
 
@@ -122,7 +126,4 @@ public abstract class ComponentBase : IComponent
         parent?.RemoveChild(this);
         Parent = parent;
     }
-
-    public void MoveTo(float x, float y) => Bounds = new(x, y, Bounds.Width, Bounds.Height);
-    public void MoveTo(PointF point) => Bounds = new(point.X, point.Y, Bounds.Width, Bounds.Height);
 }

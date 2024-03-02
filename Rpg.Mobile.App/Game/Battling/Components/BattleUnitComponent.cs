@@ -23,7 +23,7 @@ public class BattleUnitComponent : SpriteComponentBase
         State = state;
 
         HealthBar = AddChild(new BattleUnitHealthBarComponent(State));
-        HealthBar.MoveTo(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
+        HealthBar.Position = new(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
     }
 }
 

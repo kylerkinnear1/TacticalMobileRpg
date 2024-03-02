@@ -50,12 +50,12 @@ public class BattleGridScene : SceneBase
 
         foreach (var (unit, index) in _battleUnits.Where(x => x.State.PlayerId == 0).Select((x, i) => (x, i)))
         {
-            unit.MoveTo(_grid.GetPositionForTile(1, (index * 2) + 1));
+            unit.Position = _grid.GetPositionForTile(1, (index * 2) + 1);
         }
 
         foreach (var (unit, index) in _battleUnits.Where(x => x.State.PlayerId == 1).Select((x, i) => (x, i)))
         {
-            unit.MoveTo(_grid.GetPositionForTile(9, (index * 2) + 1));
+            unit.Position = _grid.GetPositionForTile(9, (index * 2) + 1);
         }
 
         ActiveCamera.Offset = new PointF(-10f, -30f);
@@ -91,7 +91,7 @@ public class BattleGridScene : SceneBase
     public override void Update(float deltaTime)
     {
         if (_movingUnit is not null)
-            _battleUnits[0].MoveTo(_movingUnit.Advance(deltaTime));
+            _battleUnits[0].Position = _movingUnit.Advance(deltaTime);
 
         if (_cameraMove is not null)
             ActiveCamera.Offset = _cameraMove.Advance(deltaTime);
