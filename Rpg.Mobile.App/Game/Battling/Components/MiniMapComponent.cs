@@ -7,11 +7,7 @@ public class MiniMapComponent : ComponentBase
     private readonly Camera _camera;
     private SpeedTween? _cameraMove;
 
-    public MiniMapComponent(Camera camera, RectF bounds) : base(bounds)
-    {
-        _camera = camera;
-        IgnoreCamera = true;
-    }
+    public MiniMapComponent(Camera camera, RectF bounds) : base(bounds) => _camera = camera;
 
     public override void Update(float deltaTime)
     {
