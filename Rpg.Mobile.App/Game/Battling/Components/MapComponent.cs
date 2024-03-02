@@ -8,7 +8,7 @@ public class MapComponent : ComponentBase
     public GridComponent Grid { get; }
     public List<BattleUnitComponent> BattleUnits { get; }
 
-    private SpeedTween? _movingUnit;
+    private ITween<PointF>? _movingUnit;
 
     public MapComponent(RectF bounds) : base(bounds)
     {
@@ -47,13 +47,16 @@ public class MapComponent : ComponentBase
         var x = (int)(touch.X / Grid.Size);
         var y = (int)(touch.Y / Grid.Size);
 
+        var unit = BattleUnits[0];
+        var currentX = (int)(unit.Position.X / Grid.Size);
+        var currentY = (int)(unit.Position.Y / Grid.Size);
         if (x < 0 || x > Grid.ColCount || y < 0 || y > Grid.RowCount)
             return;
 
-        
-        var target = GetPositionForTile(x, y);
-        var unit = BattleUnits[0];
-        _movingUnit = unit.Position.TweenTo(target, 5f);
+        var horizontalTarget = GetPositionForTile(x, currentY);
+        var finalTarget = GetPositionForTile(x, y);
+
+        _movingUnit = unit.Position.TweenTo(10f, horizontalTarget, finalTarget);
     }
 
     public PointF GetPositionForTile(int x, int y) => new(x * Grid.Size, y * Grid.Size);

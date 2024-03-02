@@ -20,8 +20,6 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-        builder.Services.AddSingleton<IGameLoopFactory, GameLoopFactory>();
-        
         return builder.Build();
     }
 }
