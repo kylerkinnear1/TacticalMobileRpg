@@ -28,7 +28,7 @@ public class MapComponent : ComponentBase
     public override void Update(TimeSpan delta)
     {
         Bounds = new(Bounds.X, Bounds.Y, Grid.ColCount * Grid.Size, Grid.RowCount * Grid.Size);
-        if (_movingUnit?.Completed ?? true)
+        if (_movingUnit is null)
             return;
 
         var next = _movingUnit.Advance();

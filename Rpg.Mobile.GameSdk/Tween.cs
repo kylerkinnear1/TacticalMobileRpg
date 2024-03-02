@@ -5,6 +5,7 @@ namespace Rpg.Mobile.GameSdk;
 
 public interface ITween<T>
 {
+    bool IsComplete { get; }
     T Advance();
 }
 
@@ -14,7 +15,7 @@ public class SpeedTween : ITween<PointF>
     public PointF End { get; set; }
     public float Speed { get; set; }
     public PointF? Last { get; private set; }
-    public bool Completed { get; private set; }
+    public bool IsComplete => Last.HasValue && End.CloseTo(Last.Value);
 
     public SpeedTween(PointF end, float speed) : this(PointF.Zero, end, speed) { }
 
@@ -27,7 +28,7 @@ public class SpeedTween : ITween<PointF>
 
     public PointF Advance()
     {
-        if (Completed)
+        if (IsComplete)
             return End;
 
         Last ??= Start;
@@ -36,10 +37,10 @@ public class SpeedTween : ITween<PointF>
             .Scale(Speed)
             .Add(Last.Value);
 
-        var x = End.X >= 0 ? Math.Min(scaled.X, End.X) : Math.Max(scaled.X, End.X);
-        var y = End.Y >= 0 ? Math.Min(scaled.Y, End.Y) : Math.Max(scaled.Y, End.Y);
-
-        Completed = x >= End.X & y >= End.Y;
+        var movingLeft = normal.X < 0;
+        var movingUp = normal.Y < 0;
+        var x = movingLeft ? Math.Max(scaled.X, End.X) : Math.Min(scaled.X, End.X);
+        var y = movingUp ? Math.Max(scaled.Y, End.Y) : Math.Min(scaled.Y, End.Y);
         Last = new(x, y);
         return Last.Value;
     }

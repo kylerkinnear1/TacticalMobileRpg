@@ -28,8 +28,10 @@ public static class DrawExtensions
 
     public static PointF Normalize(this PointF point)
     {
-        var distance = (float)Math.Sqrt(point.X * point.X + point.Y * point.Y);
-        return new PointF(point.X / distance, point.Y / distance);
+        var distance = Math.Sqrt(point.X * point.X + point.Y * point.Y);
+        return distance != 0 
+            ? new PointF(point.X / (float)distance, point.Y / (float)distance)
+            : point;
     }
 
     public static PointF NormalTo(this PointF a, PointF b)
@@ -46,4 +48,7 @@ public static class DrawExtensions
     
     public static PointF Scale(this PointF point, float scale) =>
         new(point.X * scale, point.Y * scale);
+
+    public static bool CloseTo(this PointF a, PointF b, float tolerance = .001f) =>
+        a.X.CloseTo(b.X, tolerance) && a.Y.CloseTo(b.Y, tolerance);
 }

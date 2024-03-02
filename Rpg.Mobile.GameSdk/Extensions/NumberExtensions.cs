@@ -3,14 +3,19 @@
 // For float fuzzy math
 public static class FloatExtensions
 {
-    public static float Mod(this float value, float mod, float tolerance = .1f)
+    public static bool CloseTo(this float a, float b, float tolerance = .001f)
     {
-        throw new NotImplementedException();
-    }
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        if (a == b)
+            return true;
 
-    public static float Equal(this float a, float b, float tolerance = .1f)
-    {
-        throw new NotImplementedException();
+        var absA = Math.Abs(a);
+        var absB = Math.Abs(b);
+        var diff = Math.Abs(a - b);
+        if (a == 0 || b == 0 || absA + absB < float.MinValue)
+            return diff < (tolerance * float.MinValue);
+
+        return diff / (absA + absB) < tolerance;
     }
 }
 
