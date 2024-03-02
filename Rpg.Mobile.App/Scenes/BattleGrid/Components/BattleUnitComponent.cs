@@ -24,6 +24,11 @@ public class BattleUnitComponent : SpriteComponentBase
 
         HealthBar = AddChild(new BattleUnitHealthBar(State));
     }
+
+    public override void Update(TimeSpan delta)
+    {
+        HealthBar.MoveTo(-5f, Sprite.Height - HealthBar.Bounds.Height - 10f);
+    }
 }
 
 public class BattleUnitHealthBar : ComponentBase
@@ -31,7 +36,7 @@ public class BattleUnitHealthBar : ComponentBase
     public BattleUnitState State { get; }
     public Font Font { get; set; } = new("Arial", FontWeights.ExtraBold, FontStyleType.Italic);
 
-    public BattleUnitHealthBar(BattleUnitState state) : base(new(-20f, 40f, 30f, 25f))
+    public BattleUnitHealthBar(BattleUnitState state) : base(new(0f, 0f, 30f, 25f))
     {
         State = state;
     }
