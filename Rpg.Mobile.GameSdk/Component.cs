@@ -43,6 +43,8 @@ public abstract class ComponentBase : IComponent
 {
     public IComponent? Parent { get; set; }
     public RectF Bounds { get; protected set; }
+    public PointF Position => Bounds.Location;
+
     public bool IgnoreCamera { get; set; } = false;
 
     public IEnumerable<IComponent> Parents
@@ -125,4 +127,5 @@ public abstract class ComponentBase : IComponent
     }
 
     public void MoveTo(float x, float y) => Bounds = new(x, y, Bounds.Width, Bounds.Height);
+    public void MoveTo(PointF point) => Bounds = new(point.X, point.Y, Bounds.Width, Bounds.Height);
 }

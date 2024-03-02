@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Controls.PlatformConfiguration;
-
-namespace Rpg.Mobile.GameSdk.Extensions;
+﻿namespace Rpg.Mobile.GameSdk.Extensions;
 
 // For float fuzzy math
 public static class FloatExtensions

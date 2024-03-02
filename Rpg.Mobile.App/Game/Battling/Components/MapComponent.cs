@@ -8,6 +8,8 @@ public class MapComponent : ComponentBase
     public GridComponent Grid { get; }
     public List<BattleUnitComponent> BattleUnits { get; }
 
+    private SpeedTween? _movingUnit;
+
     public MapComponent(RectF bounds) : base(bounds)
     {
         Grid = AddChild(new GridComponent(10, 15));
@@ -20,11 +22,18 @@ public class MapComponent : ComponentBase
             AddChild(new BattleUnitComponent(archer1Sprite, new(0)))
         };
 
-        MoveToTile(BattleUnits[0], 6, 8);
+        BattleUnits[0].MoveTo(GetPositionForTile(6, 8));
     }
 
-    public override void Update(TimeSpan delta) =>
+    public override void Update(TimeSpan delta)
+    {
         Bounds = new(Bounds.X, Bounds.Y, Grid.ColCount * Grid.Size, Grid.RowCount * Grid.Size);
+        if (_movingUnit?.Completed ?? true)
+            return;
+
+        var next = _movingUnit.Advance();
+        BattleUnits[0].MoveTo(next);
+    }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
@@ -40,12 +49,12 @@ public class MapComponent : ComponentBase
 
         if (x < 0 || x > Grid.ColCount || y < 0 || y > Grid.RowCount)
             return;
+
         
-        MoveToTile(BattleUnits.First(), x, y);
+        var target = GetPositionForTile(x, y);
+        var unit = BattleUnits[0];
+        _movingUnit = unit.Position.TweenTo(target, 5f);
     }
 
-    private void MoveToTile(BattleUnitComponent unit, int x, int y)
-    {
-        unit.MoveTo(x * Grid.Size, y * Grid.Size - 5f);
-    }
+    public PointF GetPositionForTile(int x, int y) => new(x * Grid.Size, y * Grid.Size);
 }
