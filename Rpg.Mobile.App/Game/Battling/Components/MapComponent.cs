@@ -25,13 +25,13 @@ public class MapComponent : ComponentBase
         BattleUnits[0].MoveTo(GetPositionForTile(6, 8));
     }
 
-    public override void Update(TimeSpan delta)
+    public override void Update(float deltaTime)
     {
         Bounds = new(Bounds.X, Bounds.Y, Grid.ColCount * Grid.Size, Grid.RowCount * Grid.Size);
         if (_movingUnit is null)
             return;
 
-        var next = _movingUnit.Advance();
+        var next = _movingUnit.Advance(deltaTime);
         BattleUnits[0].MoveTo(next);
     }
 
@@ -55,7 +55,7 @@ public class MapComponent : ComponentBase
         var horizontalTarget = GetPositionForTile(x, currentY);
         var finalTarget = GetPositionForTile(x, y);
 
-        _movingUnit = unit.Position.TweenTo(10f, horizontalTarget, finalTarget);
+        _movingUnit = unit.Position.TweenTo(200f, horizontalTarget, finalTarget);
     }
 
     public PointF GetPositionForTile(int x, int y) => new(x * Grid.Size, y * Grid.Size);

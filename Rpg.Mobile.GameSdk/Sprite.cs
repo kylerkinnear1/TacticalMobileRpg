@@ -19,7 +19,7 @@ public abstract class SpriteComponentBase : ComponentBase
         Sprite = sprite;
     }
 
-    public override void Update(TimeSpan delta) => Bounds = Sprite.GetBounds(Bounds.Location, Scale);
+    public override void Update(float deltaTime) => Bounds = Sprite.GetBounds(Bounds.Location, Scale);
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {

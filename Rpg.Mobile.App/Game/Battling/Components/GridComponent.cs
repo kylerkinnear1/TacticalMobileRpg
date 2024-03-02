@@ -15,7 +15,7 @@ public class GridComponent : ComponentBase
         Size = size;
     }
 
-    public override void Update(TimeSpan delta) => Bounds = CalcBounds(Bounds.Location, ColCount, RowCount, Size);
+    public override void Update(float deltaTime) => Bounds = CalcBounds(Bounds.Location, ColCount, RowCount, Size);
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {

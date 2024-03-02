@@ -1,13 +1,10 @@
-﻿
-
-using Microsoft.Maui.Graphics;
-using Rpg.Mobile.GameSdk.Extensions;
+﻿using Microsoft.Maui.Graphics;
 
 namespace Rpg.Mobile.GameSdk;
 
 public interface IUpdateComponent
 {
-    void Update(TimeSpan delta);
+    void Update(float deltaTime);
 }
 
 public interface IHaveBounds
@@ -86,7 +83,7 @@ public abstract class ComponentBase : IComponent
 
     public virtual void OnTouchUp(IEnumerable<PointF> touches) { }
 
-    public abstract void Update(TimeSpan delta);
+    public abstract void Update(float deltaTime);
     public abstract void Render(ICanvas canvas, RectF dirtyRect);
 
     public IEnumerable<IComponent> All => GetAllRecursive();

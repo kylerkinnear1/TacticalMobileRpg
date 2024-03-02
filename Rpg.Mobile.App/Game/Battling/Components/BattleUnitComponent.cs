@@ -22,10 +22,6 @@ public class BattleUnitComponent : SpriteComponentBase
         State = state;
 
         HealthBar = AddChild(new BattleUnitHealthBar(State));
-    }
-
-    public override void Update(TimeSpan delta)
-    {
         HealthBar.MoveTo(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
     }
 }
@@ -40,7 +36,7 @@ public class BattleUnitHealthBar : ComponentBase
         State = state;
     }
 
-    public override void Update(TimeSpan delta) { }
+    public override void Update(float deltaTime) { }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {

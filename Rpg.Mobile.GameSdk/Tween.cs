@@ -8,7 +8,7 @@ public interface ITween<T>
 {
     bool IsComplete { get; }
 
-    T Advance();
+    T Advance(float deltaTime);
 }
 
 public interface IMoveStartTween<T> : ITween<T>
@@ -28,28 +28,26 @@ public class MultiTween : ITween<PointF>
 
     public bool IsComplete => _index >= Steps.Count;
 
-    public PointF Next
+    public PointF GetNext(float deltaTime)
     {
-        get
+        if (IsComplete)
+            return Last ?? PointF.Zero;
+
+        var lastTween = CurrentTween;
+        if (!lastTween.IsComplete)
         {
-            if (IsComplete)
-                return Last ?? PointF.Zero;
-
-            var lastTween = CurrentTween;
-            if (!lastTween.IsComplete)
-            {
-                return lastTween.Advance();
-            }
-
-            _index++;
-            CurrentTween.Start = Last ?? PointF.Zero;
-            return CurrentTween.Advance();
+            return lastTween.Advance(deltaTime);
         }
+
+        _index++;
+        CurrentTween.Start = Last ?? PointF.Zero;
+        return CurrentTween.Advance(deltaTime);
+
     }
 
-    public PointF Advance()
+    public PointF Advance(float deltaTime)
     {
-        Last = Next;
+        Last = GetNext(deltaTime);
         return Last.Value;
     }
 }
@@ -63,25 +61,22 @@ public class SpeedTween : ITween<PointF>, IMoveStartTween<PointF>
 
     public bool IsComplete => Last.HasValue && End.CloseTo(Last.Value);
 
-    public PointF Next
+    public PointF GetNext(float deltaTime)
     {
-        get
-        {
-            if (IsComplete)
-                return End;
+        if (IsComplete)
+            return End;
 
-            Last ??= Start;
-            var normal = Last.Value.NormalTo(End);
-            var scaled = normal
-                .Scale(Speed)
-                .Add(Last.Value);
+        Last ??= Start;
+        var normal = Last.Value.NormalTo(End);
+        var scaled = normal
+            .Scale(Speed * deltaTime)
+            .Add(Last.Value);
 
-            var movingLeft = normal.X < 0;
-            var movingUp = normal.Y < 0;
-            var x = movingLeft ? Math.Max(scaled.X, End.X) : Math.Min(scaled.X, End.X);
-            var y = movingUp ? Math.Max(scaled.Y, End.Y) : Math.Min(scaled.Y, End.Y);
-            return new(x, y);
-        }
+        var movingLeft = normal.X < 0;
+        var movingUp = normal.Y < 0;
+        var x = movingLeft ? Math.Max(scaled.X, End.X) : Math.Min(scaled.X, End.X);
+        var y = movingUp ? Math.Max(scaled.Y, End.Y) : Math.Min(scaled.Y, End.Y);
+        return new(x, y);
     }
 
     public SpeedTween(PointF end, float speed) : this(PointF.Zero, end, speed) { }
@@ -93,9 +88,9 @@ public class SpeedTween : ITween<PointF>, IMoveStartTween<PointF>
         Speed = speed;
     }
 
-    public PointF Advance()
+    public PointF Advance(float deltaTime)
     {
-        Last = Next;
+        Last = GetNext(deltaTime);
         return Last.Value;
     }
 }

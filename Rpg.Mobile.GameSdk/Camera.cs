@@ -1,5 +1,4 @@
-﻿using Microsoft.Maui;
-using Microsoft.Maui.Graphics;
+﻿using Microsoft.Maui.Graphics;
 
 namespace Rpg.Mobile.GameSdk;
 
@@ -13,7 +12,7 @@ public class Camera : IUpdateComponent, IDrawable
     public ComponentBase? Target { get; set; }
     public SizeF Size { get; private set; } = SizeF.Zero; // TODO: This is a HACK SUPREME!
 
-    public void Update(TimeSpan delta)
+    public void Update(float deltaTime)
     {
     }
 

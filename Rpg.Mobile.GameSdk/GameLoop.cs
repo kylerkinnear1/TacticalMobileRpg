@@ -2,7 +2,6 @@
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Graphics;
-using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.GameSdk;
 
@@ -34,7 +33,7 @@ public class GameLoop : IGameLoop
         var delta = startTime - _lastUpdate;
 
         foreach (var node in _scene.Updates)
-            node.Update(delta);
+            node.Update((float)delta.TotalSeconds);
 
         _lastUpdate = startTime;
 
