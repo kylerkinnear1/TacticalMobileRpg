@@ -31,6 +31,7 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     IComponent? Parent { get; set; }
     IEnumerable<IComponent> Parents { get; }
 
+    void OnHover(PointF touches);
     void OnTouchUp(IEnumerable<PointF> touches);
     IComponent RemoveChild(IComponent child);
     void SetParent(IComponent? parent);
@@ -86,6 +87,7 @@ public abstract class ComponentBase : IComponent
     }
 
     public virtual void OnTouchUp(IEnumerable<PointF> touches) { }
+    public virtual void OnHover(PointF hover) { }
 
     public abstract void Update(float deltaTime);
     public abstract void Render(ICanvas canvas, RectF dirtyRect);

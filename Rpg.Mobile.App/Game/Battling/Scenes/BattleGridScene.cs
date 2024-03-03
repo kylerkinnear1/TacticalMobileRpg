@@ -22,6 +22,7 @@ public class BattleGridScene : SceneBase
     private readonly ButtonComponent _waitButton;
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
+    private readonly StatSheetComponent _stats;
 
     private List<BattleUnitComponent> _battleUnits = new();
     private ITween<PointF>? _unitTween;
@@ -38,18 +39,19 @@ public class BattleGridScene : SceneBase
 
     public BattleGridScene()
     {
-        _grid = new(GridClicked, 10, 15);
+        _grid = new(GridClicked, 10, 12);
         _map = Add(new MapComponent(new(0f, 0f, _grid.Bounds.Width, _grid.Bounds.Height)));
         _moveShadow = new(_map.Bounds) { BackColor = Colors.SlateGray.WithAlpha(.7f) };
         _attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) };
-        _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1100f, 400f, 200f, 200f))
-        {
-            IgnoreCamera = true
-        });
-
+        
         var buttonTop = 0f;
         _attackButton = Add(new ButtonComponent(new(1200f, buttonTop += 50f, 100f, 50f), "Attack", OnAttack) { IgnoreCamera = true });
         _waitButton = Add(new ButtonComponent(new(1200f, buttonTop += 60f, 100f, 50f), "Wait", OnWait) { IgnoreCamera = true });
+
+        _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1100f, _waitButton.Bounds.Bottom + 100f, 200f, 200f))
+        {
+            IgnoreCamera = true
+        });
 
         _map.AddChild(_moveShadow);
         _map.AddChild(_attackShadow);
@@ -69,6 +71,7 @@ public class BattleGridScene : SceneBase
             _map.AddChild(new BattleUnitComponent(1, Images.WarriorIdle02, StatPresets.Warrior))
         };
 
+        _stats = Add(new StatSheetComponent(new(1100f, _miniMap.Bounds.Bottom + 100f, 200f, 300f)) { IgnoreCamera = true });
         InitializeBattlefield(units);
     }
 
@@ -87,7 +90,7 @@ public class BattleGridScene : SceneBase
             unit.Position = _grid.GetPositionForTile(8, (index * 2) + 1, unit.Bounds.Size);
         }
 
-        ActiveCamera.Offset = new PointF(600f, 100f);
+        ActiveCamera.Offset = new PointF(220f, 100f);
         AdvanceToNextUnit();
     }
 
@@ -112,6 +115,10 @@ public class BattleGridScene : SceneBase
     {
         var currentUnit = CurrentUnit;
         var clickedTileCenter = _grid.GetPositionForTile(x, y, SizeF.Zero);
+        var units = _battleUnits
+            .Where(a => a.IsVisible)
+            .ToLookup(a => _grid.GetTileForPosition(a.Position));
+
         var enemies = _battleUnits
             .Where(a => a.PlayerId != currentUnit.PlayerId && a.IsVisible)
             .ToLookup(a => _grid.GetTileForPosition(a.Position));
@@ -135,6 +142,11 @@ public class BattleGridScene : SceneBase
         {
             var finalTarget = _grid.GetPositionForTile(x, y, CurrentUnit.Bounds.Size);
             _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
+        }
+
+        if (_currentState == BattleGridState.SelectingAction && units.Contains(gridPosition))
+        {
+            _stats.ChangeUnit(units[gridPosition].First());
         }
     }
 
