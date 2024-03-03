@@ -110,12 +110,32 @@ public class BattleGridScene : SceneBase
 
     public void GridClicked(int x, int y)
     {
+        var currentUnit = CurrentUnit;
         var position = _grid.GetPositionForTile(x, y);
-        if (!_moveShadow.Shadows.Any(x => x.Contains(position)))
-            return;
+        var enemies = _battleUnits
+            .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.IsVisible)
+            .ToLookup(a => _grid.GetTileForPosition(a.Position));
 
-        var finalTarget = _grid.GetPositionForTile(x, y);
-        _gridTween = CurrentUnit.Position.TweenTo(200f, finalTarget);
+        var gridPosition = new Point(x, y);
+        if (_attackShadow.Shadows.Any(a => a.Contains(position) && enemies.Contains(gridPosition)))
+        {
+            var enemy = enemies[gridPosition].First();
+            var damage = _damage.CalcDamage(currentUnit.State.Attack, currentUnit.State.Defense);
+            enemy.State.RemainingHealth = Math.Max(enemy.State.RemainingHealth - damage, 0);
+            if (enemy.State.RemainingHealth <= 0)
+            {
+                enemy.IsVisible = false;
+                _battleUnits.Remove(enemy);
+            }
+
+            AdvanceToNextUnit();
+        }
+
+        if (_moveShadow.Shadows.Any(a => a.Contains(position)))
+        {
+            var finalTarget = _grid.GetPositionForTile(x, y);
+            _gridTween = CurrentUnit.Position.TweenTo(200f, finalTarget);
+        }
     }
 
     public override void Update(float deltaTime)

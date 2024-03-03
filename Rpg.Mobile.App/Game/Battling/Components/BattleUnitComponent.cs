@@ -8,8 +8,11 @@ public class BattleUnitState
 {
     public int PlayerId { get; set; }
     public int RemainingHealth { get; set; } = 12;
+    public int MaxHealth { get; set; } = 12;
     public int Movement { get; set; } = 4;
     public int AttackRange { get; set; } = 2;
+    public int Attack { get; set; } = 8;
+    public int Defense { get; set; } = 4;
 
     public BattleUnitState(int playerId) => PlayerId = playerId;
 }
@@ -42,6 +45,9 @@ public class BattleUnitHealthBarComponent : ComponentBase
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
+        if (State.RemainingHealth <= 0)
+            return;
+
         canvas.Font = Font;
         canvas.FontSize = 22f;
         canvas.FontColor = State.PlayerId == 0 ? Colors.Aqua : Colors.Orange;
