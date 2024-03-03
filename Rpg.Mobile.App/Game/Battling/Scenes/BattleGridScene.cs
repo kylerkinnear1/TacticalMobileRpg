@@ -25,7 +25,7 @@ public class BattleGridScene : SceneBase
 
     private List<BattleUnitComponent> _battleUnits = new();
     private ITween<PointF>? _gridTween;
-    private SpeedTween? _cameraTween;
+    private ITween<PointF>? _cameraTween;
     private int _currentUnitIndex = -1;
     private Point _gridStart;
 
@@ -114,12 +114,8 @@ public class BattleGridScene : SceneBase
         if (!_moveShadow.Shadows.Any(x => x.Contains(position)))
             return;
 
-        var unit = CurrentUnit;
-        var currentY = (int)(unit.Position.Y / _grid.Size);
-        var horizontalTarget = _grid.GetPositionForTile(x, currentY);
         var finalTarget = _grid.GetPositionForTile(x, y);
-
-        _gridTween = CurrentUnit.Position.TweenTo(200f, horizontalTarget, finalTarget);
+        _gridTween = CurrentUnit.Position.TweenTo(200f, finalTarget);
     }
 
     public override void Update(float deltaTime)
@@ -148,9 +144,10 @@ public class BattleGridScene : SceneBase
         _attackButton.Label = _currentState == BattleGridState.SelectingAttackTarget ? "Back" : "Attack";
         if (_currentState == BattleGridState.SelectingAttackTarget)
         {
+            var currentUnit = CurrentUnit;
             var shadows = _path
                 .CreateFanOutArea(_grid.GetTileForPosition(CurrentUnit.Position), new(_grid.ColCount, _grid.RowCount), CurrentUnit.State.AttackRange)
-                .Where(x => x != _grid.GetTileForPosition(CurrentUnit.Position))
+                .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.State.PlayerId != currentUnit.State.PlayerId))
                 .Select(x => new RectF(x.X * _grid.Size, x.Y * _grid.Size, _grid.Size, _grid.Size))
                 .ToList();
 
