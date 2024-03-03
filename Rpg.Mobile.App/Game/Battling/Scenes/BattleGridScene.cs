@@ -3,6 +3,7 @@ using Rpg.Mobile.App.Game.Battling.Components;
 using Rpg.Mobile.App.Game.Menu;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
+using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Game.Battling.Scenes;
 
@@ -21,12 +22,14 @@ public class BattleGridScene : SceneBase
     private readonly ButtonComponent _waitButton;
     private readonly TileShadowComponent _moveShadow;
 
-    private readonly List<BattleUnitComponent> _battleUnits;
+    private List<BattleUnitComponent> _battleUnits = new();
     private ITween<PointF>? _gridTween;
     private SpeedTween? _cameraTween;
-    private int _currentUnitIndex = 0;
+    private int _currentUnitIndex = -1;
+    private Point _gridStart;
 
     private readonly DamageCalculator _damage = new(new Rng(new()));
+    private readonly PathCalculator _path = new();
 
     private BattleGridState _currentState = BattleGridState.SelectingAction;
 
@@ -36,8 +39,7 @@ public class BattleGridScene : SceneBase
     {
         _grid = new GridComponent(GridClicked, 10, 15);
         _map = Add(new MapComponent(new(0f, 0f, _grid.Bounds.Width, _grid.Bounds.Height)));
-        _map.AddChild(_grid);
-
+        _moveShadow = new TileShadowComponent(_map.Bounds) { BackColor = Colors.SlateGray.WithAlpha(.7f) };
         _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1200f, 500f, 100f, 100f))
         {
             IgnoreCamera = true
@@ -46,7 +48,9 @@ public class BattleGridScene : SceneBase
         var buttonTop = 0f;
         _attackButton = Add(new ButtonComponent(new(1200f, buttonTop += 50f, 100f, 50f), "Attack", OnAttack) { IgnoreCamera = true });
         _waitButton = Add(new ButtonComponent(new(1200f, buttonTop += 60f, 100f, 50f), "Wait", OnWait) { IgnoreCamera = true });
-        _moveShadow = Add(new TileShadowComponent(_map.Bounds));
+
+        _map.AddChild(_moveShadow);
+        _map.AddChild(_grid);
 
         var units = new[]
         {
@@ -62,6 +66,11 @@ public class BattleGridScene : SceneBase
             _map.AddChild(new BattleUnitComponent(Images.WarriorIdle02, new(1)))
         };
 
+        InitializeBattlefield(units);
+    }
+
+    private void InitializeBattlefield(BattleUnitComponent[] units)
+    {
         // temporary solution
         _battleUnits = units.OrderBy(_ => Guid.NewGuid()).ToList();
 
@@ -76,6 +85,7 @@ public class BattleGridScene : SceneBase
         }
 
         ActiveCamera.Offset = new PointF(600f, 100f);
+        AdvanceToNextUnit();
     }
 
     public void OnAttack(IEnumerable<PointF> touches)
@@ -83,9 +93,7 @@ public class BattleGridScene : SceneBase
 
     }
 
-    public void OnWait(IEnumerable<PointF> touches)
-    {
-    }
+    public void OnWait(IEnumerable<PointF> touches) => AdvanceToNextUnit();
 
     public void MiniMapClicked(PointF touch)
     {
@@ -97,18 +105,22 @@ public class BattleGridScene : SceneBase
 
     public void GridClicked(int x, int y)
     {
-        var unit = _battleUnits[0];
+        var position = _grid.GetPositionForTile(x, y);
+        if (!_moveShadow.Shadows.Any(x => x.Contains(position)))
+            return;
+
+        var unit = CurrentUnit;
         var currentY = (int)(unit.Position.Y / _grid.Size);
         var horizontalTarget = _grid.GetPositionForTile(x, currentY);
         var finalTarget = _grid.GetPositionForTile(x, y);
 
-        _gridTween = _battleUnits[0].Position.TweenTo(200f, horizontalTarget, finalTarget);
+        _gridTween = CurrentUnit.Position.TweenTo(200f, horizontalTarget, finalTarget);
     }
 
     public override void Update(float deltaTime)
     {
         if (_gridTween is not null)
-            _battleUnits[0].Position = _gridTween.Advance(deltaTime);
+            CurrentUnit.Position = _gridTween.Advance(deltaTime);
 
         if (_cameraTween is not null)
             ActiveCamera.Offset = _cameraTween.Advance(deltaTime);
@@ -116,9 +128,25 @@ public class BattleGridScene : SceneBase
         _attackButton.Visible = _currentState == BattleGridState.SelectingAction;
         _waitButton.Visible = _currentState == BattleGridState.SelectingAction;
 
+        var gridToUnit = _battleUnits.ToLookup(x => _grid.GetTileForPosition(x.Position));
         if (_currentState == BattleGridState.SelectingAction)
         {
-            
+            var shadows = _path
+                .CreateFanOutArea(_gridStart, new(_grid.ColCount, _grid.RowCount), CurrentUnit.State.Movement)
+                .Where(x => !gridToUnit.Contains(x))
+                .Select(x => new RectF(x.X * _grid.Size, x.Y * _grid.Size, _grid.Size, _grid.Size))
+                .ToList();
+
+            _moveShadow.Shadows.Clear();
+            _moveShadow.Shadows.AddRange(shadows);
         }
+    }
+
+    private void AdvanceToNextUnit()
+    {
+        _currentUnitIndex = _currentUnitIndex + 1 < _battleUnits.Count ? _currentUnitIndex + 1 : 0;
+        _gridStart = _grid.GetTileForPosition(CurrentUnit.Position);
+        _currentState = BattleGridState.SelectingAction;
+        _gridTween = null;
     }
 }

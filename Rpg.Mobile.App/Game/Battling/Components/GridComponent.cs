@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.GameSdk;
+using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 
@@ -41,7 +42,7 @@ public class GridComponent : ComponentBase
     private static RectF CalcBounds(PointF position, int colCount, int rowCount, float size) => 
         new(position.X, position.Y, colCount * size, rowCount * size);
 
-    public Point? GetTileForPosition(float x, float y) => new(x / Size, y / Size);
+    public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));
     public PointF GetPositionForTile(int x, int y) => new(x * Size, y * Size);
 
     public override void OnTouchUp(IEnumerable<PointF> touches)
