@@ -9,6 +9,7 @@ public class BattleUnitState
     public int PlayerId { get; set; }
     public int RemainingHealth { get; set; } = 12;
     public int Movement { get; set; } = 4;
+    public int AttackRange { get; set; } = 2;
 
     public BattleUnitState(int playerId) => PlayerId = playerId;
 }
