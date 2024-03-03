@@ -11,7 +11,7 @@ public class GridComponent : ComponentBase
     public int RowCount { get; set; }
     public float Size { get; set; }
 
-    public GridComponent(Action<int, int> gridClickedHandler, int colCount, int rowCount, float size = 30f) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
+    public GridComponent(Action<int, int> gridClickedHandler, int colCount, int rowCount, float size = 64f) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
     {
         _gridClickedHandler = gridClickedHandler;
         ColCount = colCount;

@@ -11,7 +11,7 @@ public class Sprite : SpriteComponentBase
 public abstract class SpriteComponentBase : ComponentBase
 {
     public IImage Sprite { get; set; }
-    public float Scale { get; set; } = 1f;
+    public float Scale { get; private set; } = 1f;
     public bool IsVisible { get; set; } = true;
 
     protected SpriteComponentBase(IImage sprite) : base(new(0, 0, sprite.Width, sprite.Height))
@@ -27,5 +27,11 @@ public abstract class SpriteComponentBase : ComponentBase
             return;
 
         canvas.Draw(Sprite, Scale);
+    }
+
+    public void UpdateScale(float scale)
+    {
+        Scale = scale;
+        Bounds = Sprite.GetBounds(scale);
     }
 }

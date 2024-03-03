@@ -13,6 +13,8 @@ public class BattleUnitComponent : SpriteComponentBase
 
     public BattleUnitComponent(int playerId, IImage sprite, BattleUnitState state) : base(sprite)
     {
+        UpdateScale(1.5f);
+
         PlayerId = playerId;
         State = state;
 

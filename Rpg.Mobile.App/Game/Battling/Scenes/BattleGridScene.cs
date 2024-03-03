@@ -24,7 +24,7 @@ public class BattleGridScene : SceneBase
     private readonly TileShadowComponent _attackShadow;
 
     private List<BattleUnitComponent> _battleUnits = new();
-    private ITween<PointF>? _gridTween;
+    private ITween<PointF>? _unitTween;
     private ITween<PointF>? _cameraTween;
     private int _currentUnitIndex = -1;
     private Point _gridStart;
@@ -42,7 +42,7 @@ public class BattleGridScene : SceneBase
         _map = Add(new MapComponent(new(0f, 0f, _grid.Bounds.Width, _grid.Bounds.Height)));
         _moveShadow = new(_map.Bounds) { BackColor = Colors.SlateGray.WithAlpha(.7f) };
         _attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) };
-        _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1200f, 500f, 100f, 100f))
+        _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1100f, 400f, 200f, 200f))
         {
             IgnoreCamera = true
         });
@@ -105,7 +105,7 @@ public class BattleGridScene : SceneBase
         var xPercent = touch.X / _miniMap.Bounds.Width;
         var yPercent = touch.Y / _miniMap.Bounds.Height;
         var target = new PointF(ActiveCamera.Size.Width * xPercent, ActiveCamera.Size.Height * yPercent);
-        _cameraTween = ActiveCamera.Offset.TweenTo(target, 100f);
+        _cameraTween = ActiveCamera.Offset.TweenTo(target, 400f);
     }
 
     public void GridClicked(int x, int y)
@@ -134,14 +134,14 @@ public class BattleGridScene : SceneBase
         if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
         {
             var finalTarget = _grid.GetPositionForTile(x, y, CurrentUnit.Bounds.Size);
-            _gridTween = CurrentUnit.Position.TweenTo(200f, finalTarget);
+            _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
         }
     }
 
     public override void Update(float deltaTime)
     {
-        if (_gridTween is not null)
-            CurrentUnit.Position = _gridTween.Advance(deltaTime);
+        if (_unitTween is not null)
+            CurrentUnit.Position = _unitTween.Advance(deltaTime);
 
         if (_cameraTween is not null)
             ActiveCamera.Offset = _cameraTween.Advance(deltaTime);
@@ -184,6 +184,6 @@ public class BattleGridScene : SceneBase
         _currentUnitIndex = _currentUnitIndex + 1 < _battleUnits.Count ? _currentUnitIndex + 1 : 0;
         _gridStart = _grid.GetTileForPosition(CurrentUnit.Position);
         _currentState = BattleGridState.SelectingAction;
-        _gridTween = null;
+        _unitTween = null;
     }
 }
