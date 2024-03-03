@@ -57,16 +57,16 @@ public class BattleGridScene : SceneBase
 
         var units = new[]
         {
-            _map.AddChild(new BattleUnitComponent(Images.ArcherIdle01, new(0))),
-            _map.AddChild(new BattleUnitComponent(Images.HealerIdle01, new(0))),
-            _map.AddChild(new BattleUnitComponent(Images.MageIdle01, new(0))),
-            _map.AddChild(new BattleUnitComponent(Images.NinjaIdle01, new(0))),
-            _map.AddChild(new BattleUnitComponent(Images.WarriorIdle01, new(0))),
-            _map.AddChild(new BattleUnitComponent(Images.ArcherIdle02, new(1))),
-            _map.AddChild(new BattleUnitComponent(Images.HealerIdle02, new(1))),
-            _map.AddChild(new BattleUnitComponent(Images.MageIdle02, new(1))),
-            _map.AddChild(new BattleUnitComponent(Images.NinjaIdle02, new(1))),
-            _map.AddChild(new BattleUnitComponent(Images.WarriorIdle02, new(1)))
+            _map.AddChild(new BattleUnitComponent(0, Images.ArcherIdle01, StatPresets.Archer)),
+            _map.AddChild(new BattleUnitComponent(0, Images.HealerIdle01, StatPresets.Healer)),
+            _map.AddChild(new BattleUnitComponent(0, Images.MageIdle01, StatPresets.Mage)),
+            _map.AddChild(new BattleUnitComponent(0, Images.NinjaIdle01, StatPresets.Ninja)),
+            _map.AddChild(new BattleUnitComponent(0, Images.WarriorIdle01, StatPresets.Warrior)),
+            _map.AddChild(new BattleUnitComponent(1, Images.ArcherIdle02, StatPresets.Archer)),
+            _map.AddChild(new BattleUnitComponent(1, Images.HealerIdle02, StatPresets.Healer)),
+            _map.AddChild(new BattleUnitComponent(1, Images.MageIdle02, StatPresets.Mage)),
+            _map.AddChild(new BattleUnitComponent(1, Images.NinjaIdle02, StatPresets.Ninja)),
+            _map.AddChild(new BattleUnitComponent(1, Images.WarriorIdle02, StatPresets.Warrior))
         };
 
         InitializeBattlefield(units);
@@ -77,12 +77,12 @@ public class BattleGridScene : SceneBase
         // temporary solution
         _battleUnits = units.OrderBy(_ => Guid.NewGuid()).ToList();
 
-        foreach (var (unit, index) in _battleUnits.Where(x => x.State.PlayerId == 0).Select((x, i) => (x, i)))
+        foreach (var (unit, index) in _battleUnits.Where(x => x.PlayerId == 0).Select((x, i) => (x, i)))
         {
             unit.Position = _grid.GetPositionForTile(1, (index * 2) + 1);
         }
 
-        foreach (var (unit, index) in _battleUnits.Where(x => x.State.PlayerId == 1).Select((x, i) => (x, i)))
+        foreach (var (unit, index) in _battleUnits.Where(x => x.PlayerId == 1).Select((x, i) => (x, i)))
         {
             unit.Position = _grid.GetPositionForTile(8, (index * 2) + 1);
         }
@@ -113,7 +113,7 @@ public class BattleGridScene : SceneBase
         var currentUnit = CurrentUnit;
         var position = _grid.GetPositionForTile(x, y);
         var enemies = _battleUnits
-            .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.IsVisible)
+            .Where(a => a.PlayerId != currentUnit.PlayerId && a.IsVisible)
             .ToLookup(a => _grid.GetTileForPosition(a.Position));
 
         var gridPosition = new Point(x, y);
@@ -167,7 +167,7 @@ public class BattleGridScene : SceneBase
             var currentUnit = CurrentUnit;
             var shadows = _path
                 .CreateFanOutArea(_grid.GetTileForPosition(CurrentUnit.Position), new(_grid.ColCount, _grid.RowCount), CurrentUnit.State.AttackRange)
-                .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.State.PlayerId != currentUnit.State.PlayerId))
+                .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != currentUnit.PlayerId))
                 .Select(x => new RectF(x.X * _grid.Size, x.Y * _grid.Size, _grid.Size, _grid.Size))
                 .ToList();
 
