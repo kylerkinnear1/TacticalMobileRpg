@@ -93,7 +93,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Rpg.Mobile.GameEngine\Rpg.Mobile.GameEngine.csproj" />
+	  <ProjectReference Include="..\Rpg.Mobile.GameSdk\Rpg.Mobile.GameSdk.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,9 +1,16 @@
-﻿using Rpg.Mobile.App.Game.Battling.Components;
+﻿using Rpg.Mobile.App.Game.Battling.Calculators;
+using Rpg.Mobile.App.Game.Battling.Components;
 using Rpg.Mobile.App.Game.Menu;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.Battling.Scenes;
+
+public enum BattleGridState
+{
+    SelectingAction,
+    SelectingAttackTarget
+}
 
 public class BattleGridScene : SceneBase
 {
@@ -17,6 +24,13 @@ public class BattleGridScene : SceneBase
     private readonly List<BattleUnitComponent> _battleUnits;
     private ITween<PointF>? _gridTween;
     private SpeedTween? _cameraTween;
+    private int _currentUnitIndex = 0;
+
+    private readonly DamageCalculator _damage = new(new Rng(new()));
+
+    private BattleGridState _currentState = BattleGridState.SelectingAction;
+
+    public BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
 
     public BattleGridScene()
     {
@@ -34,7 +48,7 @@ public class BattleGridScene : SceneBase
         _waitButton = Add(new ButtonComponent(new(1200f, buttonTop += 60f, 100f, 50f), "Wait", OnWait) { IgnoreCamera = true });
         _moveShadow = Add(new TileShadowComponent(_map.Bounds));
 
-        _battleUnits = new()
+        var units = new[]
         {
             _map.AddChild(new BattleUnitComponent(Images.ArcherIdle01, new(0))),
             _map.AddChild(new BattleUnitComponent(Images.HealerIdle01, new(0))),
@@ -48,6 +62,9 @@ public class BattleGridScene : SceneBase
             _map.AddChild(new BattleUnitComponent(Images.WarriorIdle02, new(1)))
         };
 
+        // temporary solution
+        _battleUnits = units.OrderBy(_ => Guid.NewGuid()).ToList();
+
         foreach (var (unit, index) in _battleUnits.Where(x => x.State.PlayerId == 0).Select((x, i) => (x, i)))
         {
             unit.Position = _grid.GetPositionForTile(1, (index * 2) + 1);
@@ -55,10 +72,10 @@ public class BattleGridScene : SceneBase
 
         foreach (var (unit, index) in _battleUnits.Where(x => x.State.PlayerId == 1).Select((x, i) => (x, i)))
         {
-            unit.Position = _grid.GetPositionForTile(9, (index * 2) + 1);
+            unit.Position = _grid.GetPositionForTile(8, (index * 2) + 1);
         }
 
-        ActiveCamera.Offset = new PointF(-10f, -30f);
+        ActiveCamera.Offset = new PointF(600f, 100f);
     }
 
     public void OnAttack(IEnumerable<PointF> touches)
@@ -95,5 +112,13 @@ public class BattleGridScene : SceneBase
 
         if (_cameraTween is not null)
             ActiveCamera.Offset = _cameraTween.Advance(deltaTime);
+
+        _attackButton.Visible = _currentState == BattleGridState.SelectingAction;
+        _waitButton.Visible = _currentState == BattleGridState.SelectingAction;
+
+        if (_currentState == BattleGridState.SelectingAction)
+        {
+            
+        }
     }
 }

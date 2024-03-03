@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.GameEngine.Scenes.Battling.Rules.Calculators;
+namespace Rpg.Mobile.App.Game.Battling.Calculators;
 
 public interface IDamageCalculator
 {
