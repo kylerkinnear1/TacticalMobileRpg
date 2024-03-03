@@ -166,7 +166,11 @@ public class BattleGridScene : SceneBase
         {
             var currentUnit = CurrentUnit;
             var shadows = _path
-                .CreateFanOutArea(_grid.GetTileForPosition(CurrentUnit.Position), new(_grid.ColCount, _grid.RowCount), CurrentUnit.State.AttackRange)
+                .CreateFanOutArea(
+                    _grid.GetTileForPosition(CurrentUnit.Position),
+                    new(_grid.ColCount, _grid.RowCount),
+                    CurrentUnit.State.AttackMinRange,
+                    CurrentUnit.State.AttackMaxRange)
                 .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != currentUnit.PlayerId))
                 .Select(x => new RectF(x.X * _grid.Size, x.Y * _grid.Size, _grid.Size, _grid.Size))
                 .ToList();
