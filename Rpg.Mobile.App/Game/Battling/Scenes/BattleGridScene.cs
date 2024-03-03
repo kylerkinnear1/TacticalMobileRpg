@@ -79,12 +79,12 @@ public class BattleGridScene : SceneBase
 
         foreach (var (unit, index) in _battleUnits.Where(x => x.PlayerId == 0).Select((x, i) => (x, i)))
         {
-            unit.Position = _grid.GetPositionForTile(1, (index * 2) + 1);
+            unit.Position = _grid.GetPositionForTile(1, (index * 2) + 1, unit.Bounds.Size);
         }
 
         foreach (var (unit, index) in _battleUnits.Where(x => x.PlayerId == 1).Select((x, i) => (x, i)))
         {
-            unit.Position = _grid.GetPositionForTile(8, (index * 2) + 1);
+            unit.Position = _grid.GetPositionForTile(8, (index * 2) + 1, unit.Bounds.Size);
         }
 
         ActiveCamera.Offset = new PointF(600f, 100f);
@@ -111,13 +111,13 @@ public class BattleGridScene : SceneBase
     public void GridClicked(int x, int y)
     {
         var currentUnit = CurrentUnit;
-        var position = _grid.GetPositionForTile(x, y);
+        var clickedTileCenter = _grid.GetPositionForTile(x, y, SizeF.Zero);
         var enemies = _battleUnits
             .Where(a => a.PlayerId != currentUnit.PlayerId && a.IsVisible)
             .ToLookup(a => _grid.GetTileForPosition(a.Position));
 
         var gridPosition = new Point(x, y);
-        if (_attackShadow.Shadows.Any(a => a.Contains(position) && enemies.Contains(gridPosition)))
+        if (_attackShadow.Shadows.Any(a => a.Contains(clickedTileCenter) && enemies.Contains(gridPosition)))
         {
             var enemy = enemies[gridPosition].First();
             var damage = _damage.CalcDamage(currentUnit.State.Attack, currentUnit.State.Defense);
@@ -131,9 +131,9 @@ public class BattleGridScene : SceneBase
             AdvanceToNextUnit();
         }
 
-        if (_moveShadow.Shadows.Any(a => a.Contains(position)))
+        if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
         {
-            var finalTarget = _grid.GetPositionForTile(x, y);
+            var finalTarget = _grid.GetPositionForTile(x, y, CurrentUnit.Bounds.Size);
             _gridTween = CurrentUnit.Position.TweenTo(200f, finalTarget);
         }
     }

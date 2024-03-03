@@ -43,7 +43,12 @@ public class GridComponent : ComponentBase
         new(position.X, position.Y, colCount * size, rowCount * size);
 
     public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));
-    public PointF GetPositionForTile(int x, int y) => new(x * Size, y * Size);
+    public PointF GetPositionForTile(int x, int y, SizeF componentSize)
+    {
+        var marginX = (Size - componentSize.Width) / 2;
+        var marginY = (Size - componentSize.Height) / 2;
+        return new((x * Size) + marginX, (y * Size) + marginY);
+    }
 
     public override void OnTouchUp(IEnumerable<PointF> touches)
     {
