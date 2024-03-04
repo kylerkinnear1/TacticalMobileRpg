@@ -196,6 +196,7 @@ public class BattleGridScene : SceneBase
         _currentUnitIndex = _currentUnitIndex + 1 < _battleUnits.Count ? _currentUnitIndex + 1 : 0;
         _gridStart = _grid.GetTileForPosition(CurrentUnit.Position);
         _currentState = BattleGridState.SelectingAction;
+        _stats.ChangeUnit(CurrentUnit);
         _unitTween = null;
     }
 }
