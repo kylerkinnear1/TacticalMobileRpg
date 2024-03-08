@@ -59,7 +59,8 @@ public class GameLoop : IGameLoop
                 Bounds = x.IgnoreCamera ? x.AbsoluteBounds : x.AbsoluteBounds.Offset(_scene.ActiveCamera.Offset),
                 Component = x
             })
-            .Where(x => touch.Touches.Any(x.Bounds.Contains));
+            .Where(x => x.Component.Visible && touch.Touches.Any(x.Bounds.Contains))
+            .ToList();
 
         foreach (var component in touchedComponents)
         {

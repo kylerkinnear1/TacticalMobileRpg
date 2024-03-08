@@ -13,6 +13,8 @@ public interface IRng
 
 public class Rng : IRng
 {
+    public static readonly Rng Instance = new(new());
+
     private readonly Random _random;
     private readonly object _randomLock = new();
 

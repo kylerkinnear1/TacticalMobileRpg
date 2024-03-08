@@ -10,7 +10,6 @@ public class TextboxComponent : ComponentBase
     public Color TextColor { get; set; } = Colors.White;
     public Font Font { get; set; } = DefaultFont.ExtraBold;
     public float CornerRadius { get; set; } = 2f;
-    public bool Visible { get; set; } = true;
 
     public TextboxComponent(RectF bounds, string label) : base(bounds)
     {

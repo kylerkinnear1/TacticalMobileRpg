@@ -12,7 +12,7 @@ public abstract class SpriteComponentBase : ComponentBase
 {
     public IImage Sprite { get; set; }
     public float Scale { get; private set; } = 1f;
-    public bool IsVisible { get; set; } = true;
+    public bool Visible { get; set; } = true;
 
     protected SpriteComponentBase(IImage sprite) : base(new(0, 0, sprite.Width, sprite.Height))
     {
@@ -23,7 +23,7 @@ public abstract class SpriteComponentBase : ComponentBase
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
-        if (!IsVisible)
+        if (!Visible)
             return;
 
         canvas.Draw(Sprite, Scale);

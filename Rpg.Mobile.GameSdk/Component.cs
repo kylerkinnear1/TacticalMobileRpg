@@ -9,7 +9,7 @@ public interface IUpdateComponent
 
 public interface IHaveBounds
 {
-    RectF Bounds { get; }
+    RectF Bounds { get; set; }
 }
 
 public interface IRenderComponent : IHaveBounds
@@ -19,6 +19,8 @@ public interface IRenderComponent : IHaveBounds
 
 public interface IComponent : IUpdateComponent, IRenderComponent
 {
+    bool Visible { get; }
+
     IEnumerable<IComponent> All { get; }
     IReadOnlyCollection<IComponent> Children { get; }
     IEnumerable<IComponent> Descendents { get; }
@@ -39,15 +41,22 @@ public interface IComponent : IUpdateComponent, IRenderComponent
 
 public abstract class ComponentBase : IComponent
 {
+    public bool Visible { get; set; } = true;
+
     public IComponent? Parent { get; set; }
-    public RectF Bounds { get; protected set; }
+    public RectF Bounds { get; set; }
     public PointF Position
     {
         get => Bounds.Location;
         set => Bounds = new(value, Bounds.Size);
     }
 
-    public bool IgnoreCamera { get; set; } = false;
+    private bool _myIgnoreCamera;
+    public bool IgnoreCamera
+    {
+        get => Parents.Any(x => x.IgnoreCamera) || _myIgnoreCamera;
+        set => _myIgnoreCamera = value;
+    }
 
     public IEnumerable<IComponent> Parents
     {
@@ -63,6 +72,7 @@ public abstract class ComponentBase : IComponent
     }
 
     protected List<IComponent> ChildList = new();
+    
     public IReadOnlyCollection<IComponent> Children => ChildList;
 
     protected ComponentBase(RectF bounds)
