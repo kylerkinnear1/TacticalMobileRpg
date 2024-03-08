@@ -34,6 +34,7 @@ public class BattleGridScene : SceneBase
     private readonly SpellDamageCalculator _spellDamage = new(Rng.Instance);
     private readonly PathCalculator _path = new();
     private BattleMenuState _menuState = BattleMenuState.SelectingAction;
+    private SpellState? _currentSpell;
 
     public BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
 
@@ -116,6 +117,20 @@ public class BattleGridScene : SceneBase
 
             _attackShadow.Shadows.AddRange(shadows);
         }
+
+        if (_currentSpell is not null)
+        {
+            var shadows = _path
+                .CreateFanOutArea(
+                    _grid.GetTileForPosition(CurrentUnit.Position),
+                    new(_grid.ColCount, _grid.RowCount),
+                    _currentSpell.MinRange,
+                    _currentSpell.MaxRange)
+                .Select(x => new RectF(x.X * _grid.Size, x.Y * _grid.Size, _grid.Size, _grid.Size))
+                .ToList();
+
+            _attackShadow.Shadows.AddRange(shadows);
+        }
     }
 
     private void InitializeBattlefield(BattleUnitComponent[] units)
@@ -158,12 +173,18 @@ public class BattleGridScene : SceneBase
             .ToLookup(a => _grid.GetTileForPosition(a.Position));
 
         var gridPosition = new Point(x, y);
-        if (_attackShadow.Shadows.Any(a => a.Contains(clickedTileCenter) && enemies.Contains(gridPosition)))
+        if (_menuState == BattleMenuState.SelectingAttack &&
+            _attackShadow.Shadows.Any(a => a.Contains(clickedTileCenter) && enemies.Contains(gridPosition)))
         {
             var enemy = enemies[gridPosition].First();
             var damage = _damage.CalcDamage(currentUnit.State.Attack, currentUnit.State.Defense);
             DamageUnit(enemy, damage);
             AdvanceToNextUnit();
+        }
+
+        if (_menuState == BattleMenuState.SelectingMagic && _currentSpell is not null)
+        {
+            CastSpell(_currentSpell, gridPosition);
         }
 
         if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
@@ -190,6 +211,8 @@ public class BattleGridScene : SceneBase
     private void UpdateMenuState(BattleMenuState menuState)
     {
         _menuState = menuState;
+        _currentSpell = null;
+
         if (_menuState == BattleMenuState.SelectingAction)
         {
             _battleMenu.SetButtons(
@@ -207,7 +230,7 @@ public class BattleGridScene : SceneBase
         {
             _battleMenu.SetButtons(
                 CurrentUnit.State.Spells
-                    .Select(x => new ButtonState(x.Name, y => CastSpell(x, _grid.GetTileForPosition(y.First()))))
+                    .Select(x => new ButtonState(x.Name, _ => _currentSpell = x))
                     .Append(new("Back", _ => UpdateMenuState(BattleMenuState.SelectingAction)))
                     .ToArray());
         }
