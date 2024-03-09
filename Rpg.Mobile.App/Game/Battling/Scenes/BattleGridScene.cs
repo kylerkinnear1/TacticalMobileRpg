@@ -48,7 +48,7 @@ public class BattleGridScene : SceneBase
         _battleMenu = new(new(1200f, 0f, 150f, 300f)) { IgnoreCamera = true };
         Add(_battleMenu);
 
-        _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f))
+        _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1400f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f))
         {
             IgnoreCamera = true
         });
@@ -156,8 +156,8 @@ public class BattleGridScene : SceneBase
     {
         var xPercent = touch.X / _miniMap.Bounds.Width;
         var yPercent = touch.Y / _miniMap.Bounds.Height;
-        var target = new PointF(ActiveCamera.Size.Width * xPercent, ActiveCamera.Size.Height * yPercent);
-        _cameraTween = ActiveCamera.Offset.TweenTo(target, 400f);
+        var target = new PointF(ActiveCamera.Size.Width * xPercent * 2, ActiveCamera.Size.Height * yPercent * 2);
+        _cameraTween = ActiveCamera.Offset.TweenTo(target, 1000f);
     }
 
     private void GridClicked(int x, int y)

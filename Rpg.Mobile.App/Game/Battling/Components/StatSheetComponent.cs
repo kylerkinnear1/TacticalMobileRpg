@@ -24,6 +24,7 @@ public class StatSheetComponent : TextboxComponent
             $"PlayerId: {unit.PlayerId}",
             $"Unit Type: {unit.State.UnitType}",
             $"HP: {unit.State.RemainingHealth}/{unit.State.MaxHealth}",
+            $"MP: {unit.State.RemainingMp}/{unit.State.MaxMp}",
             $"Range: {unit.State.AttackMinRange}-{unit.State.AttackMaxRange}",
             $"Attack: {unit.State.Attack}",
             $"Defense: {unit.State.Defense}",

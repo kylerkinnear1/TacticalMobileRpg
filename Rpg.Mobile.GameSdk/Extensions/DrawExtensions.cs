@@ -51,4 +51,7 @@ public static class DrawExtensions
 
     public static bool CloseTo(this PointF a, PointF b, float tolerance = .001f) =>
         a.X.CloseTo(b.X, tolerance) && a.Y.CloseTo(b.Y, tolerance);
+
+    public static void DrawCenteredText(this ICanvas canvas, string text, RectF bounds) =>
+        canvas.DrawString(text, bounds, HorizontalAlignment.Center, VerticalAlignment.Center);
 }
