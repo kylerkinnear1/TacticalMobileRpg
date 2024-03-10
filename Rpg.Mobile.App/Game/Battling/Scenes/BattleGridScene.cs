@@ -23,6 +23,7 @@ public class BattleGridScene : SceneBase
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
     private readonly StatSheetComponent _stats;
+    private readonly MenuComponent _stateMenu;
 
     private List<BattleUnitComponent> _battleUnits = new();
     private ITween<PointF>? _unitTween;
@@ -45,8 +46,12 @@ public class BattleGridScene : SceneBase
         _moveShadow = new(_map.Bounds) { BackColor = Colors.SlateGray.WithAlpha(.7f) };
         _attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) };
 
-        _battleMenu = new(new(1200f, 0f, 150f, 300f)) { IgnoreCamera = true };
+        _battleMenu = new(new(1200f, 0f, 150f, 300f));
         Add(_battleMenu);
+        
+        _stateMenu = new(new(1200f, _battleMenu.Bounds.Bottom + 5f, _battleMenu.Bounds.Width, _battleMenu.Bounds.Height));
+        Add(_stateMenu);
+        _stateMenu.SetButtons(new("Save State", SaveStateClicked), new("Load State", LoadStateClicked));
 
         _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1400f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f))
         {
@@ -158,6 +163,16 @@ public class BattleGridScene : SceneBase
         var yPercent = touch.Y / _miniMap.Bounds.Height;
         var target = new PointF(ActiveCamera.Size.Width * xPercent * 2, ActiveCamera.Size.Height * yPercent * 2);
         _cameraTween = ActiveCamera.Offset.TweenTo(target, 1000f);
+    }
+
+    private void SaveStateClicked(IEnumerable<PointF> touches)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void LoadStateClicked(IEnumerable<PointF> touches)
+    {
+        throw new NotImplementedException();
     }
 
     private void GridClicked(int x, int y)

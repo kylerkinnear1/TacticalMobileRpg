@@ -13,8 +13,11 @@ public class MenuComponent : ComponentBase
     public Color StrokeColor { get; set; } = Colors.Black;
     public float StrokeSize { get; set; } = 2f;
     public float CornerRadius { get; set; } = 2f;
-    
-    public MenuComponent(RectF bounds) : base(bounds) { }
+
+    public MenuComponent(RectF bounds) : base(bounds)
+    {
+        IgnoreCamera = true;
+    }
 
     public override void Update(float deltaTime)
     {
