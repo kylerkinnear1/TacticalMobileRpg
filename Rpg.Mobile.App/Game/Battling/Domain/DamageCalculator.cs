@@ -18,7 +18,7 @@ public class DamageCalculator : IDamageCalculator
         var deterministicDamage = Math.Max(1, attack - defense);
         var damageRangeModifier = _rng.Double(0.25) * deterministicDamage;
 
-        var damage = deterministicDamage - (int)Math.Round(damageRangeModifier);
+        var damage = deterministicDamage + (int)Math.Round(damageRangeModifier);
         return Math.Max(1, damage);
     }
 }

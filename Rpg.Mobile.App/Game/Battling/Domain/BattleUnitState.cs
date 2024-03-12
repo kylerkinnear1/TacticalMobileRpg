@@ -66,7 +66,7 @@ public class StatPresets
             movement: 5,
             attackMinRange: 2,
             attackMaxRange: 3,
-            attack: 9,
+            attack: 10,
             defense: 4);
     public static BattleUnitState Warrior =>
         new(playerId: 0,
@@ -76,7 +76,7 @@ public class StatPresets
             movement: 3,
             attackMinRange: 1,
             attackMaxRange: 1,
-            attack: 10,
+            attack: 11,
             defense: 6);
     public static BattleUnitState Mage =>
         new(playerId: 0, 
@@ -101,8 +101,8 @@ public class StatPresets
             movement: 7,
             attackMinRange: 1,
             attackMaxRange: 1,
-            attack: 10,
-            defense: 5);
+            attack: 11,
+            defense: 6);
     public static BattleUnitState Healer =>
         new(playerId: 0, 
             unitType: BattleUnitType.Healer,
@@ -111,8 +111,8 @@ public class StatPresets
             movement: 6,
             attackMinRange: 1,
             attackMaxRange: 2,
-            attack: 8,
-            defense: 7) 
+            attack: 9,
+            defense: 6) 
         { 
             Spells = new() { SpellState.Cure1 },
             RemainingMp = 12,
