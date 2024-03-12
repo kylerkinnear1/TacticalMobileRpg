@@ -59,12 +59,14 @@
 	<ItemGroup>
 	  <None Remove="Resources\EmbeddedResources\ArcherIdle01.png" />
 	  <None Remove="Resources\EmbeddedResources\ArcherIdle02.png" />
+	  <None Remove="Resources\EmbeddedResources\Grass03.png" />
 	  <None Remove="Resources\EmbeddedResources\HealerIdle01.png" />
 	  <None Remove="Resources\EmbeddedResources\HealerIdle02.png" />
 	  <None Remove="Resources\EmbeddedResources\MageIdle01.png" />
 	  <None Remove="Resources\EmbeddedResources\MageIdle02.png" />
 	  <None Remove="Resources\EmbeddedResources\NinjaIdle01.png" />
 	  <None Remove="Resources\EmbeddedResources\NinjaIdle02.png" />
+	  <None Remove="Resources\EmbeddedResources\Rock01.png" />
 	  <None Remove="Resources\EmbeddedResources\WarriorIdle01.png" />
 	  <None Remove="Resources\EmbeddedResources\WarriorIdle02.png" />
 	</ItemGroup>
@@ -72,12 +74,14 @@
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\EmbeddedResources\ArcherIdle01.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\ArcherIdle02.png" />
+	  <EmbeddedResource Include="Resources\EmbeddedResources\Grass03.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\HealerIdle01.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\HealerIdle02.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\MageIdle01.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\MageIdle02.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\NinjaIdle01.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\NinjaIdle02.png" />
+	  <EmbeddedResource Include="Resources\EmbeddedResources\Rock01.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\Warrior.png">
 	    <CustomToolNamespace></CustomToolNamespace>
 	  </EmbeddedResource>

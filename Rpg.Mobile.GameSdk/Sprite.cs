@@ -26,7 +26,7 @@ public abstract class SpriteComponentBase : ComponentBase
         if (!Visible)
             return;
 
-        canvas.Draw(Sprite, Scale);
+        canvas.DrawImage(Sprite, Scale);
     }
 
     public void UpdateScale(float scale)

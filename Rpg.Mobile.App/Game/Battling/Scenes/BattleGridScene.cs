@@ -1,6 +1,7 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Components;
 using Rpg.Mobile.App.Game.Battling.Components.Menus;
 using Rpg.Mobile.App.Game.Battling.Domain;
+using Rpg.Mobile.App.Game.Battling.Domain.Battles;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
 using Point = System.Drawing.Point;
@@ -22,10 +23,11 @@ public class BattleGridScene : SceneBase
     private readonly MenuComponent _battleMenu;
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
+    private readonly TileShadowComponent _currentUnitShadow;
     private readonly StatSheetComponent _stats;
     private readonly MenuComponent _stateMenu;
 
-    private List<BattleUnitComponent> _battleUnits = new();
+    private readonly List<BattleUnitComponent> _battleUnits;
     private ITween<PointF>? _unitTween;
     private ITween<PointF>? _cameraTween;
     private int _currentUnitIndex = -1;
@@ -42,9 +44,10 @@ public class BattleGridScene : SceneBase
     public BattleGridScene()
     {
         _grid = new(GridClicked, 10, 12);
-        _map = Add(new MapComponent(new(0f, 0f, _grid.Bounds.Width, _grid.Bounds.Height)));
-        _moveShadow = new(_map.Bounds) { BackColor = Colors.SlateGray.WithAlpha(.7f) };
+        _map = Add(new MapComponent(Battles.Demo));
+        _moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) };
         _attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) };
+        _currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) };
 
         _battleMenu = new(new(1200f, 0f, 150f, 300f));
         Add(_battleMenu);
@@ -60,28 +63,41 @@ public class BattleGridScene : SceneBase
 
         _map.AddChild(_moveShadow);
         _map.AddChild(_attackShadow);
+        _map.AddChild(_currentUnitShadow);
         _map.AddChild(_grid);
 
-        var units = new[]
+        // TODO: hmm... silly. clean this model up.
+        // Tile should probably just have unit ID...
+        // Separate 'Stats' from state.
+        _battleUnits = _map.State.Tiles
+            .Flatten()
+            .Where(x => x.Unit is not null)
+            .Select(x => Create(x.Unit!))
+            .Select(_map.AddChild)
+            .ToList();
+
+        // TODO: keep calm. This is temporary. This is really ugly though.
+        // The unit should know where it is, not the tile. Not in stats though.
+        for (var row = 0; row < _map.State.Tiles.GetLength(0); row++)
         {
-            _map.AddChild(new BattleUnitComponent(0, Images.ArcherIdle01, StatPresets.Archer)),
-            _map.AddChild(new BattleUnitComponent(0, Images.HealerIdle01, StatPresets.Healer)),
-            _map.AddChild(new BattleUnitComponent(0, Images.MageIdle01, StatPresets.Mage)),
-            _map.AddChild(new BattleUnitComponent(0, Images.NinjaIdle01, StatPresets.Ninja)),
-            _map.AddChild(new BattleUnitComponent(0, Images.WarriorIdle01, StatPresets.Warrior)),
-            _map.AddChild(new BattleUnitComponent(1, Images.ArcherIdle02, StatPresets.Archer)),
-            _map.AddChild(new BattleUnitComponent(1, Images.HealerIdle02, StatPresets.Healer)),
-            _map.AddChild(new BattleUnitComponent(1, Images.MageIdle02, StatPresets.Mage)),
-            _map.AddChild(new BattleUnitComponent(1, Images.NinjaIdle02, StatPresets.Ninja)),
-            _map.AddChild(new BattleUnitComponent(1, Images.WarriorIdle02, StatPresets.Warrior))
-        };
+            for (var col = 0; col < _map.State.Tiles.GetLength(1); col++)
+            {
+                var unit = _map.State.Tiles[row, col].Unit;
+                if (unit is null)
+                    continue;
+
+                var component = _battleUnits.Single(x => x.State == unit);
+                component.Position = _grid.GetPositionForTile(row, col, component.Bounds.Size);
+            }
+        }
 
         _stats = Add(new StatSheetComponent(new(1100f, _miniMap.Bounds.Bottom + 100f, 200f, 300f))
         {
             IgnoreCamera = true
         });
-
-        InitializeBattlefield(units);
+        
+        ActiveCamera.Offset = new PointF(220f, 100f);
+        AdvanceToNextUnit();
     }
 
     public override void Update(float deltaTime)
@@ -94,13 +110,30 @@ public class BattleGridScene : SceneBase
 
         _moveShadow.Shadows.Clear();
         _attackShadow.Shadows.Clear();
+        _currentUnitShadow.Shadows.Clear();
+
+        for (var x = 0; x < _map.State.Tiles.GetLength(0); x++)
+        {
+            for (var y = 0; y < _map.State.Tiles.GetLength(1); y++)
+            {
+                var tile = _map.State.Tiles[x, y];
+                if (tile.Unit != CurrentUnit.State)
+                    continue;
+
+                _currentUnitShadow.Shadows.Add(new (x * _grid.Size, y * _grid.Size, _grid.Size, _grid.Size));
+            }
+        }
 
         var gridToUnit = _battleUnits.ToLookup(x => _grid.GetTileForPosition(x.Position));
         if (_menuState == BattleMenuState.SelectingAction)
         {
             var shadows = _path
                 .CreateFanOutArea(_gridStart, new(_grid.ColCount, _grid.RowCount), CurrentUnit.State.Movement)
-                .Where(x => !gridToUnit.Contains(x))
+                .Where(x =>
+                {
+                    var tile = _map.State.Tiles[x.X, x.Y];
+                    return tile.Unit is null && tile.Type != TerrainType.Rock;
+                })
                 .Select(x => new RectF(x.X * _grid.Size, x.Y * _grid.Size, _grid.Size, _grid.Size))
                 .ToList();
 
@@ -116,7 +149,7 @@ public class BattleGridScene : SceneBase
                     new(_grid.ColCount, _grid.RowCount),
                     CurrentUnit.State.AttackMinRange,
                     CurrentUnit.State.AttackMaxRange)
-                .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != currentUnit.PlayerId))
+                .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.State.PlayerId != currentUnit.State.PlayerId))
                 .Select(x => new RectF(x.X * _grid.Size, x.Y * _grid.Size, _grid.Size, _grid.Size))
                 .ToList();
 
@@ -138,24 +171,21 @@ public class BattleGridScene : SceneBase
         }
     }
 
-    private void InitializeBattlefield(BattleUnitComponent[] units)
-    {
-        // temporary solution
-        _battleUnits = units.OrderBy(_ => Guid.NewGuid()).ToList();
-
-        foreach (var (unit, index) in _battleUnits.Where(x => x.PlayerId == 0).Select((x, i) => (x, i)))
+    private static BattleUnitComponent Create(BattleUnitState state) =>
+        (state.UnitType, state.PlayerId) switch
         {
-            unit.Position = _grid.GetPositionForTile(1, (index * 2) + 1, unit.Bounds.Size);
-        }
-
-        foreach (var (unit, index) in _battleUnits.Where(x => x.PlayerId == 1).Select((x, i) => (x, i)))
-        {
-            unit.Position = _grid.GetPositionForTile(8, (index * 2) + 1, unit.Bounds.Size);
-        }
-
-        ActiveCamera.Offset = new PointF(220f, 100f);
-        AdvanceToNextUnit();
-    }
+            (BattleUnitType.Archer, 0) => new BattleUnitComponent(Images.ArcherIdle01, state),
+            (BattleUnitType.Healer, 0) => new BattleUnitComponent(Images.HealerIdle01, state),
+            (BattleUnitType.Mage, 0) => new BattleUnitComponent(Images.MageIdle01, state),
+            (BattleUnitType.Warrior, 0) => new BattleUnitComponent(Images.WarriorIdle01, state),
+            (BattleUnitType.Ninja, 0) => new BattleUnitComponent(Images.NinjaIdle01, state),
+            (BattleUnitType.Archer, 1) => new BattleUnitComponent(Images.ArcherIdle02, state),
+            (BattleUnitType.Healer, 1) => new BattleUnitComponent(Images.HealerIdle02, state),
+            (BattleUnitType.Mage, 1) => new BattleUnitComponent(Images.MageIdle02, state),
+            (BattleUnitType.Warrior, 1) => new BattleUnitComponent(Images.WarriorIdle02, state),
+            (BattleUnitType.Ninja, 1) => new BattleUnitComponent(Images.NinjaIdle02, state),
+            _ => throw new ArgumentException()
+        };
 
     private void MiniMapClicked(PointF touch)
     {
@@ -167,12 +197,10 @@ public class BattleGridScene : SceneBase
 
     private void SaveStateClicked(IEnumerable<PointF> touches)
     {
-        throw new NotImplementedException();
     }
 
     private void LoadStateClicked(IEnumerable<PointF> touches)
     {
-        throw new NotImplementedException();
     }
 
     private void GridClicked(int x, int y)
@@ -184,7 +212,7 @@ public class BattleGridScene : SceneBase
             .ToLookup(a => _grid.GetTileForPosition(a.Position));
 
         var enemies = _battleUnits
-            .Where(a => a.PlayerId != currentUnit.PlayerId && a.Visible)
+            .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.Visible)
             .ToLookup(a => _grid.GetTileForPosition(a.Position));
 
         var gridPosition = new Point(x, y);
@@ -204,6 +232,10 @@ public class BattleGridScene : SceneBase
 
         if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
         {
+            var unitTile = _map.State.Tiles.Flatten().Single(t => t.Unit == CurrentUnit.State);
+            // TODO: lovely.
+            unitTile.Unit = null;
+            _map.State.Tiles[x, y].Unit = CurrentUnit.State;
             var finalTarget = _grid.GetPositionForTile(x, y, CurrentUnit.Bounds.Size);
             _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
         }
@@ -263,8 +295,8 @@ public class BattleGridScene : SceneBase
         var targets = _battleUnits
             .Where(x =>
                 _grid.GetTileForPosition(x.Position) == position &&
-                (spell.TargetsEnemies && x.PlayerId != currentUnit.PlayerId ||
-                spell.TargetsFriendlies && x.PlayerId == currentUnit.PlayerId))
+                (spell.TargetsEnemies && x.State.PlayerId != currentUnit.State.PlayerId ||
+                spell.TargetsFriendlies && x.State.PlayerId == currentUnit.State.PlayerId))
             .ToList();
 
         if (targets.Count == 0)

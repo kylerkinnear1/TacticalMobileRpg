@@ -7,19 +7,16 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class BattleUnitComponent : SpriteComponentBase
 {
-    public int PlayerId { get; set; }
     public BattleUnitState State { get; }
     public BattleUnitHealthBarComponent HealthBar { get; }
 
-    public BattleUnitComponent(int playerId, IImage sprite, BattleUnitState state) : base(sprite)
+    public BattleUnitComponent(IImage sprite, BattleUnitState state) : base(sprite)
     {
         UpdateScale(1.5f);
-
-        PlayerId = playerId;
         State = state;
 
         HealthBar = AddChild(new BattleUnitHealthBarComponent(State));
-        HealthBar.FontColor = PlayerId == 0 ? Colors.Aqua : Colors.Orange;
+        HealthBar.FontColor = State.PlayerId == 0 ? Colors.Aqua : Colors.Orange;
         HealthBar.Position = new(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
     }
 }

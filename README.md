@@ -195,3 +195,9 @@ int Int(int max);
 
 ## Antifareas
 https://opengameart.org/content/antifareas-rpg-sprite-set-1-enlarged-w-transparent-background-fixed for the RPG sprites used in the sample game.
+
+## ansimuz
+https://opengameart.org/content/rpg-town-pixel-art-assets for background tiles used in sample game.
+
+## isaiah658
+https://opengameart.org/content/isaiah658s-pixel-pack-2 for background tiles used in sample game.

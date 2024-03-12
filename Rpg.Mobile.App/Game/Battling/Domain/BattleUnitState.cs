@@ -7,6 +7,7 @@ public enum BattleUnitType
 
 public class BattleUnitState
 {
+    public int PlayerId { get; set; } = 0;
     public BattleUnitType UnitType { get; set; } = BattleUnitType.Warrior;
     public int RemainingHealth { get; set; } = 12;
     public int MaxHealth { get; set; } = 12;
@@ -21,6 +22,7 @@ public class BattleUnitState
 
     public BattleUnitState() { }
     public BattleUnitState(
+        int playerId,
         BattleUnitType unitType,
         int remainingHealth,
         int maxHealth,
@@ -30,6 +32,7 @@ public class BattleUnitState
         int attack,
         int defense)
     {
+        PlayerId = playerId;
         UnitType = unitType;
         RemainingHealth = remainingHealth;
         MaxHealth = maxHealth;
@@ -43,8 +46,21 @@ public class BattleUnitState
 
 public class StatPresets
 {
+    public static IEnumerable<BattleUnitState> All
+    {
+        get
+        {
+            yield return Archer;
+            yield return Warrior;
+            yield return Mage;
+            yield return Ninja;
+            yield return Healer;
+        }
+    }
+
     public static BattleUnitState Archer =>
-        new(unitType: BattleUnitType.Archer,
+        new(playerId: 0, 
+            unitType: BattleUnitType.Archer,
             remainingHealth: 10,
             maxHealth: 10,
             movement: 5,
@@ -53,7 +69,8 @@ public class StatPresets
             attack: 9,
             defense: 4);
     public static BattleUnitState Warrior =>
-        new(unitType: BattleUnitType.Warrior,
+        new(playerId: 0,
+            unitType: BattleUnitType.Warrior,
             remainingHealth: 16,
             maxHealth: 16,
             movement: 3,
@@ -62,7 +79,8 @@ public class StatPresets
             attack: 10,
             defense: 6);
     public static BattleUnitState Mage =>
-        new(unitType: BattleUnitType.Mage,
+        new(playerId: 0, 
+            unitType: BattleUnitType.Mage,
             remainingHealth: 9,
             maxHealth: 9,
             movement: 5,
@@ -76,7 +94,8 @@ public class StatPresets
             MaxMp = 10
         };
     public static BattleUnitState Ninja =>
-        new(unitType: BattleUnitType.Ninja,
+        new(playerId: 0, 
+            unitType: BattleUnitType.Ninja,
             remainingHealth: 11,
             maxHealth: 11,
             movement: 7,
@@ -85,7 +104,8 @@ public class StatPresets
             attack: 10,
             defense: 5);
     public static BattleUnitState Healer =>
-        new(unitType: BattleUnitType.Healer,
+        new(playerId: 0, 
+            unitType: BattleUnitType.Healer,
             remainingHealth: 8,
             maxHealth: 8,
             movement: 6,

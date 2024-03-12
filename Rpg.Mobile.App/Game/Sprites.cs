@@ -17,6 +17,8 @@ public class Sprites
     public IImage NinjaIdle02 { get; }
     public IImage WarriorIdle01 { get; }
     public IImage WarriorIdle02 { get; }
+    public IImage Grass03 { get; }
+    public IImage Rock01 { get; }
 
     public Sprites(IImageLoader loader)
     {
@@ -30,5 +32,7 @@ public class Sprites
         NinjaIdle02 = loader.Load("NinjaIdle02.png");
         WarriorIdle01 = loader.Load("WarriorIdle01.png");
         WarriorIdle02 = loader.Load("WarriorIdle02.png");
+        Grass03 = loader.Load("Grass03.png");
+        Rock01 = loader.Load("Rock01.png");
     }
 }
