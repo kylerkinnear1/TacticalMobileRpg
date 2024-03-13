@@ -29,5 +29,7 @@ public class StatSheetComponent : TextboxComponent
             $"Attack: {unit.State.Attack}",
             $"Defense: {unit.State.Defense}",
             $"Movement: {unit.State.Movement}",
-            $"Spells: {string.Join(", ", unit.State.Spells.Select(x => x.Name))}");
+            $"Spells: {string.Join(", ", unit.State.Spells
+                .Select(x => x.Name)
+                .DefaultIfEmpty("N/A"))}");
 }

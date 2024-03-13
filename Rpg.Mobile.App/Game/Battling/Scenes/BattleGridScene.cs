@@ -313,11 +313,16 @@ public class BattleGridScene : SceneBase
 
     private void DamageUnit(BattleUnitComponent enemy, int damage)
     {
-        enemy.State.RemainingHealth = Math.Max(enemy.State.RemainingHealth - damage, 0);
+        enemy.State.RemainingHealth = damage >= 0 
+            ? Math.Max(enemy.State.RemainingHealth - damage, 0) 
+            : Math.Min(enemy.State.MaxHealth, enemy.State.RemainingHealth - damage);
+        
         if (enemy.State.RemainingHealth <= 0)
         {
             enemy.Visible = false;
             _battleUnits.Remove(enemy);
+            var tile = _map.State.Tiles.Flatten().Single(x => x.Unit == enemy.State);
+            tile.Unit = null;
         }
     }
 }
