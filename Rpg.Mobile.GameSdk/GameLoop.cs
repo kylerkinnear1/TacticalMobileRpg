@@ -62,11 +62,9 @@ public class GameLoop : IGameLoop
             .Where(x => x.Component.Visible && touch.Touches.Any(x.Bounds.Contains))
             .ToList();
 
-        foreach (var component in touchedComponents)
-        {
-            component.Component.OnTouchUp(touch.Touches
-                .Select(x => new PointF(x.X - component.Bounds.X, x.Y - component.Bounds.Y)));
-        }
+        var topComponent = touchedComponents.LastOrDefault();
+        topComponent?.Component.OnTouchUp(touch.Touches
+            .Select(x => new PointF(x.X - topComponent.Bounds.X, x.Y - topComponent.Bounds.Y)));
     }
 }
 
