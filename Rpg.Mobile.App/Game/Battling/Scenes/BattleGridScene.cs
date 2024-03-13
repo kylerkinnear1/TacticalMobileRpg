@@ -30,6 +30,7 @@ public class BattleGridScene : SceneBase
     private readonly List<BattleUnitComponent> _battleUnits;
     private ITween<PointF>? _unitTween;
     private ITween<PointF>? _cameraTween;
+    private ITween<PointF>? _unitShadowTween;
     private int _currentUnitIndex = -1;
     private Point _gridStart;
 
@@ -49,11 +50,11 @@ public class BattleGridScene : SceneBase
         _attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) };
         _currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) };
 
-        _battleMenu = new(new(1200f, 0f, 150f, 300f));
+        _battleMenu = new(new(900f, 100f, 150f, 200f));
         Add(_battleMenu);
         
         _stateMenu = new(new(1200f, _battleMenu.Bounds.Bottom + 5f, _battleMenu.Bounds.Width, _battleMenu.Bounds.Height));
-        Add(_stateMenu);
+        // TODO: Add state back - Add(_stateMenu);
         _stateMenu.SetButtons(new("Save State", SaveStateClicked), new("Load State", LoadStateClicked));
 
         _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1400f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f))
@@ -69,10 +70,8 @@ public class BattleGridScene : SceneBase
         // TODO: hmm... silly. clean this model up.
         // Tile should probably just have unit ID...
         // Separate 'Stats' from state.
-        _battleUnits = _map.State.Tiles
-            .Flatten()
-            .Where(x => x.Unit is not null)
-            .Select(x => Create(x.Unit!))
+        _battleUnits = _map.State.TurnOrder
+            .Select(Create)
             .Select(_map.AddChild)
             .ToList();
 
@@ -91,7 +90,7 @@ public class BattleGridScene : SceneBase
             }
         }
 
-        _stats = Add(new StatSheetComponent(new(1100f, _miniMap.Bounds.Bottom + 100f, 200f, 300f))
+        _stats = Add(new StatSheetComponent(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f))
         {
             IgnoreCamera = true
         });

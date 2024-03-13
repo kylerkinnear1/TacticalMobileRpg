@@ -20,6 +20,7 @@ public class MapState
     public IImage RockImage { get; set; }
 
     public TileState[,] Tiles { get; set; }
+    public List<BattleUnitState> TurnOrder { get; set; } = new();
 
     public int RowCount => Tiles.GetLength(0);
     public int ColumnCount => Tiles.GetLength(1);

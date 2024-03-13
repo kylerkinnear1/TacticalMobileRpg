@@ -3,7 +3,6 @@ using Rpg.Mobile.GameSdk.Extensions;
 
 namespace Rpg.Mobile.GameSdk;
 
-// TODO: change to iterator!
 public interface ITween<T>
 {
     bool IsComplete { get; }
@@ -14,6 +13,32 @@ public interface ITween<T>
 public interface IMoveStartTween<T> : ITween<T>
 {
     T Start { get; set; }
+}
+
+public class TweenObserver<T> : ITween<T>
+{
+    private bool WasComplete = false;
+    public bool IsComplete => _subject.IsComplete;
+
+    private readonly ITween<T> _subject;
+
+    private readonly List<Action<float, T>> _onCompleteHandlers = new();
+
+    public TweenObserver(ITween<T> subject) => _subject = subject;
+
+    public T Advance(float deltaTime)
+    {
+        var value = _subject.Advance(deltaTime);
+        if (IsComplete && !WasComplete)
+        {
+            WasComplete = true;
+            _onCompleteHandlers.ForEach(x => x(deltaTime, value));
+        }
+
+        return value;
+    }
+
+    public void AddOnComplete(Action<float, T> onComplete) => _onCompleteHandlers.Add(onComplete);
 }
 
 public class MultiTween : ITween<PointF>
@@ -42,7 +67,6 @@ public class MultiTween : ITween<PointF>
         _index++;
         CurrentTween.Start = Last ?? PointF.Zero;
         return CurrentTween.Advance(deltaTime);
-
     }
 
     public PointF Advance(float deltaTime)
@@ -52,7 +76,7 @@ public class MultiTween : ITween<PointF>
     }
 }
 
-public class SpeedTween : ITween<PointF>, IMoveStartTween<PointF>
+public class SpeedTween : IMoveStartTween<PointF>
 {
     public PointF Start { get; set; }
     public PointF End { get; set; }
@@ -124,5 +148,12 @@ public static class SpeedTweenExtensions
     {
         multi.Steps.Add(new SpeedTween(end, speed));
         return multi;
+    }
+
+    public static TweenObserver<T> OnComplete<T>(this ITween<T> tween, Action<float, T> handler)
+    {
+        var observer = new TweenObserver<T>(tween);
+        observer.AddOnComplete(handler);
+        return observer;
     }
 }

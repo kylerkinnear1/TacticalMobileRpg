@@ -25,6 +25,7 @@ public static partial class Battles
 
         state.Tiles[3, 5].Type = TerrainType.Rock;
         state.Tiles[6, 4].Type = TerrainType.Rock;
+        state.TurnOrder.AddRange(allUnits);
 
         return state;
     }

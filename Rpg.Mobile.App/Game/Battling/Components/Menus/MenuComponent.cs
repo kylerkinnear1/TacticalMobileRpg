@@ -8,7 +8,7 @@ public class MenuComponent : ComponentBase
     private List<ButtonComponent> _buttons = new();
 
     public const float Spacing = 10f;
-    public const float ButtonHeight = 50f;
+    public const float ButtonHeight = 40f;
     public Color FillColor { get; set; } = Colors.Navy;
     public Color StrokeColor { get; set; } = Colors.Black;
     public float StrokeSize { get; set; } = 2f;
@@ -36,7 +36,10 @@ public class MenuComponent : ComponentBase
     {
         var bottomButton = _buttons.LastOrDefault();
         var button = new ButtonComponent(
-            new(0f, bottomButton?.Bounds.Bottom + Spacing ?? 0f, Bounds.Width, ButtonHeight),
+            new(Spacing,
+                bottomButton?.Bounds.Bottom + Spacing ?? Spacing,
+                Bounds.Width - (Spacing * 2),
+                ButtonHeight),
             label,
             onClick);
 
