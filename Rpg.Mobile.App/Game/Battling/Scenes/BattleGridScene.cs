@@ -27,7 +27,7 @@ public class BattleGridScene : SceneBase
     private readonly StatSheetComponent _stats;
     private readonly MenuComponent _stateMenu;
 
-    private readonly List<BattleUnitComponent> _battleUnits;
+    private List<BattleUnitComponent> _battleUnits;
     private ITween<PointF>? _unitTween;
     private ITween<PointF>? _cameraTween;
     private ITween<PointF>? _unitShadowTween;
@@ -248,6 +248,9 @@ public class BattleGridScene : SceneBase
     private void AdvanceToNextUnit()
     {
         _currentUnitIndex = _currentUnitIndex + 1 < _battleUnits.Count ? _currentUnitIndex + 1 : 0;
+        if (_currentUnitIndex == 0)
+            _battleUnits = _battleUnits.OrderBy(_ => Guid.NewGuid()).ToList();
+
         _gridStart = _grid.GetTileForPosition(CurrentUnit.Position);
         UpdateMenuState(BattleMenuState.SelectingAction);
         _stats.ChangeUnit(CurrentUnit);
