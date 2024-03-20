@@ -224,7 +224,7 @@ public class BattleGridScene : SceneBase
     {
         _currentUnitIndex = _currentUnitIndex + 1 < _battleUnits.Count ? _currentUnitIndex + 1 : 0;
         if (_currentUnitIndex == 0)
-            _battleUnits = _battleUnits.OrderBy(_ => Guid.NewGuid()).ToList();
+            _battleUnits = _battleUnits.Shuffle(Rng.Instance).ToList();
 
         _gridStart = _grid.GetTileForPosition(CurrentUnit.Position);
         UpdateMenuState(BattleMenuState.SelectingAction);

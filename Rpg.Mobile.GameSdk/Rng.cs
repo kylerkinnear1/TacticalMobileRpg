@@ -2,6 +2,8 @@
 
 public interface IRng
 {
+    Random Random { get; }
+
     double Percent();
 
     double Double(double min, double max);
@@ -15,10 +17,10 @@ public class Rng : IRng
 {
     public static readonly Rng Instance = new(new());
 
-    private readonly Random _random;
+    public Random Random { get; }
     private readonly object _randomLock = new();
 
-    public Rng(Random random) => _random = random;
+    public Rng(Random random) => Random = random;
 
     public double Percent() => Double(0, 1);
     public double Double(double max) => Double(0, max);
@@ -32,7 +34,24 @@ public class Rng : IRng
     {
         lock (_randomLock)
         {
-            return getValue(_random);
+            return getValue(Random);
+        }
+    }
+}
+
+public static class EnumerableExtensions
+{
+    public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, IRng rng) => Shuffle(source, rng.Random);
+
+    public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random rng)
+    {
+        var buffer = source.ToList();
+        for (var i = 0; i < buffer.Count; i++)
+        {
+            var j = rng.Next(i, buffer.Count);
+            yield return buffer[j];
+
+            buffer[j] = buffer[i];
         }
     }
 }
