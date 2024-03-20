@@ -22,13 +22,13 @@ public class StatSheetComponent : TextboxComponent
     private static string Format(BattleUnitComponent unit) =>
         string.Join(Environment.NewLine,
             $"PlayerId: {unit.State.PlayerId}",
-            $"Unit Type: {unit.State.UnitType}",
-            $"HP: {unit.State.RemainingHealth}/{unit.State.MaxHealth}",
-            $"MP: {unit.State.RemainingMp}/{unit.State.MaxMp}",
-            $"Range: {unit.State.AttackMinRange}-{unit.State.AttackMaxRange}",
-            $"Attack: {unit.State.Attack}",
-            $"Defense: {unit.State.Defense}",
-            $"Movement: {unit.State.Movement}",
+            $"Unit Type: {unit.State.Stats.UnitType}",
+            $"HP: {unit.State.RemainingHealth}/{unit.State.Stats.MaxHealth}",
+            $"MP: {unit.State.RemainingMp}/{unit.State.Stats.MaxMp}",
+            $"Range: {unit.State.Stats.AttackMinRange}-{unit.State.Stats.AttackMaxRange}",
+            $"Attack: {unit.State.Stats.Attack}",
+            $"Defense: {unit.State.Stats.Defense}",
+            $"Movement: {unit.State.Stats.Movement}",
             $"Spells: {string.Join(", ", unit.State.Spells
                 .Select(x => x.Name)
                 .DefaultIfEmpty("N/A"))}");

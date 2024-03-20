@@ -1,4 +1,5 @@
 ﻿using IImage = Microsoft.Maui.Graphics.IImage;
+using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Game.Battling.Domain;
 
@@ -11,7 +12,6 @@ public enum TerrainType
 public class TileState
 {
     public TerrainType Type { get; set; } = TerrainType.Grass;
-    public BattleUnitState? Unit { get; set; }
 }
 
 public class MapState
@@ -20,7 +20,9 @@ public class MapState
     public IImage RockImage { get; set; }
 
     public TileState[,] Tiles { get; set; }
+
     public List<BattleUnitState> TurnOrder { get; set; } = new();
+    public Dictionary<BattleUnitState, Point> UnitTiles { get; set; } = new();
 
     public int RowCount => Tiles.GetLength(0);
     public int ColumnCount => Tiles.GetLength(1);
