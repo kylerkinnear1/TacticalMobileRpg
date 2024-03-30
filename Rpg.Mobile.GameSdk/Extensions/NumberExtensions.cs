@@ -23,4 +23,5 @@ public static class IntExtensions
 {
     public static bool IsBetweenInclusive(this int value, int a, int b) => value >= a && value <= b;
     public static int Abs(this int value) => Math.Abs(value);
+    public static int RoundToInt(this double value) => (int)double.Round(value);
 }

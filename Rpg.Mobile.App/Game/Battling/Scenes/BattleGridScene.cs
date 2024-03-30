@@ -5,6 +5,7 @@ using Rpg.Mobile.App.Game.Battling.Domain.Battles;
 using Rpg.Mobile.App.Game.Menu;
 using Rpg.Mobile.App.Windows;
 using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Extensions;
 using static Rpg.Mobile.App.Game.Sprites;
 using Point = System.Drawing.Point;
 
@@ -41,12 +42,17 @@ public class BattleGridScene : SceneBase
     private readonly PathCalculator _path = new();
     private BattleMenuState _menuState = BattleMenuState.SelectingAction;
     private SpellState? _currentSpell;
-    private readonly MouseWindowsUser32 _mouse = new();
+    private readonly IWhereMouse _mouse;
+    private readonly VisualElement _element;
 
     public BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
 
-    public BattleGridScene()
+    // Todo: remove element stuff and abstract into game engine.
+    public BattleGridScene(IWhereMouse mouse, VisualElement element)
     {
+        _mouse = mouse;
+        _element = element;
+
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
         Add(_miniMap = new(MiniMapClicked, new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
         Add(_map = new(Battles.Demo));
@@ -88,8 +94,13 @@ public class BattleGridScene : SceneBase
         _attackShadow.Shadows.Clear();
         _currentUnitShadow.Shadows.Clear();
 
-        var cursor = _mouse.GetScreenMousePosition();
-        _mouseComponent.Label = $"Screen: {cursor.X},{cursor.Y}";
+        var screenCursor = _mouse.GetScreenMousePosition();
+        var windowCursor = _mouse.GetScreenMousePosition(_element.Window);
+        _mouseComponent.Label = new[]
+        {
+            $"Screen: {screenCursor.X},{screenCursor.Y}",
+            $"Window: {windowCursor.X},{windowCursor.Y}",
+        }.JoinLines(true);
 
         var currentUnitPosition = _map.State.UnitTiles[CurrentUnit.State];
         _currentUnitShadow.Shadows.Add(new(currentUnitPosition.X * _grid.Size, currentUnitPosition.Y * _grid.Size, _grid.Size, _grid.Size));
