@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:app="clr-namespace:Rpg.Mobile.App"
              BackgroundColor="Black"
-             x:Class="Rpg.Mobile.App.MainPage">
+             Shell.NavBarIsVisible="False"
+            x:Class="Rpg.Mobile.App.MainPage">
 
     <Grid>
         <app:GameSceneView x:Name="GameView" />

@@ -95,11 +95,11 @@ public class BattleGridScene : SceneBase
         _currentUnitShadow.Shadows.Clear();
 
         var screenCursor = _mouse.GetScreenMousePosition();
-        var windowCursor = _mouse.GetScreenMousePosition(_element.Window);
+        var windowCursor = _mouse.GetRelativeClientPosition();
         _mouseComponent.Label = new[]
         {
             $"Screen: {screenCursor.X},{screenCursor.Y}",
-            $"Window: {windowCursor.X},{windowCursor.Y}",
+            $"Client: {windowCursor.X},{windowCursor.Y}",
         }.JoinLines(true);
 
         var currentUnitPosition = _map.State.UnitTiles[CurrentUnit.State];
