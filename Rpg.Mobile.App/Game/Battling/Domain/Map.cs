@@ -49,7 +49,6 @@ public class MapState
     }
 }
 
-// TODO: Figure out a better data structure.
 public static class ArrayExtensions
 {
     public static IEnumerable<T> Flatten<T>(this T[,] map)

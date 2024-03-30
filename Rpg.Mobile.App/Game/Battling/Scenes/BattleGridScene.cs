@@ -2,6 +2,8 @@
 using Rpg.Mobile.App.Game.Battling.Components.Menus;
 using Rpg.Mobile.App.Game.Battling.Domain;
 using Rpg.Mobile.App.Game.Battling.Domain.Battles;
+using Rpg.Mobile.App.Game.Menu;
+using Rpg.Mobile.App.Windows;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
 using Point = System.Drawing.Point;
@@ -26,6 +28,7 @@ public class BattleGridScene : SceneBase
     private readonly TileShadowComponent _currentUnitShadow;
     private readonly StatSheetComponent _stats;
     private readonly MenuComponent _stateMenu;
+    private readonly TextboxComponent _mouseComponent;
 
     private List<BattleUnitComponent> _battleUnits;
     private ITween<PointF>? _unitTween;
@@ -38,37 +41,26 @@ public class BattleGridScene : SceneBase
     private readonly PathCalculator _path = new();
     private BattleMenuState _menuState = BattleMenuState.SelectingAction;
     private SpellState? _currentSpell;
+    private readonly MouseWindowsUser32 _mouse = new();
 
     public BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
 
     public BattleGridScene()
     {
-        _grid = new(GridClicked, 10, 12);
-        _map = Add(new MapComponent(Battles.Demo));
-        _moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) };
-        _attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) };
-        _currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) };
+        Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
+        Add(_miniMap = new(MiniMapClicked, new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
+        Add(_map = new(Battles.Demo));
+        Add(_mouseComponent = new(new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f), "") { IgnoreCamera = true });
+        Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
 
-        _battleMenu = new(new(900f, 100f, 150f, 200f));
-        Add(_battleMenu);
-        
         _stateMenu = new(new(1200f, _battleMenu.Bounds.Bottom + 5f, _battleMenu.Bounds.Width, _battleMenu.Bounds.Height));
-        // TODO: Add state back - Add(_stateMenu);
         _stateMenu.SetButtons(new("Save State", SaveStateClicked), new("Load State", LoadStateClicked));
 
-        _miniMap = Add(new MiniMapComponent(MiniMapClicked, new(1400f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f))
-        {
-            IgnoreCamera = true
-        });
+        _map.AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
+        _map.AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
+        _map.AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
+        _map.AddChild(_grid = new(GridClicked, 10, 12));
 
-        _map.AddChild(_moveShadow);
-        _map.AddChild(_attackShadow);
-        _map.AddChild(_currentUnitShadow);
-        _map.AddChild(_grid);
-
-        // TODO: hmm... silly. clean this model up.
-        // Tile should probably just have unit ID...
-        // Separate 'Stats' from state.
         _battleUnits = _map.State.TurnOrder
             .Select(CreateBattleUnitComponent)
             .Select(_map.AddChild)
@@ -80,11 +72,6 @@ public class BattleGridScene : SceneBase
             component.Position = _grid.GetPositionForTile(point, component.Bounds.Size);
         }
 
-        _stats = Add(new StatSheetComponent(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f))
-        {
-            IgnoreCamera = true
-        });
-        
         ActiveCamera.Offset = new PointF(220f, 100f);
         AdvanceToNextUnit();
     }
@@ -100,6 +87,9 @@ public class BattleGridScene : SceneBase
         _moveShadow.Shadows.Clear();
         _attackShadow.Shadows.Clear();
         _currentUnitShadow.Shadows.Clear();
+
+        var cursor = _mouse.GetScreenMousePosition();
+        _mouseComponent.Label = $"Screen: {cursor.X},{cursor.Y}";
 
         var currentUnitPosition = _map.State.UnitTiles[CurrentUnit.State];
         _currentUnitShadow.Shadows.Add(new(currentUnitPosition.X * _grid.Size, currentUnitPosition.Y * _grid.Size, _grid.Size, _grid.Size));

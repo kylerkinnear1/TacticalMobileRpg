@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Rpg.Mobile.GameSdk;
+using System.Runtime.InteropServices;
 
 namespace Rpg.Mobile.App;
 
@@ -7,6 +8,8 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        
+
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -23,3 +26,5 @@ public static class MauiProgram
         return builder.Build();
     }
 }
+
+

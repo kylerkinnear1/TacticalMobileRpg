@@ -11,11 +11,12 @@ public record MapJson(
     List<Point32> Player2Origins,
     List<Point32> RockPositions);
 
+// TODO: Not static
 public static partial class Battles
 {
-    public static readonly MapState Demo = CreateDemo();
+    public static readonly MapState Demo = Load();
 
-    private static MapState CreateDemo()
+    private static MapState Load()
     {
         var mapJson = LoadMap();
 
@@ -38,14 +39,14 @@ public static partial class Battles
         return state;
     }
 
-    private static MapJson? LoadMap()
+    private static MapJson LoadMap()
     {
         var mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.json");
         if (!File.Exists(mapPath)) 
             return BuildDefaultMap();
 
         var mapText = File.ReadAllText(mapPath);
-        return JsonSerializer.Deserialize<MapJson>(mapText);
+        return JsonSerializer.Deserialize<MapJson>(mapText)!;
     }
 
     private static MapJson BuildDefaultMap() =>
