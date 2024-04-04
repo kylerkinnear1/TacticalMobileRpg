@@ -42,13 +42,13 @@ public class BattleGridScene : SceneBase
     private readonly PathCalculator _path = new();
     private BattleMenuState _menuState = BattleMenuState.SelectingAction;
     private SpellState? _currentSpell;
-    private readonly IWhereMouse _mouse;
+    private readonly IMouse _mouse;
     private readonly VisualElement _element;
 
     public BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
 
     // Todo: remove element stuff and abstract into game engine.
-    public BattleGridScene(IWhereMouse mouse, VisualElement element)
+    public BattleGridScene(IMouse mouse, VisualElement element)
     {
         _mouse = mouse;
         _element = element;

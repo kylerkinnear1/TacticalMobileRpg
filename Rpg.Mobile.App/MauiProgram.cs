@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+
+#if WINDOWS
 using Microsoft.Maui.LifecycleEvents;
-using Microsoft.Maui.LifecycleEvents;
+#endif
 
 namespace Rpg.Mobile.App;
 
@@ -20,7 +22,6 @@ public static class MauiProgram
 #if WINDOWS
         builder.ConfigureLifecycleEvents(events =>
         {
-            // Make sure to add "using Microsoft.Maui.LifecycleEvents;" in the top of the file 
             events.AddWindows(windowsLifecycleBuilder =>
             {
                 windowsLifecycleBuilder.OnWindowCreated(window =>

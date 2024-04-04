@@ -15,12 +15,14 @@ public class GameLoop : IGameLoop
     private readonly SceneBase _scene;
     private readonly IGraphicsView _view;
     private readonly IDispatcher _dispatcher;
+    private readonly IMouse _mouse;
 
-    public GameLoop(SceneBase scene, IGraphicsView view, IDispatcher dispatcher)
+    public GameLoop(SceneBase scene, IGraphicsView view, IDispatcher dispatcher, IMouse mouse)
     {
         _scene = scene;
         _view = view;
         _dispatcher = dispatcher;
+        _mouse = mouse;
     }
 
     private DateTime _lastUpdate = DateTime.UtcNow;
@@ -29,6 +31,8 @@ public class GameLoop : IGameLoop
 
     public void Start()
     {
+        HandleInput();
+
         var startTime = DateTime.UtcNow;
         var delta = startTime - _lastUpdate;
 
@@ -68,18 +72,40 @@ public class GameLoop : IGameLoop
                 .Select(x => new PointF(x.X - component.Bounds.X, x.Y - component.Bounds.Y)));
         }
     }
+
+    private void HandleInput()
+    {
+        HandleHover();
+    }
+
+    private void HandleHover()
+    {
+        var mousePosition = _mouse.GetRelativeClientPosition();
+        var hoveredComponents = _scene.ComponentTree
+            .SelectMany(x => x.All)
+            .Select(x => new
+            {
+                Bounds = x.IgnoreCamera ? x.AbsoluteBounds : x.AbsoluteBounds.Offset(_scene.ActiveCamera.Offset),
+                Component = x
+            })
+            .Where(x => x.Component.Visible && x.Bounds.Contains(mousePosition.X, mousePosition.Y))
+            .ToList();
+
+        foreach (var component in hoveredComponents)
+            component.Component.OnHover(new(mousePosition.X, mousePosition.Y));
+    }
 }
 
 public interface IGameLoopFactory
 {
-    GameLoop Create(GraphicsView view, SceneBase scene);
+    GameLoop Create(GraphicsView view, SceneBase scene, IMouse mouse);
 }
 
 public class GameLoopFactory : IGameLoopFactory
 {
-    public GameLoop Create(GraphicsView view, SceneBase scene)
+    public GameLoop Create(GraphicsView view, SceneBase scene, IMouse mouse)
     {
-        var game = new GameLoop(scene, view, view.Dispatcher);
+        var game = new GameLoop(scene, view, view.Dispatcher, mouse);
         view.Drawable = scene.ActiveCamera;
         view.EndInteraction += (_, e) => game.OnTouchUp(e);
         return game;

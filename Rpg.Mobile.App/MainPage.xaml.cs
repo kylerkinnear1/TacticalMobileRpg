@@ -11,8 +11,9 @@ public partial class MainPage : ContentPage
         InitializeComponent();
 
         var gameLoopFactory = new GameLoopFactory();
-        var scene = new BattleGridScene(new MouseWindowsUser32(), GameView);
-        var game = gameLoopFactory.Create(GameView, scene);
+        var mouse = new MouseWindowsUser32();
+        var scene = new BattleGridScene(mouse, GameView);
+        var game = gameLoopFactory.Create(GameView, scene, mouse);
         game.Start();
     }
 }
