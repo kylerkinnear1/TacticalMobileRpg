@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Rpg.Mobile.GameSdk;
-using System.Runtime.InteropServices;
+using Microsoft.Maui.LifecycleEvents;
+using Microsoft.Maui.LifecycleEvents;
 
 namespace Rpg.Mobile.App;
 
@@ -8,8 +8,6 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        
-
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -19,8 +17,32 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+#if WINDOWS
+        builder.ConfigureLifecycleEvents(events =>
+        {
+            // Make sure to add "using Microsoft.Maui.LifecycleEvents;" in the top of the file 
+            events.AddWindows(windowsLifecycleBuilder =>
+            {
+                windowsLifecycleBuilder.OnWindowCreated(window =>
+                {
+                    window.ExtendsContentIntoTitleBar = false;
+                    var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                    var id = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(handle);
+                    var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(id);
+                    switch (appWindow.Presenter)
+                    {
+                        case Microsoft.UI.Windowing.OverlappedPresenter overlappedPresenter:
+                            overlappedPresenter.SetBorderAndTitleBar(false, false);
+                            overlappedPresenter.Maximize();
+                            break;
+                    }
+                });
+            });
+        });
+#endif
+
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
         return builder.Build();
