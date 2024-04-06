@@ -17,6 +17,7 @@ public interface IRenderComponent : IHaveBounds
     void Render(ICanvas canvas, RectF dirtyRect);
 }
 
+// TODO: Cleanup this interface
 public interface IComponent : IUpdateComponent, IRenderComponent
 {
     bool Visible { get; }

@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.App.Game.Menu;
+﻿namespace Rpg.Mobile.App.Game.Common;
 
 public class ButtonComponent : TextboxComponent
 {

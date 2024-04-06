@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Menu;
+﻿using Rpg.Mobile.App.Game.Common;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 

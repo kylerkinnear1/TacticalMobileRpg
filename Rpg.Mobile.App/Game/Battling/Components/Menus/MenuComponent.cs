@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Menu;
+﻿using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App.Game.Battling.Components.Menus;
@@ -7,8 +7,8 @@ public class MenuComponent : ComponentBase
 {
     private List<ButtonComponent> _buttons = new();
 
-    public const float Spacing = 10f;
-    public const float ButtonHeight = 40f;
+    public float Spacing { get; set; } = 10f;
+    public float ButtonHeight { get; set; } = 40f;
     public Color FillColor { get; set; } = Colors.Navy;
     public Color StrokeColor { get; set; } = Colors.Black;
     public float StrokeSize { get; set; } = 2f;

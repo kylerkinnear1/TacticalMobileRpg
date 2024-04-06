@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.GameSdk;
 using Font = Microsoft.Maui.Graphics.Font;
 
-namespace Rpg.Mobile.App.Game.Menu;
+namespace Rpg.Mobile.App.Game.Common;
 
 public class TextboxComponent : ComponentBase
 {

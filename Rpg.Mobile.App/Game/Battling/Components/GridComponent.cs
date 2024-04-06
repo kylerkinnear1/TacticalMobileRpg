@@ -38,19 +38,6 @@ public class GridComponent : ComponentBase
         }
     }
 
-    private static RectF CalcBounds(PointF position, int colCount, int rowCount, float size) => 
-        new(position.X, position.Y, colCount * size, rowCount * size);
-
-    public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));
-
-    public PointF GetPositionForTile(Point point, SizeF componentSize) => GetPositionForTile(point.X, point.Y, componentSize);
-    public PointF GetPositionForTile(int x, int y, SizeF componentSize)
-    {
-        var marginX = (Size - componentSize.Width) / 2;
-        var marginY = (Size - componentSize.Height) / 2;
-        return new((x * Size) + marginX, (y * Size) + marginY);
-    }
-
     public override void OnTouchUp(IEnumerable<PointF> touches)
     {
         var touch = touches.First();
@@ -63,12 +50,26 @@ public class GridComponent : ComponentBase
     public override void OnHover(PointF hover)
     {
         var tile = GetTileForPosition(hover);
-        if (tile == _lastHoverGrid) 
+        if (tile == _lastHoverGrid)
             return;
 
         _lastHoverGrid = tile;
         Bus?.Publish(new TileHoveredEvent(tile));
     }
+
+    public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));
+
+    public PointF GetPositionForTile(Point point, SizeF componentSize) => GetPositionForTile(point.X, point.Y, componentSize);
+
+    public PointF GetPositionForTile(int x, int y, SizeF componentSize)
+    {
+        var marginX = (Size - componentSize.Width) / 2;
+        var marginY = (Size - componentSize.Height) / 2;
+        return new((x * Size) + marginX, (y * Size) + marginY);
+    }
+
+    private static RectF CalcBounds(PointF position, int colCount, int rowCount, float size) =>
+        new(position.X, position.Y, colCount * size, rowCount * size);
 }
 
 public record TileHoveredEvent(Point Tile) : IEvent;

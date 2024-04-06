@@ -2,8 +2,7 @@
 using Rpg.Mobile.App.Game.Battling.Components.Menus;
 using Rpg.Mobile.App.Game.Battling.Domain;
 using Rpg.Mobile.App.Game.Battling.Domain.Battles;
-using Rpg.Mobile.App.Game.Menu;
-using Rpg.Mobile.App.Windows;
+using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
 using static Rpg.Mobile.App.Game.Sprites;
@@ -55,7 +54,7 @@ public class BattleGridScene : SceneBase
         _element = element;
 
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
-        Add(_miniMap = new(MiniMapClicked, new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
+        Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
         Add(_map = new(Battles.Demo));
         Add(_mouseComponent = new(new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f), "") { IgnoreCamera = true });
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
@@ -75,6 +74,7 @@ public class BattleGridScene : SceneBase
 
         Bus.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
         Bus.Subscribe<TileClickedEvent>(TileClicked);
+        Bus.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
 
         _battleUnits = _map.State.TurnOrder
             .Select(CreateBattleUnitComponent)
@@ -173,10 +173,10 @@ public class BattleGridScene : SceneBase
             _ => throw new ArgumentException()
         };
 
-    private void MiniMapClicked(PointF touch)
+    private void MiniMapClicked(MiniMapClickedEvent touch)
     {
-        var xPercent = touch.X / _miniMap.Bounds.Width;
-        var yPercent = touch.Y / _miniMap.Bounds.Height;
+        var xPercent = touch.Position.X / _miniMap.Bounds.Width;
+        var yPercent = touch.Position.Y / _miniMap.Bounds.Height;
         var target = new PointF(ActiveCamera.Size.Width * xPercent * 2, ActiveCamera.Size.Height * yPercent * 2);
         _cameraTween = ActiveCamera.Offset.TweenTo(target, 1000f);
     }
