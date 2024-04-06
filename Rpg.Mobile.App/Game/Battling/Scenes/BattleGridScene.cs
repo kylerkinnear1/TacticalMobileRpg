@@ -30,6 +30,7 @@ public class BattleGridScene : SceneBase
     private readonly StatSheetComponent _stats;
     private readonly MenuComponent _stateMenu;
     private readonly TextboxComponent _mouseComponent;
+    private readonly TextboxComponent _hoverComponent;
 
     private List<BattleUnitComponent> _battleUnits;
     private ITween<PointF>? _unitTween;
@@ -58,6 +59,11 @@ public class BattleGridScene : SceneBase
         Add(_map = new(Battles.Demo));
         Add(_mouseComponent = new(new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f), "") { IgnoreCamera = true });
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
+        Add(_hoverComponent = new(new(_stats.Bounds.Left, _stats.Bounds.Bottom + 100f, 300f, 200f), "")
+        {
+            IgnoreCamera = true,
+            BackColor = Colors.DeepSkyBlue
+        });
 
         _stateMenu = new(new(1200f, _battleMenu.Bounds.Bottom + 5f, _battleMenu.Bounds.Width, _battleMenu.Bounds.Height));
         _stateMenu.SetButtons(new("Save State", SaveStateClicked), new("Load State", LoadStateClicked));
