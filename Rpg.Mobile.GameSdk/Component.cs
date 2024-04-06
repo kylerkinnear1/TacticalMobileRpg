@@ -37,6 +37,7 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     void OnTouchUp(IEnumerable<PointF> touches);
     IComponent RemoveChild(IComponent child);
     void SetParent(IComponent? parent);
+    void SetBus(EventBus? bus);
 }
 
 public abstract class ComponentBase : IComponent
@@ -72,6 +73,7 @@ public abstract class ComponentBase : IComponent
     }
 
     protected List<IComponent> ChildList = new();
+    protected EventBus? Bus;
     
     public IReadOnlyCollection<IComponent> Children => ChildList;
 
@@ -121,6 +123,7 @@ public abstract class ComponentBase : IComponent
     public T AddChild<T>(T child) where T : IComponent
     {
         child.Parent = this;
+        child.SetBus(Bus);
         ChildList.Add(child);
         return child;
     }
@@ -130,6 +133,7 @@ public abstract class ComponentBase : IComponent
         if (ChildList.Remove(child))
             child.Parent = null;
 
+        SetBus(null);
         return child;
     }
 
@@ -137,5 +141,10 @@ public abstract class ComponentBase : IComponent
     {
         parent?.RemoveChild(this);
         Parent = parent;
+    }
+
+    public void SetBus(EventBus? bus)
+    {
+        Bus = bus;
     }
 }

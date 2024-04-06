@@ -8,6 +8,7 @@ public abstract class SceneBase
     public List<(IHaveBounds Bounds, Action<TouchEvent> Handler)> TouchUpHandlers { get; } = new();
     public Camera ActiveCamera { get; set; }
     public IGraphicsView View { get; }
+    public EventBus Bus { get; } = new();
 
     private IEnumerable<IComponent> ComponentUpdates => ComponentTree;
     public IEnumerable<IUpdateComponent> Updates => 
@@ -21,6 +22,7 @@ public abstract class SceneBase
     protected T Add<T>(T component) where T : IComponent
     {
         ComponentTree.Add(component);
+        component.SetBus(Bus);
         return component;
     }
 

@@ -5,15 +5,14 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class GridComponent : ComponentBase
 {
-    private readonly Action<int, int> _gridClickedHandler;
-
     public int ColCount { get; set; }
     public int RowCount { get; set; }
     public float Size { get; set; }
 
-    public GridComponent(Action<int, int> gridClickedHandler, int colCount, int rowCount, float size = 64f) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
+    private Point? _lastHoverGrid;
+
+    public GridComponent(int colCount, int rowCount, float size = 64f) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
     {
-        _gridClickedHandler = gridClickedHandler;
         ColCount = colCount;
         RowCount = rowCount;
         Size = size;
@@ -57,6 +56,20 @@ public class GridComponent : ComponentBase
         var touch = touches.First();
         var x = (int)(touch.X / Size);
         var y = (int)(touch.Y / Size);
-        _gridClickedHandler(x, y);
+
+        Bus?.Publish(new TileClickedEvent(new(x, y)));
+    }
+
+    public override void OnHover(PointF hover)
+    {
+        var tile = GetTileForPosition(hover);
+        if (tile == _lastHoverGrid) 
+            return;
+
+        _lastHoverGrid = tile;
+        Bus?.Publish(new TileHoveredEvent(tile));
     }
 }
+
+public record TileHoveredEvent(Point Tile);
+public record TileClickedEvent(Point Tile);

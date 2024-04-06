@@ -71,7 +71,10 @@ public class BattleGridScene : SceneBase
         _map.AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         _map.AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         _map.AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
-        _map.AddChild(_grid = new(GridClicked, 10, 12));
+        _map.AddChild(_grid = new(10, 12));
+
+        Bus.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
+        Bus.Subscribe<TileClickedEvent>(TileClicked);
 
         _battleUnits = _map.State.TurnOrder
             .Select(CreateBattleUnitComponent)
@@ -186,8 +189,11 @@ public class BattleGridScene : SceneBase
     {
     }
 
-    private void GridClicked(int x, int y)
+    private void TileClicked(TileClickedEvent evnt)
     {
+        var x = evnt.Tile.X;
+        var y = evnt.Tile.Y;
+
         var currentUnit = CurrentUnit;
         var clickedTileCenter = _grid.GetPositionForTile(x, y, SizeF.Zero);
         var units = _battleUnits
