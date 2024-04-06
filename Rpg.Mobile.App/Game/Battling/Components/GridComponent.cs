@@ -71,5 +71,5 @@ public class GridComponent : ComponentBase
     }
 }
 
-public record TileHoveredEvent(Point Tile);
-public record TileClickedEvent(Point Tile);
+public record TileHoveredEvent(Point Tile) : IEvent;
+public record TileClickedEvent(Point Tile) : IEvent;

@@ -92,7 +92,7 @@ public class GameLoop : IGameLoop
             .ToList();
 
         foreach (var component in hoveredComponents)
-            component.Component.OnHover(new(mousePosition.X, mousePosition.Y));
+            component.Component.OnHover(new(mousePosition.X - component.Bounds.X, mousePosition.Y - component.Bounds.Y));
     }
 }
 
