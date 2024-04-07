@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.App.Game.Battling.Domain;
+namespace Rpg.Mobile.App.Game.Battling.Backend;
 
 public interface ISpellCalculator
 {

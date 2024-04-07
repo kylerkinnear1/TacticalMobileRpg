@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Battling.Domain;
+﻿using Rpg.Mobile.App.Game.Battling.Backend;
 using Rpg.Mobile.GameSdk;
 using Font = Microsoft.Maui.Graphics.Font;
 using IImage = Microsoft.Maui.Graphics.IImage;

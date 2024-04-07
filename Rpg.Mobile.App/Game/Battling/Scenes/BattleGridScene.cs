@@ -1,7 +1,6 @@
-﻿using Rpg.Mobile.App.Game.Battling.Components;
+﻿using Rpg.Mobile.App.Game.Battling.Backend;
+using Rpg.Mobile.App.Game.Battling.Components;
 using Rpg.Mobile.App.Game.Battling.Components.Menus;
-using Rpg.Mobile.App.Game.Battling.Domain;
-using Rpg.Mobile.App.Game.Battling.Domain.Battles;
 using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.GameSdk;
 using Rpg.Mobile.GameSdk.Extensions;
@@ -55,7 +54,17 @@ public class BattleGridScene : SceneBase
 
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
         Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
-        Add(_map = new(Battles.Demo));
+
+        var mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.json");
+        var battleLoader = new BattleLoader();
+        var battle = battleLoader.Load(mapPath);
+
+        Add(_map = new(battle));
+        _map.AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
+        _map.AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
+        _map.AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
+        _map.AddChild(_grid = new(10, 12));
+
         Add(_mouseComponent = new(new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f), "") { IgnoreCamera = true });
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
         Add(_hoverComponent = new(new(_stats.Bounds.Left, _stats.Bounds.Bottom + 100f, 300f, 200f), "")
@@ -66,11 +75,6 @@ public class BattleGridScene : SceneBase
 
         _stateMenu = new(new(1200f, _battleMenu.Bounds.Bottom + 5f, _battleMenu.Bounds.Width, _battleMenu.Bounds.Height));
         _stateMenu.SetButtons(new("Save State", SaveStateClicked), new("Load State", LoadStateClicked));
-
-        _map.AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
-        _map.AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
-        _map.AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
-        _map.AddChild(_grid = new(10, 12));
 
         Bus.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
         Bus.Subscribe<TileClickedEvent>(TileClicked);
@@ -181,13 +185,9 @@ public class BattleGridScene : SceneBase
         _cameraTween = ActiveCamera.Offset.TweenTo(target, 1000f);
     }
 
-    private void SaveStateClicked(IEnumerable<PointF> touches)
-    {
-    }
+    private void SaveStateClicked(IEnumerable<PointF> touches) => Bus.Publish(new SaveStateClickedEvent());
 
-    private void LoadStateClicked(IEnumerable<PointF> touches)
-    {
-    }
+    private void LoadStateClicked(IEnumerable<PointF> touches) => Bus.Publish(new LoadStateClickedEvent());
 
     private void TileClicked(TileClickedEvent evnt)
     {

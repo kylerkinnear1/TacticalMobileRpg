@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.GameSdk.Extensions;
 using Point = System.Drawing.Point;
 
-namespace Rpg.Mobile.App.Game.Battling.Domain;
+namespace Rpg.Mobile.App.Game.Battling.Backend;
 
 public interface IPathCalculator
 {
