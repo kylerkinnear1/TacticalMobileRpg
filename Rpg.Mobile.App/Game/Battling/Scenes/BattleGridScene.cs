@@ -3,7 +3,6 @@ using Rpg.Mobile.App.Game.Battling.Components;
 using Rpg.Mobile.App.Game.Battling.Components.Menus;
 using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.GameSdk;
-using Rpg.Mobile.GameSdk.Extensions;
 using static Rpg.Mobile.App.Game.Sprites;
 using Point = System.Drawing.Point;
 
@@ -27,7 +26,7 @@ public class BattleGridScene : SceneBase
     private readonly TileShadowComponent _currentUnitShadow;
     private readonly StatSheetComponent _stats;
     private readonly MenuComponent _stateMenu;
-    private readonly TextboxComponent _mouseComponent;
+    private readonly MouseCoordinateComponent _mouseComponent;
     private readonly TextboxComponent _hoverComponent;
 
     private List<BattleUnitComponent> _battleUnits;
@@ -41,17 +40,11 @@ public class BattleGridScene : SceneBase
     private readonly PathCalculator _path = new();
     private BattleMenuState _menuState = BattleMenuState.SelectingAction;
     private SpellState? _currentSpell;
-    private readonly IMouse _mouse;
-    private readonly VisualElement _element;
 
     public BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
 
-    // Todo: remove element stuff and abstract into game engine.
-    public BattleGridScene(IMouse mouse, VisualElement element)
+    public BattleGridScene(IMouse mouse)
     {
-        _mouse = mouse;
-        _element = element;
-
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
         Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
 
@@ -65,7 +58,11 @@ public class BattleGridScene : SceneBase
         _map.AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
         _map.AddChild(_grid = new(10, 12));
 
-        Add(_mouseComponent = new(new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f), "") { IgnoreCamera = true });
+        Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
+        {
+            IgnoreCamera = true
+        });
+
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
         Add(_hoverComponent = new(new(_stats.Bounds.Left, _stats.Bounds.Bottom + 100f, 300f, 200f), "")
         {
@@ -106,14 +103,6 @@ public class BattleGridScene : SceneBase
         _moveShadow.Shadows.Clear();
         _attackShadow.Shadows.Clear();
         _currentUnitShadow.Shadows.Clear();
-
-        var screenCursor = _mouse.GetScreenMousePosition();
-        var windowCursor = _mouse.GetRelativeClientPosition();
-        _mouseComponent.Label = new[]
-        {
-            $"Screen: {screenCursor.X},{screenCursor.Y}",
-            $"Client: {windowCursor.X},{windowCursor.Y}",
-        }.JoinLines(true);
 
         var currentUnitPosition = _map.State.UnitTiles[CurrentUnit.State];
         _currentUnitShadow.Shadows.Add(new(currentUnitPosition.X * _grid.Size, currentUnitPosition.Y * _grid.Size, _grid.Size, _grid.Size));
