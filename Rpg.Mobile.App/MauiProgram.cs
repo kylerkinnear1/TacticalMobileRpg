@@ -19,6 +19,17 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+        SetFullScreen(builder);
+
+#if DEBUG
+        builder.Logging.AddDebug();
+#endif
+
+        return builder.Build();
+    }
+
+    private static void SetFullScreen(MauiAppBuilder builder)
+    {
 #if WINDOWS
         builder.ConfigureLifecycleEvents(events =>
         {
@@ -41,12 +52,6 @@ public static class MauiProgram
             });
         });
 #endif
-
-#if DEBUG
-        builder.Logging.AddDebug();
-#endif
-
-        return builder.Build();
     }
 }
 

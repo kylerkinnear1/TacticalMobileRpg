@@ -8,10 +8,13 @@ public class MapComponent : ComponentBase
     public const int TileSize = 64;
     public MapState State { get; set; }
 
+    private readonly GridComponent _grid;
+
     public MapComponent(MapState state) 
         : base(new(0, 0, state.ColumnCount * TileSize, state.RowCount * TileSize))
     {
         State = state;
+        AddChild(_grid = new(state.ColumnCount, state.RowCount, TileSize));
     }
 
     public override void Update(float deltaTime) { }

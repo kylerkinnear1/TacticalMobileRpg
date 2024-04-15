@@ -11,7 +11,7 @@ public class GridComponent : ComponentBase
 
     private Point? _lastHoverGrid;
 
-    public GridComponent(int colCount, int rowCount, float size = 64f) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
+    public GridComponent(int colCount, int rowCount, float size) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
     {
         ColCount = colCount;
         RowCount = rowCount;
@@ -44,7 +44,7 @@ public class GridComponent : ComponentBase
         var x = (int)(touch.X / Size);
         var y = (int)(touch.Y / Size);
 
-        Bus?.Publish(new TileClickedEvent(new(x, y)));
+        Bus.Publish(new TileClickedEvent(new(x, y)));
     }
 
     public override void OnHover(PointF hover)
@@ -54,7 +54,7 @@ public class GridComponent : ComponentBase
             return;
 
         _lastHoverGrid = tile;
-        Bus?.Publish(new TileHoveredEvent(tile));
+        Bus.Publish(new TileHoveredEvent(tile));
     }
 
     public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));

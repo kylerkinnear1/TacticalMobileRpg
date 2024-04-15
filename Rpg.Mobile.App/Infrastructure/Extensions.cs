@@ -1,0 +1,16 @@
+﻿namespace Rpg.Mobile.App.Infrastructure;
+
+public static class Extensions
+{
+    public static void SetRange<T>(this List<T> source, IEnumerable<T> values)
+    {
+        source.Clear();
+        source.AddRange(values);
+    }
+
+    public static void Set<T>(this List<T> source, T value)
+    {
+        source.Clear();
+        source.Add(value);
+    }
+}

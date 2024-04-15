@@ -14,7 +14,7 @@ public record MapJson(
 public record LoadStateClickedEvent : IEvent;
 public record SaveStateClickedEvent : IEvent;
 
-public class BattleLoader
+public class MapLoader
 {
     public MapState Load(string path)
     {

@@ -23,4 +23,14 @@ public class EventBus
         var handlers = _notificationHandlers.GetOrAdd(typeof(T), _ => new());
         handlers.Add(x => handler((T)x));
     }
+
+    // TODO: Something less ugly
+    public void AddSubscriptions(EventBus other)
+    {
+        foreach (var newHandler in other._notificationHandlers)
+        {
+            var existingHandlers = _notificationHandlers.GetOrAdd(newHandler.Key, _ => new());
+            existingHandlers.AddRange(newHandler.Value);
+        }
+    }
 }

@@ -74,7 +74,7 @@ public abstract class ComponentBase : IComponent
     }
 
     protected List<IComponent> ChildList = new();
-    protected EventBus? Bus;
+    protected EventBus Bus = new();
     
     public IReadOnlyCollection<IComponent> Children => ChildList;
 
@@ -144,8 +144,9 @@ public abstract class ComponentBase : IComponent
         Parent = parent;
     }
 
-    public void SetBus(EventBus? bus)
+    public void SetBus(EventBus bus)
     {
+        bus.AddSubscriptions(Bus);
         Bus = bus;
     }
 }
