@@ -4,7 +4,6 @@ using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
 using Math = System.Math;
-using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 
@@ -55,7 +54,7 @@ public class BattleComponent : ComponentBase
 
     private List<BattleUnitComponent> _battleUnits;
     private ITween<PointF>? _unitTween;
-    private Point _gridStart;
+    private Point _gridStart = new(0, 0);
     private BattleStep _step = BattleStep.Moving;
     private SpellState? _currentSpell;
 
@@ -69,7 +68,7 @@ public class BattleComponent : ComponentBase
     public BattleComponent(
         // TODO: remove extra components
         StatSheetComponent stats, MenuComponent battleMenu, PointF location, MapState battle) 
-        : base(CalcBounds(location, battle.ColumnCount, battle.RowCount, TileSize))
+        : base(CalcBounds(location, battle.Width, battle.Height, TileSize))
     {
         _stats = stats;
         _battleMenu = battleMenu;
@@ -86,11 +85,11 @@ public class BattleComponent : ComponentBase
 
         foreach (var component in _battleUnits)
         {
-            var point = _map.State.UnitTiles[component.State];
+            var point = _map.State.UnitCoordinates[component.State];
             component.Position = GetPositionForTile(point, component.Bounds.Size);
         }
 
-        Bus.Subscribe<TileClickedEvent>(TileClicked);
+        Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
     }
 
     public override void Update(float deltaTime)
@@ -101,15 +100,15 @@ public class BattleComponent : ComponentBase
         _moveShadow.Shadows.Clear();
         _attackShadow.Shadows.Clear();
 
-        var currentUnitPosition = _map.State.UnitTiles[CurrentUnit.State];
+        var currentUnitPosition = _map.State.UnitCoordinates[CurrentUnit.State];
         _currentUnitShadow.Shadows.Set(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
 
         var gridToUnit = _battleUnits.ToLookup(x => GetTileForPosition(x.Position));
         if (_step == BattleStep.Moving)
         {
             var shadows = _path
-                .CreateFanOutArea(_gridStart, new(_map.State.ColumnCount, _map.State.RowCount), CurrentUnit.State.Stats.Movement)
-                .Where(x => !_map.State.UnitTiles.ContainsValue(new(x.X, x.Y)) && _map.State.Tiles[x.X, x.Y].Type != TerrainType.Rock)
+                .CreateFanOutArea(_gridStart, new(_map.State.Width, _map.State.Height), CurrentUnit.State.Stats.Movement)
+                .Where(x => !_map.State.UnitCoordinates.ContainsValue(x) && _map.State.Tiles[x.X, x.Y].Type != TerrainType.Rock)
                 .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
                 .ToList();
 
@@ -119,10 +118,11 @@ public class BattleComponent : ComponentBase
         if (_step == BattleStep.SelectingAttackTarget)
         {
             var currentUnit = CurrentUnit;
+            var currentUnitTile = GetTileForPosition(CurrentUnit.Position);
             var shadows = _path
                 .CreateFanOutArea(
-                    GetTileForPosition(CurrentUnit.Position),
-                    new(_map.State.ColumnCount, _map.State.RowCount),
+                    currentUnitTile,
+                    new(_map.State.Width, _map.State.Height),
                     CurrentUnit.State.Stats.AttackMinRange,
                     CurrentUnit.State.Stats.AttackMaxRange)
                 .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.State.PlayerId != currentUnit.State.PlayerId))
@@ -134,10 +134,11 @@ public class BattleComponent : ComponentBase
 
         if (_currentSpell is not null)
         {
+            var currentUnitTile = GetTileForPosition(CurrentUnit.Position);
             var shadows = _path
                 .CreateFanOutArea(
-                    GetTileForPosition(CurrentUnit.Position),
-                    new(_map.State.ColumnCount, _map.State.RowCount),
+                    new(currentUnitTile.X, currentUnitTile.Y),
+                    new(_map.State.Width, _map.State.Height),
                     _currentSpell.MinRange,
                     _currentSpell.MaxRange)
                 .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
@@ -168,10 +169,10 @@ public class BattleComponent : ComponentBase
         _gridStart = GetTileForPosition(CurrentUnit.Position);
         _unitTween = null;
 
-        Bus.Publish(new ActiveUnitChanged(CurrentUnit.State));
+        Bus.Global.Publish(new ActiveUnitChanged(CurrentUnit.State));
 
         _step = BattleStep.Moving;
-        Bus.Publish(new BattleStepChanged(_step));
+        Bus.Global.Publish(new BattleStepChanged(_step));
 
         UpdateMenuState(_step);
     }
@@ -203,16 +204,13 @@ public class BattleComponent : ComponentBase
         return new((x * TileSize) + marginX, (y * TileSize) + marginY);
     }
 
-    private static RectF CalcBounds(PointF position, int colCount, int rowCount, float size) =>
-        new(position.X, position.Y, colCount * size, rowCount * size);
+    private static RectF CalcBounds(PointF position, int width, int height, float size) =>
+        new(position.X, position.Y, width * size, height * size);
 
     private void TileClicked(TileClickedEvent evnt)
     {
-        var x = evnt.Tile.X;
-        var y = evnt.Tile.Y;
-
         var currentUnit = CurrentUnit;
-        var clickedTileCenter = GetPositionForTile(x, y, SizeF.Zero);
+        var clickedTileCenter = GetPositionForTile(evnt.Tile, SizeF.Zero);
         var units = _battleUnits
             .Where(a => a.Visible)
             .ToLookup(a => GetTileForPosition(a.Position));
@@ -220,12 +218,11 @@ public class BattleComponent : ComponentBase
         var enemies = _battleUnits
             .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.Visible)
             .ToLookup(a => GetTileForPosition(a.Position));
-
-        var gridPosition = new Point(x, y);
+        
         if (_step == BattleStep.SelectingAttackTarget &&
-            _attackShadow.Shadows.Any(a => a.Contains(clickedTileCenter) && enemies.Contains(gridPosition)))
+            _attackShadow.Shadows.Any(a => a.Contains(clickedTileCenter) && enemies.Contains(evnt.Tile)))
         {
-            var enemy = enemies[gridPosition].First();
+            var enemy = enemies[evnt.Tile].First();
             var damage = _damage.CalcDamage(currentUnit.State.Stats.Attack, currentUnit.State.Stats.Defense);
             DamageUnit(enemy, damage);
             AdvanceToNextUnit();
@@ -233,20 +230,20 @@ public class BattleComponent : ComponentBase
 
         if (_step == BattleStep.CastingSpell && _currentSpell is not null)
         {
-            CastSpell(_currentSpell, gridPosition);
+            CastSpell(_currentSpell, evnt.Tile);
         }
 
         if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
         {
-            _map.State.UnitTiles[CurrentUnit.State] = new(x, y);
+            _map.State.UnitCoordinates[CurrentUnit.State] = evnt.Tile;
 
-            var finalTarget = GetPositionForTile(x, y, CurrentUnit.Bounds.Size);
+            var finalTarget = GetPositionForTile(evnt.Tile, CurrentUnit.Bounds.Size);
             _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
         }
 
-        if (_step == BattleStep.Moving && units.Contains(gridPosition))
+        if (_step == BattleStep.Moving && units.Contains(evnt.Tile))
         {
-            _stats.ChangeUnit(units[gridPosition].First());
+            _stats.ChangeUnit(units[evnt.Tile].First());
         }
     }
 
@@ -289,7 +286,7 @@ public class BattleComponent : ComponentBase
         {
             enemy.Visible = false;
             _battleUnits.Remove(enemy);
-            _map.State.UnitTiles.Remove(enemy.State);
+            _map.State.UnitCoordinates.Remove(enemy.State);
         }
     }
 

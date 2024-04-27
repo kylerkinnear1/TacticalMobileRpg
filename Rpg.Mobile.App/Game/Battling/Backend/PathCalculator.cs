@@ -1,5 +1,4 @@
 ﻿using Rpg.Mobile.GameSdk.Extensions;
-using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Game.Battling.Backend;
 

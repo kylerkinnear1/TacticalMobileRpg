@@ -11,24 +11,20 @@ public class MapComponent : ComponentBase
     private readonly GridComponent _grid;
 
     public MapComponent(MapState state) 
-        : base(new(0, 0, state.ColumnCount * TileSize, state.RowCount * TileSize))
+        : base(new(0, 0, state.Width * TileSize, state.Height * TileSize))
     {
         State = state;
-        AddChild(_grid = new(state.ColumnCount, state.RowCount, TileSize));
+        AddChild(_grid = new(state.Width, state.Height, TileSize));
     }
 
     public override void Update(float deltaTime) { }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
-        for (var row = 0; row < State.Tiles.GetLength(0); row++)
+        State.Tiles.Each((x, y) =>
         {
-            for (var col = 0; col < State.Tiles.GetLength(1); col++)
-            {
-                var tile = State.Tiles[row, col];
-                var image = tile.Type == TerrainType.Rock ? State.RockImage : State.GrassImage;
-                canvas.DrawImage(image, row * TileSize, col * TileSize, TileSize, TileSize);
-            }
-        }
+            var image = State.Tiles[x, y].Type == TerrainType.Rock ? State.RockImage : State.GrassImage;
+            canvas.DrawImage(image, y * TileSize, x * TileSize, TileSize, TileSize);
+        });
     }
 }

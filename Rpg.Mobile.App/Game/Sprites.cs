@@ -1,5 +1,4 @@
 ﻿using Rpg.Mobile.GameSdk;
-using IImage = Microsoft.Maui.Graphics.IImage;
 
 namespace Rpg.Mobile.App.Game;
 

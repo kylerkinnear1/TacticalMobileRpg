@@ -45,8 +45,8 @@ public class BattleGridScene : SceneBase
         _stateMenu = new(new(1200f, _battleMenu.Bounds.Bottom + 5f, _battleMenu.Bounds.Width, _battleMenu.Bounds.Height));
         _stateMenu.SetButtons(new("Save State", SaveStateClicked), new("Load State", LoadStateClicked));
 
-        Bus.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
-        Bus.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
+        Bus.Global.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
+        Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
 
         ActiveCamera.Offset = new PointF(220f, 100f);
 
@@ -67,7 +67,7 @@ public class BattleGridScene : SceneBase
         _cameraTween = ActiveCamera.Offset.TweenTo(target, 1000f);
     }
 
-    private void SaveStateClicked(IEnumerable<PointF> touches) => Bus.Publish(new SaveStateClickedEvent());
+    private void SaveStateClicked(IEnumerable<PointF> touches) => Bus.Global.Publish(new SaveStateClickedEvent());
 
-    private void LoadStateClicked(IEnumerable<PointF> touches) => Bus.Publish(new LoadStateClickedEvent());
+    private void LoadStateClicked(IEnumerable<PointF> touches) => Bus.Global.Publish(new LoadStateClickedEvent());
 }

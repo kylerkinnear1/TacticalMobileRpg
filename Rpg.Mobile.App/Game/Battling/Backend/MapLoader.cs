@@ -3,13 +3,13 @@ using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App.Game.Battling.Backend;
 
-public record Point32(int X, int Y);
+public record Coordinate(int X, int Y);
 public record MapJson(
     int RowCount,
     int ColumnCount,
-    List<Point32> Player1Origins,
-    List<Point32> Player2Origins,
-    List<Point32> RockPositions);
+    List<Coordinate> Player1Origins,
+    List<Coordinate> Player2Origins,
+    List<Coordinate> RockPositions);
 
 public record LoadStateClickedEvent : IEvent;
 public record SaveStateClickedEvent : IEvent;
@@ -20,16 +20,16 @@ public class MapLoader
     {
         var mapJson = LoadMap(path);
 
-        var state = MapState.New(mapJson.RowCount, mapJson.ColumnCount);
+        var state = MapState.New(mapJson.ColumnCount, mapJson.RowCount);
         var player1Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
         var player2Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
         player2Units.ForEach(x => x.PlayerId = 1);
 
         foreach (var (unit, point) in player1Units.Zip(mapJson.Player1Origins))
-            state.UnitTiles[unit] = new(point.X, point.Y);
+            state.UnitCoordinates[unit] = new(point.Y, point.X);
 
         foreach (var (unit, point) in player2Units.Zip(mapJson.Player2Origins))
-            state.UnitTiles[unit] = new(point.X, point.Y);
+            state.UnitCoordinates[unit] = new(point.Y, point.X);
 
         mapJson.RockPositions.ForEach(x => state.Tiles[x.X, x.Y].Type = TerrainType.Rock);
 

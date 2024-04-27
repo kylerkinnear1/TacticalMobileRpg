@@ -1,5 +1,4 @@
 ﻿using Rpg.Mobile.GameSdk;
-using Point = System.Drawing.Point;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 
@@ -44,7 +43,7 @@ public class GridComponent : ComponentBase
         var x = (int)(touch.X / Size);
         var y = (int)(touch.Y / Size);
 
-        Bus.Publish(new TileClickedEvent(new(x, y)));
+        Bus.Global.Publish(new TileClickedEvent(new(x, y)));
     }
 
     public override void OnHover(PointF hover)
@@ -54,7 +53,7 @@ public class GridComponent : ComponentBase
             return;
 
         _lastHoverGrid = tile;
-        Bus.Publish(new TileHoveredEvent(tile));
+        Bus.Global.Publish(new TileHoveredEvent(tile));
     }
 
     public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));

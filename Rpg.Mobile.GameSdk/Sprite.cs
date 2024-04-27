@@ -12,7 +12,6 @@ public abstract class SpriteComponentBase : ComponentBase
 {
     public IImage Sprite { get; set; }
     public float Scale { get; private set; } = 1f;
-    public bool Visible { get; set; } = true;
 
     protected SpriteComponentBase(IImage sprite) : base(new(0, 0, sprite.Width, sprite.Height))
     {
