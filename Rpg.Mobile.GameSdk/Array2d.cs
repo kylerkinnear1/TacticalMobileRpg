@@ -15,10 +15,10 @@ public class Array2d<T> : IEnumerable<T>
         Data = new T[Width * Height];
     }
 
-    public T this[int yPlusX, int y]
+    public T this[int x, int y]
     {
-        get => Data[y * Width + yPlusX];
-        set => Data[y * Width + yPlusX] = value;
+        get => Data[y * Width + x];
+        set => Data[y * Width + x] = value;
     }
 
     public T this[int yPlusX]

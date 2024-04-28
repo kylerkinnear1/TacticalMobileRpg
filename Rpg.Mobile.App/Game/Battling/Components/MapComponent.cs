@@ -24,7 +24,7 @@ public class MapComponent : ComponentBase
         State.Tiles.Each((x, y) =>
         {
             var image = State.Tiles[x, y].Type == TerrainType.Rock ? State.RockImage : State.GrassImage;
-            canvas.DrawImage(image, y * TileSize, x * TileSize, TileSize, TileSize);
+            canvas.DrawImage(image, x * TileSize, y * TileSize, TileSize, TileSize);
         });
     }
 }

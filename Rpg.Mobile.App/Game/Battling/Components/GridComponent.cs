@@ -4,36 +4,36 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class GridComponent : ComponentBase
 {
-    public int ColCount { get; set; }
-    public int RowCount { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
     public float Size { get; set; }
 
     private Point? _lastHoverGrid;
 
-    public GridComponent(int colCount, int rowCount, float size) : base(CalcBounds(PointF.Zero, colCount, rowCount, size))
+    public GridComponent(int width, int height, float size) : base(CalcBounds(PointF.Zero, width, height, size))
     {
-        ColCount = colCount;
-        RowCount = rowCount;
+        Width = width;
+        Height = height;
         Size = size;
     }
 
-    public override void Update(float deltaTime) => Bounds = CalcBounds(Bounds.Location, ColCount, RowCount, Size);
+    public override void Update(float deltaTime) => Bounds = CalcBounds(Bounds.Location, Width, Height, Size);
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
         canvas.StrokeSize = 2;
         canvas.StrokeColor = Colors.GhostWhite.WithAlpha(.3f);
 
-        for (var row = 0; row < RowCount + 1; row++)
-        {
-            var y = row * Size;
-            canvas.DrawLine(0, y, Bounds.Width, y);
-        }
-
-        for (var col = 0; col < ColCount + 1; col++)
+        for (var col = 0; col < Width + 1; col++)
         {
             var x = col * Size;
             canvas.DrawLine(x, 0, x, Bounds.Height);
+        }
+
+        for (var row = 0; row < Height + 1; row++)
+        {
+            var y = row * Size;
+            canvas.DrawLine(0, y, Bounds.Width, y);
         }
     }
 
@@ -58,17 +58,8 @@ public class GridComponent : ComponentBase
 
     public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));
 
-    public PointF GetPositionForTile(Point point, SizeF componentSize) => GetPositionForTile(point.X, point.Y, componentSize);
-
-    public PointF GetPositionForTile(int x, int y, SizeF componentSize)
-    {
-        var marginX = (Size - componentSize.Width) / 2;
-        var marginY = (Size - componentSize.Height) / 2;
-        return new((x * Size) + marginX, (y * Size) + marginY);
-    }
-
-    private static RectF CalcBounds(PointF position, int colCount, int rowCount, float size) =>
-        new(position.X, position.Y, colCount * size, rowCount * size);
+    private static RectF CalcBounds(PointF position, int width, int height, float size) =>
+        new(position.X, position.Y, width * size, height * size);
 }
 
 public record TileHoveredEvent(Point Tile) : IEvent;

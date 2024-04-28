@@ -23,8 +23,8 @@ public class MapState
     public List<BattleUnitState> TurnOrder { get; set; } = new();
     public Dictionary<BattleUnitState, Point> UnitCoordinates { get; set; } = new();
 
-    public int Height => Tiles.Width;
-    public int Width => Tiles.Height;
+    public int Width => Tiles.Width;
+    public int Height => Tiles.Height;
 
     public MapState(IImage grassImage, IImage rockImage, Array2d<TileState> tiles)
     {

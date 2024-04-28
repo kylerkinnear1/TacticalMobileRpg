@@ -26,10 +26,10 @@ public class MapLoader
         player2Units.ForEach(x => x.PlayerId = 1);
 
         foreach (var (unit, point) in player1Units.Zip(mapJson.Player1Origins))
-            state.UnitCoordinates[unit] = new(point.Y, point.X);
+            state.UnitCoordinates[unit] = new(point.X, point.Y);
 
         foreach (var (unit, point) in player2Units.Zip(mapJson.Player2Origins))
-            state.UnitCoordinates[unit] = new(point.Y, point.X);
+            state.UnitCoordinates[unit] = new(point.X, point.Y);
 
         mapJson.RockPositions.ForEach(x => state.Tiles[x.X, x.Y].Type = TerrainType.Rock);
 

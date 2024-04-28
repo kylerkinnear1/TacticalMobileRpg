@@ -48,7 +48,7 @@ public class BattleGridScene : SceneBase
         Bus.Global.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
         Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
 
-        ActiveCamera.Offset = new PointF(220f, 100f);
+        ActiveCamera.Offset = new PointF(80f, 80f);
 
         _battle.StartBattle();
     }
