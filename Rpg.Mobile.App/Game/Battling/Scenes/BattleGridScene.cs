@@ -28,7 +28,7 @@ public class BattleGridScene : SceneBase
         var map = mapLoader.Load(mapPath);
 
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
-        Add(_battle = new(_stats, _battleMenu, new(0f, 0f), map));
+        Add(_battle = new(_battleMenu, new(0f, 0f), map));
 
         Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
         {

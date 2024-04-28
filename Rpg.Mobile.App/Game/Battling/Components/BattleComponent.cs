@@ -62,15 +62,13 @@ public class BattleComponent : ComponentBase
     private BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
 
     // TODO: remove
-    private readonly StatSheetComponent _stats;
     private readonly MenuComponent _battleMenu;
 
     public BattleComponent(
         // TODO: remove extra components
-        StatSheetComponent stats, MenuComponent battleMenu, PointF location, MapState battle) 
+         MenuComponent battleMenu, PointF location, MapState battle) 
         : base(CalcBounds(location, battle.Width, battle.Height, TileSize))
     {
-        _stats = stats;
         _battleMenu = battleMenu;
 
         AddChild(_map = new(battle));
@@ -90,6 +88,7 @@ public class BattleComponent : ComponentBase
         }
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
+        Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
     }
 
     public override void Update(float deltaTime)
@@ -240,11 +239,15 @@ public class BattleComponent : ComponentBase
             var finalTarget = GetPositionForTile(evnt.Tile, CurrentUnit.Bounds.Size);
             _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
         }
+    }
 
-        if (_step == BattleStep.Moving && units.Contains(evnt.Tile))
-        {
-            _stats.ChangeUnit(units[evnt.Tile].First());
-        }
+    private void TileHovered(TileHoveredEvent evnt)
+    {
+        var hoveredUnit = _map.State.UnitCoordinates.ContainsValue(evnt.Tile)
+            ? _map.State.UnitCoordinates.First(x => x.Value == evnt.Tile).Key
+            : null;
+
+        Bus.Global.Publish(new BattleTileHoveredEvent(hoveredUnit));
     }
 
     private void CastSpell(SpellState spell, Point position)
@@ -252,7 +255,7 @@ public class BattleComponent : ComponentBase
         var currentUnit = CurrentUnit;
         if (currentUnit.State.RemainingMp < spell.MpCost)
         {
-            _stats.Label = "Not enough MP"; // TODO: Less hacky way.
+            //_stats.Label = "Not enough MP"; // TODO: Less hacky way.
             return;
         }
 
@@ -321,3 +324,4 @@ public class BattleComponent : ComponentBase
 
 public record ActiveUnitChanged(BattleUnitState State) : IEvent;
 public record BattleStepChanged(BattleStep Step) : IEvent;
+public record BattleTileHoveredEvent(BattleUnitState? Unit) : IEvent;

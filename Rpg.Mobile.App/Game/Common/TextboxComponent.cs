@@ -10,6 +10,7 @@ public class TextboxComponent : ComponentBase
     public Color TextColor { get; set; } = Colors.White;
     public Font Font { get; set; } = DefaultFont.ExtraBold;
     public float CornerRadius { get; set; } = 2f;
+    public float FontSize = 16f;
 
     public TextboxComponent(RectF bounds, string label) : base(bounds)
     {
@@ -26,6 +27,7 @@ public class TextboxComponent : ComponentBase
         canvas.FillColor = BackColor;
         canvas.FontColor = TextColor;
         canvas.Font = Font;
+        canvas.FontSize = FontSize;
 
         canvas.FillRoundedRectangle(0f, 0f, Bounds.Width, Bounds.Height, CornerRadius);
         canvas.DrawString(Label, 0f, 0f, Bounds.Width, Bounds.Height, HorizontalAlignment.Center, VerticalAlignment.Center);
