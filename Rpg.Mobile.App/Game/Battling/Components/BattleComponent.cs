@@ -23,7 +23,6 @@ public class BattleComponent : ComponentBase
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
     private Point _gridStart = new(0, 0);
-    private BattleStep _step = BattleStep.Moving;
     private SpellState? _currentSpell;
 
     private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
@@ -49,6 +48,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(UnitChanged);
         Bus.Global.Subscribe<BattleStepChangedEvent>(BattleStepChanged);
+        Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
     }
 
     public override void Update(float deltaTime)
@@ -63,7 +63,7 @@ public class BattleComponent : ComponentBase
         _currentUnitShadow.Shadows.Set(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
 
         var gridToUnit = _unitComponents.Values.ToLookup(x => GetTileForPosition(x.Position));
-        if (_step == BattleStep.Moving)
+        if (_state.Step == BattleStep.Moving)
         {
             var shadows = _path
                 .CreateFanOutArea(_gridStart, new(_map.State.Width, _map.State.Height), CurrentUnit.State.Stats.Movement)
@@ -74,7 +74,7 @@ public class BattleComponent : ComponentBase
             _moveShadow.Shadows.AddRange(shadows);
         }
 
-        if (_step == BattleStep.SelectingAttackTarget)
+        if (_state.Step == BattleStep.SelectingAttackTarget)
         {
             var currentUnit = CurrentUnit;
             var currentUnitTile = GetTileForPosition(CurrentUnit.Position);
@@ -111,24 +111,8 @@ public class BattleComponent : ComponentBase
     {
     }
 
-    public void StartBattle()
+    private void StartBattle()
     {
-        if (_state.ActiveUnitIndex >= 0)
-            throw new NotSupportedException("Battle already started.");
-
-        var player1Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
-        var player2Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
-        player2Units.ForEach(x => x.PlayerId = 1);
-
-        foreach (var (unit, point) in player1Units.Zip(_state.Map.Player1Origins))
-            _state.UnitCoordinates[unit] = point;
-
-        foreach (var (unit, point) in player2Units.Zip(_state.Map.Player2Origins))
-            _state.UnitCoordinates[unit] = point;
-
-        var allUnits = player1Units.Concat(player2Units).Shuffle(Rng.Instance).ToList();
-        _state.TurnOrder.AddRange(allUnits);
-
         _unitComponents = _state.TurnOrder
             .Select(CreateBattleUnitComponent)
             .Select(AddChild)
@@ -146,10 +130,10 @@ public class BattleComponent : ComponentBase
     public void AdvanceToNextUnit()
     {
         _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _unitComponents.Count ? _state.ActiveUnitIndex + 1 : 0;
-        _step = BattleStep.Moving;
+        _state.Step = BattleStep.Moving;
 
         Bus.Global.Publish(new ActiveUnitChangedEvent(CurrentUnit.State));
-        Bus.Global.Publish(new BattleStepChangedEvent(_step));
+        Bus.Global.Publish(new BattleStepChangedEvent(_state.Step));
     }
 
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitState state) =>
@@ -190,7 +174,7 @@ public class BattleComponent : ComponentBase
             .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.Visible)
             .ToLookup(a => GetTileForPosition(a.Position));
         
-        if (_step == BattleStep.SelectingAttackTarget &&
+        if (_state.Step == BattleStep.SelectingAttackTarget &&
             _attackShadow.Shadows.Any(a => a.Contains(clickedTileCenter) && enemies.Contains(evnt.Tile)))
         {
             var enemy = enemies[evnt.Tile].First();
@@ -199,7 +183,7 @@ public class BattleComponent : ComponentBase
             AdvanceToNextUnit();
         }
 
-        if (_step == BattleStep.CastingSpell && _currentSpell is not null)
+        if (_state.Step == BattleStep.CastingSpell && _currentSpell is not null)
         {
             CastSpell(_currentSpell, evnt.Tile);
         }
@@ -231,7 +215,7 @@ public class BattleComponent : ComponentBase
 
     private void BattleStepChanged(BattleStepChangedEvent evnt)
     {
-        UpdateMenuState(_step);
+        UpdateMenuState(_state.Step);
     }
 
     private void CastSpell(SpellState spell, Point position)
@@ -279,10 +263,10 @@ public class BattleComponent : ComponentBase
 
     private void UpdateMenuState(BattleStep step)
     {
-        _step = step;
+        _state.Step = step;
         _currentSpell = null;
 
-        if (_step == BattleStep.Moving)
+        if (_state.Step == BattleStep.Moving)
         {
             _battleMenu.SetButtons(
                 new("Attack", _ => UpdateMenuState(BattleStep.SelectingAttackTarget)),
@@ -290,12 +274,12 @@ public class BattleComponent : ComponentBase
                 new("Wait", _ => AdvanceToNextUnit()));
         }
 
-        if (_step == BattleStep.SelectingAttackTarget)
+        if (_state.Step == BattleStep.SelectingAttackTarget)
         {
             _battleMenu.SetButtons(new ButtonState("Back", _ => UpdateMenuState(BattleStep.Moving)));
         }
 
-        if (_step == BattleStep.CastingSpell)
+        if (_state.Step == BattleStep.CastingSpell)
         {
             _battleMenu.SetButtons(
                 CurrentUnit.State.Spells

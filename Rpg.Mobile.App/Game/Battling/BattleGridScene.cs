@@ -51,7 +51,8 @@ public class BattleGridScene : SceneBase
 
         ActiveCamera.Offset = new PointF(80f, 80f);
 
-        _battle.StartBattle();
+        var battleService = new BattleStateService(battleState);
+        battleService.StartBattle();
     }
 
     public override void Update(float deltaTime)

@@ -1,4 +1,6 @@
-﻿namespace Rpg.Mobile.App.Game.Battling.Gamemaster;
+﻿using Rpg.Mobile.GameSdk;
+
+namespace Rpg.Mobile.App.Game.Battling.Gamemaster;
 
 public enum BattleStep
 {
@@ -23,4 +25,37 @@ public class BattleState
     {
         Map = map;
     }
+}
+
+public class BattleStateService
+{
+    private readonly BattleState _state;
+
+    public BattleStateService(BattleState state) => _state = state;
+
+    public void StartBattle()
+    {
+        if (_state.ActiveUnitIndex >= 0)
+            throw new NotSupportedException("Battle already started.");
+
+        var player1Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
+        var player2Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
+        player2Units.ForEach(x => x.PlayerId = 1);
+
+        foreach (var (unit, point) in player1Units.Zip(_state.Map.Player1Origins))
+            _state.UnitCoordinates[unit] = point;
+
+        foreach (var (unit, point) in player2Units.Zip(_state.Map.Player2Origins))
+            _state.UnitCoordinates[unit] = point;
+
+        var allUnits = player1Units.Concat(player2Units).Shuffle(Rng.Instance).ToList();
+        _state.TurnOrder.AddRange(allUnits);
+
+        Bus.Global.Publish(new BattleStartedEvent());
+    }
+}
+
+public record BattleStartedEvent : IEvent
+{
+
 }
