@@ -48,6 +48,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(UnitChanged);
+        Bus.Global.Subscribe<BattleStepChangedEvent>(BattleStepChanged);
     }
 
     public override void Update(float deltaTime)
@@ -185,10 +186,6 @@ public class BattleComponent : ComponentBase
     {
         var currentUnit = CurrentUnit;
         var clickedTileCenter = GetPositionForTile(evnt.Tile, SizeF.Zero);
-        var units = _unitComponents.Values
-            .Where(a => a.Visible)
-            .ToLookup(a => GetTileForPosition(a.Position));
-
         var enemies = _unitComponents.Values
             .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.Visible)
             .ToLookup(a => GetTileForPosition(a.Position));
