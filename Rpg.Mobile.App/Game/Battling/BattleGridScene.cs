@@ -29,14 +29,13 @@ public class BattleGridScene : SceneBase
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
 
         var battleState = new BattleState(map);
-        var battleService = new BattleStateService(battleState);
+        var battleService = new BattleStateService(battleState, new PathCalculator());
         Add(_battle = new(_battleMenu, new(0f, 0f), battleState, battleService));
 
         Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
         {
             IgnoreCamera = true
         });
-
 
         Add(_hoverComponent = new(new(_stats.Bounds.Left, _stats.Bounds.Bottom + 100f, 300f, 200f), "")
         {

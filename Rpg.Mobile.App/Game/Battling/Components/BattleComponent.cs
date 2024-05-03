@@ -22,7 +22,6 @@ public class BattleComponent : ComponentBase
 
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
-    private Point _gridStart = new(0, 0);
 
     private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
 
@@ -57,24 +56,13 @@ public class BattleComponent : ComponentBase
         if (_unitTween is not null)
             CurrentUnit.Position = _unitTween.Advance(deltaTime);
 
-        _moveShadow.Shadows.Clear();
-        _attackShadow.Shadows.Clear();
+        var walkShadows = _state.WalkableTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
+        _moveShadow.Shadows.Set(walkShadows);
 
         var currentUnitPosition = _state.UnitCoordinates[CurrentUnit.State];
-        _currentUnitShadow.Shadows.Set(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
+        _currentUnitShadow.Shadows.SetSingle(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
 
         var gridToUnit = _unitComponents.Values.ToLookup(x => GetTileForPosition(x.Position));
-        if (_state.Step == BattleStep.Moving)
-        {
-            var shadows = _path
-                .CreateFanOutArea(_gridStart, new(_map.State.Width, _map.State.Height), CurrentUnit.State.Stats.Movement)
-                .Where(x => !_state.UnitCoordinates.ContainsValue(x) && _map.State.Tiles[x.X, x.Y].Type != TerrainType.Rock)
-                .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
-                .ToList();
-
-            _moveShadow.Shadows.AddRange(shadows);
-        }
-
         if (_state.Step == BattleStep.SelectingAttackTarget)
         {
             var currentUnit = CurrentUnit;
@@ -160,6 +148,7 @@ public class BattleComponent : ComponentBase
     {
         var currentUnit = CurrentUnit;
         var clickedTileCenter = GetPositionForTile(evnt.Tile, SizeF.Zero);
+
         var enemies = _unitComponents.Values
             .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.Visible)
             .ToLookup(a => GetTileForPosition(a.Position));
@@ -198,8 +187,6 @@ public class BattleComponent : ComponentBase
 
     private void UnitChanged(ActiveUnitChangedEvent evnt)
     {
-        var unit = _unitComponents[evnt.State];
-        _gridStart = GetTileForPosition(unit.Position);
         _unitTween = null;
     }
 
