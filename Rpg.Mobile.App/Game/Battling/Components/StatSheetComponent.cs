@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Battling.Backend;
+﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
 using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.GameSdk;
 

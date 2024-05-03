@@ -107,4 +107,8 @@
 	  </None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Game\Battling\Scenes\" />
+	</ItemGroup>
+
 </Project>

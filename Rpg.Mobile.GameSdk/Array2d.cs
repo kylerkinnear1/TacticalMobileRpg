@@ -1,8 +1,6 @@
-﻿using System.Collections;
+﻿namespace Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.GameSdk;
-
-public class Array2d<T> : IEnumerable<T>
+public class Array2d<T>
 {
     public readonly T[] Data;
     public readonly int Width;
@@ -39,13 +37,60 @@ public class Array2d<T> : IEnumerable<T>
             yield return Data[y * Width + x];
     }
 
-    public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)Data).GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => Data.GetEnumerator();
-
     public void Each(Action<int, int> stub)
     {
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Height; y++)
             stub(x, y);
+    }
+
+    public IEnumerable<KeyValuePair<(int X, int Y), T>> Where(Func<int, int, bool> stub)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            if (stub(x, y))
+                yield return new((x, y), this[x, y]);
+        }
+    }
+
+    public IEnumerable<KeyValuePair<(int X, int Y), T>> Where(Func<T, bool> stub)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            var value = this[x, y];
+            if (stub(value))
+                yield return new((x, y), value);
+        }
+    }
+
+    public IEnumerable<KeyValuePair<(int X, int Y), T>> Where(Func<int, int, T, bool> stub)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            var value = this[x, y];
+            if (stub(x, y, value))
+                yield return new((x, y), value);
+        }
+    }
+
+    public IEnumerable<TResult> Select<TResult>(Func<int, int, TResult> converter)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            yield return converter(x, y);
+        }
+    }
+
+    public IEnumerable<TResult> Select<TResult>(Func<int, int, T, TResult> converter)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            yield return converter(x, y, this[x, y]);
+        }
     }
 }

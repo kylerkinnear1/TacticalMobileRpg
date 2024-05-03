@@ -1,7 +1,6 @@
-﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.GameSdk;
+﻿using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.App.Game.Battling.Components.Menus;
+namespace Rpg.Mobile.App.Game.Common;
 
 public class MenuComponent : ComponentBase
 {

@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Battling.Scenes;
+﻿using Rpg.Mobile.App.Game.Battling;
 using Rpg.Mobile.App.Windows;
 using Rpg.Mobile.GameSdk;
 

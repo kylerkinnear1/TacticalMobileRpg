@@ -1,43 +1,11 @@
-﻿using Rpg.Mobile.App.Game.Battling.Backend;
-using Rpg.Mobile.App.Game.Battling.Components.Menus;
+﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
+using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
 using Math = System.Math;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
-
-public enum BattleStep
-{
-    Starting,
-    Moving,
-    CastingSpell,
-    SelectingAttackTarget
-}
-
-public class BattleState
-{
-    public MapState Map { get; set; }
-    public List<BattleUnitState> BattleUnits { get; set; } = new();
-
-    public Point CurrentPosition { get; set; } = Point.Empty;
-    public Dictionary<Point, BattleUnitState> StartingPositions { get; set; } = new();
-
-    public BattleUnitState? ActiveUnit { get; set; }
-    public StepState CurrentStep { get; set; } = new();
-
-    public BattleState(MapState map)
-    {
-        Map = map;
-    }
-
-    public class StepState
-    {
-        public BattleStep Current { get; set; } = BattleStep.Starting;
-        public List<Point> MovementPath { get; set; } = new();
-        public SpellState? TargetingSpell { get; set; }
-    }
-}
 
 public class BattleComponent : ComponentBase
 {
@@ -52,43 +20,34 @@ public class BattleComponent : ComponentBase
     private readonly DamageCalculator _damage = new(Rng.Instance);
     private readonly SpellDamageCalculator _spellDamage = new(Rng.Instance);
 
-    private List<BattleUnitComponent> _battleUnits;
+    private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
     private Point _gridStart = new(0, 0);
     private BattleStep _step = BattleStep.Moving;
     private SpellState? _currentSpell;
 
-    private int _currentUnitIndex = -1;
-    private BattleUnitComponent CurrentUnit => _battleUnits[_currentUnitIndex];
+    private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
 
     // TODO: remove
     private readonly MenuComponent _battleMenu;
+    private readonly BattleState _state;
 
     public BattleComponent(
         // TODO: remove extra components
-         MenuComponent battleMenu, PointF location, MapState battle) 
-        : base(CalcBounds(location, battle.Width, battle.Height, TileSize))
+         MenuComponent battleMenu, PointF location, BattleState battle) 
+        : base(CalcBounds(location, battle.Map.Width, battle.Map.Height, TileSize))
     {
         _battleMenu = battleMenu;
 
-        AddChild(_map = new(battle));
+        _state = battle;
+        AddChild(_map = new(battle.Map));
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
 
-        _battleUnits = _map.State.TurnOrder
-            .Select(CreateBattleUnitComponent)
-            .Select(AddChild)
-            .ToList();
-
-        foreach (var component in _battleUnits)
-        {
-            var point = _map.State.UnitCoordinates[component.State];
-            component.Position = GetPositionForTile(point, component.Bounds.Size);
-        }
-
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
+        Bus.Global.Subscribe<ActiveUnitChangedEvent>(UnitChanged);
     }
 
     public override void Update(float deltaTime)
@@ -99,15 +58,15 @@ public class BattleComponent : ComponentBase
         _moveShadow.Shadows.Clear();
         _attackShadow.Shadows.Clear();
 
-        var currentUnitPosition = _map.State.UnitCoordinates[CurrentUnit.State];
+        var currentUnitPosition = _state.UnitCoordinates[CurrentUnit.State];
         _currentUnitShadow.Shadows.Set(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
 
-        var gridToUnit = _battleUnits.ToLookup(x => GetTileForPosition(x.Position));
+        var gridToUnit = _unitComponents.Values.ToLookup(x => GetTileForPosition(x.Position));
         if (_step == BattleStep.Moving)
         {
             var shadows = _path
                 .CreateFanOutArea(_gridStart, new(_map.State.Width, _map.State.Height), CurrentUnit.State.Stats.Movement)
-                .Where(x => !_map.State.UnitCoordinates.ContainsValue(x) && _map.State.Tiles[x.X, x.Y].Type != TerrainType.Rock)
+                .Where(x => !_state.UnitCoordinates.ContainsValue(x) && _map.State.Tiles[x.X, x.Y].Type != TerrainType.Rock)
                 .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
                 .ToList();
 
@@ -153,27 +112,43 @@ public class BattleComponent : ComponentBase
 
     public void StartBattle()
     {
-        if (_currentUnitIndex >= 0)
+        if (_state.ActiveUnitIndex >= 0)
             throw new NotSupportedException("Battle already started.");
+
+        var player1Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
+        var player2Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
+        player2Units.ForEach(x => x.PlayerId = 1);
+
+        foreach (var (unit, point) in player1Units.Zip(_state.Map.Player1Origins))
+            _state.UnitCoordinates[unit] = point;
+
+        foreach (var (unit, point) in player2Units.Zip(_state.Map.Player2Origins))
+            _state.UnitCoordinates[unit] = point;
+
+        var allUnits = player1Units.Concat(player2Units).Shuffle(Rng.Instance).ToList();
+        _state.TurnOrder.AddRange(allUnits);
+
+        _unitComponents = _state.TurnOrder
+            .Select(CreateBattleUnitComponent)
+            .Select(AddChild)
+            .ToDictionary(x => x.State);
+
+        foreach (var component in _unitComponents.Values)
+        {
+            var point = _state.UnitCoordinates[component.State];
+            component.Position = GetPositionForTile(point, component.Bounds.Size);
+        }
 
         AdvanceToNextUnit();
     }
 
     public void AdvanceToNextUnit()
     {
-        _currentUnitIndex = _currentUnitIndex + 1 < _battleUnits.Count ? _currentUnitIndex + 1 : 0;
-        if (_currentUnitIndex == 0)
-            _battleUnits = _battleUnits.Shuffle(Rng.Instance).ToList();
-
-        _gridStart = GetTileForPosition(CurrentUnit.Position);
-        _unitTween = null;
-
-        Bus.Global.Publish(new ActiveUnitChanged(CurrentUnit.State));
-
+        _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _unitComponents.Count ? _state.ActiveUnitIndex + 1 : 0;
         _step = BattleStep.Moving;
-        Bus.Global.Publish(new BattleStepChanged(_step));
 
-        UpdateMenuState(_step);
+        Bus.Global.Publish(new ActiveUnitChangedEvent(CurrentUnit.State));
+        Bus.Global.Publish(new BattleStepChangedEvent(_step));
     }
 
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitState state) =>
@@ -210,11 +185,11 @@ public class BattleComponent : ComponentBase
     {
         var currentUnit = CurrentUnit;
         var clickedTileCenter = GetPositionForTile(evnt.Tile, SizeF.Zero);
-        var units = _battleUnits
+        var units = _unitComponents.Values
             .Where(a => a.Visible)
             .ToLookup(a => GetTileForPosition(a.Position));
 
-        var enemies = _battleUnits
+        var enemies = _unitComponents.Values
             .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.Visible)
             .ToLookup(a => GetTileForPosition(a.Position));
         
@@ -234,7 +209,7 @@ public class BattleComponent : ComponentBase
 
         if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
         {
-            _map.State.UnitCoordinates[CurrentUnit.State] = evnt.Tile;
+            _state.UnitCoordinates[CurrentUnit.State] = evnt.Tile;
 
             var finalTarget = GetPositionForTile(evnt.Tile, CurrentUnit.Bounds.Size);
             _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
@@ -243,11 +218,23 @@ public class BattleComponent : ComponentBase
 
     private void TileHovered(TileHoveredEvent evnt)
     {
-        var hoveredUnit = _map.State.UnitCoordinates.ContainsValue(evnt.Tile)
-            ? _map.State.UnitCoordinates.First(x => x.Value == evnt.Tile).Key
+        var hoveredUnit = _state.UnitCoordinates.ContainsValue(evnt.Tile)
+            ? _state.UnitCoordinates.First(x => x.Value == evnt.Tile).Key
             : null;
 
         Bus.Global.Publish(new BattleTileHoveredEvent(hoveredUnit));
+    }
+
+    private void UnitChanged(ActiveUnitChangedEvent evnt)
+    {
+        var unit = _unitComponents[evnt.State];
+        _gridStart = GetTileForPosition(unit.Position);
+        _unitTween = null;
+    }
+
+    private void BattleStepChanged(BattleStepChangedEvent evnt)
+    {
+        UpdateMenuState(_step);
     }
 
     private void CastSpell(SpellState spell, Point position)
@@ -259,7 +246,7 @@ public class BattleComponent : ComponentBase
             return;
         }
 
-        var targets = _battleUnits
+        var targets = _unitComponents.Values
             .Where(x =>
                 GetTileForPosition(x.Position) == position &&
                 (spell.TargetsEnemies && x.State.PlayerId != currentUnit.State.PlayerId ||
@@ -288,8 +275,8 @@ public class BattleComponent : ComponentBase
         if (enemy.State.RemainingHealth <= 0)
         {
             enemy.Visible = false;
-            _battleUnits.Remove(enemy);
-            _map.State.UnitCoordinates.Remove(enemy.State);
+            _unitComponents.Remove(enemy.State);
+            _state.UnitCoordinates.Remove(enemy.State);
         }
     }
 
@@ -322,6 +309,6 @@ public class BattleComponent : ComponentBase
     }
 }
 
-public record ActiveUnitChanged(BattleUnitState State) : IEvent;
-public record BattleStepChanged(BattleStep Step) : IEvent;
+public record ActiveUnitChangedEvent(BattleUnitState State) : IEvent;
+public record BattleStepChangedEvent(BattleStep Step) : IEvent;
 public record BattleTileHoveredEvent(BattleUnitState? Unit) : IEvent;

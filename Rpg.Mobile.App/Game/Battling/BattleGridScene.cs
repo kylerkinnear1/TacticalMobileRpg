@@ -1,10 +1,9 @@
-﻿using Rpg.Mobile.App.Game.Battling.Backend;
-using Rpg.Mobile.App.Game.Battling.Components;
-using Rpg.Mobile.App.Game.Battling.Components.Menus;
+﻿using Rpg.Mobile.App.Game.Battling.Components;
+using Rpg.Mobile.App.Game.Battling.Gamemaster;
 using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.GameSdk;
 
-namespace Rpg.Mobile.App.Game.Battling.Scenes;
+namespace Rpg.Mobile.App.Game.Battling;
 
 public class BattleGridScene : SceneBase
 {
@@ -28,14 +27,16 @@ public class BattleGridScene : SceneBase
         var map = mapLoader.Load(mapPath);
 
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
-        Add(_battle = new(_battleMenu, new(0f, 0f), map));
+
+        var battleState = new BattleState(map);
+        Add(_battle = new(_battleMenu, new(0f, 0f), battleState));
 
         Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
         {
             IgnoreCamera = true
         });
 
-        
+
         Add(_hoverComponent = new(new(_stats.Bounds.Left, _stats.Bounds.Bottom + 100f, 300f, 200f), "")
         {
             IgnoreCamera = true,

@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.App.Game.Battling.Backend;
+﻿namespace Rpg.Mobile.App.Game.Battling.Gamemaster;
 
 public class StatPresets
 {

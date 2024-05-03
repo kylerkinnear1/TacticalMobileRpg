@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Battling.Backend;
+﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
 using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
@@ -7,6 +7,9 @@ public class MapComponent : ComponentBase
 {
     public const int TileSize = 64;
     public MapState State { get; set; }
+
+    public IImage GrassImage { get; set; } = Sprites.Images.Grass03;
+    public IImage RockImage { get; set; } = Sprites.Images.Rock01;
 
     private readonly GridComponent _grid;
 
@@ -23,7 +26,7 @@ public class MapComponent : ComponentBase
     {
         State.Tiles.Each((x, y) =>
         {
-            var image = State.Tiles[x, y].Type == TerrainType.Rock ? State.RockImage : State.GrassImage;
+            var image = State.Tiles[x, y].Type == TerrainType.Rock ? RockImage : GrassImage;
             canvas.DrawImage(image, x * TileSize, y * TileSize, TileSize, TileSize);
         });
     }
