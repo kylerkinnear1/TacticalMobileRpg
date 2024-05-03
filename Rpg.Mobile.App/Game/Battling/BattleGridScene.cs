@@ -29,7 +29,8 @@ public class BattleGridScene : SceneBase
         Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
 
         var battleState = new BattleState(map);
-        Add(_battle = new(_battleMenu, new(0f, 0f), battleState));
+        var battleService = new BattleStateService(battleState);
+        Add(_battle = new(_battleMenu, new(0f, 0f), battleState, battleService));
 
         Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
         {
@@ -51,7 +52,6 @@ public class BattleGridScene : SceneBase
 
         ActiveCamera.Offset = new PointF(80f, 80f);
 
-        var battleService = new BattleStateService(battleState);
         battleService.StartBattle();
     }
 

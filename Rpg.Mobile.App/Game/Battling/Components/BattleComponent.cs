@@ -23,20 +23,21 @@ public class BattleComponent : ComponentBase
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
     private Point _gridStart = new(0, 0);
-    private SpellState? _currentSpell;
 
     private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
 
     // TODO: remove
     private readonly MenuComponent _battleMenu;
     private readonly BattleState _state;
+    private readonly BattleStateService _battleService;
 
     public BattleComponent(
         // TODO: remove extra components
-         MenuComponent battleMenu, PointF location, BattleState battle) 
+         MenuComponent battleMenu, PointF location, BattleState battle, BattleStateService battleService) 
         : base(CalcBounds(location, battle.Map.Width, battle.Map.Height, TileSize))
     {
         _battleMenu = battleMenu;
+        _battleService = battleService;
 
         _state = battle;
         AddChild(_map = new(battle.Map));
@@ -91,15 +92,15 @@ public class BattleComponent : ComponentBase
             _attackShadow.Shadows.AddRange(shadows);
         }
 
-        if (_currentSpell is not null)
+        if (_state.CurrentSpell is not null)
         {
             var currentUnitTile = GetTileForPosition(CurrentUnit.Position);
             var shadows = _path
                 .CreateFanOutArea(
                     new(currentUnitTile.X, currentUnitTile.Y),
                     new(_map.State.Width, _map.State.Height),
-                    _currentSpell.MinRange,
-                    _currentSpell.MaxRange)
+                    _state.CurrentSpell.MinRange,
+                    _state.CurrentSpell.MaxRange)
                 .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
                 .ToList();
 
@@ -123,17 +124,6 @@ public class BattleComponent : ComponentBase
             var point = _state.UnitCoordinates[component.State];
             component.Position = GetPositionForTile(point, component.Bounds.Size);
         }
-
-        AdvanceToNextUnit();
-    }
-
-    public void AdvanceToNextUnit()
-    {
-        _state.ActiveUnitIndex = _state.ActiveUnitIndex + 1 < _unitComponents.Count ? _state.ActiveUnitIndex + 1 : 0;
-        _state.Step = BattleStep.Moving;
-
-        Bus.Global.Publish(new ActiveUnitChangedEvent(CurrentUnit.State));
-        Bus.Global.Publish(new BattleStepChangedEvent(_state.Step));
     }
 
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitState state) =>
@@ -180,12 +170,12 @@ public class BattleComponent : ComponentBase
             var enemy = enemies[evnt.Tile].First();
             var damage = _damage.CalcDamage(currentUnit.State.Stats.Attack, currentUnit.State.Stats.Defense);
             DamageUnit(enemy, damage);
-            AdvanceToNextUnit();
+            _battleService.AdvanceToNextUnit();
         }
 
-        if (_state.Step == BattleStep.CastingSpell && _currentSpell is not null)
+        if (_state.Step == BattleStep.CastingSpell && _state.CurrentSpell is not null)
         {
-            CastSpell(_currentSpell, evnt.Tile);
+            CastSpell(_state.CurrentSpell, evnt.Tile);
         }
 
         if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
@@ -215,7 +205,27 @@ public class BattleComponent : ComponentBase
 
     private void BattleStepChanged(BattleStepChangedEvent evnt)
     {
-        UpdateMenuState(_state.Step);
+        if (_state.Step == BattleStep.Moving)
+        {
+            _battleMenu.SetButtons(
+                new("Attack", _ => _battleService.ChangeBattleState(BattleStep.SelectingAttackTarget)),
+                new("Magic", _ => _battleService.ChangeBattleState(BattleStep.CastingSpell)),
+                new("Wait", _ => _battleService.AdvanceToNextUnit()));
+        }
+
+        if (_state.Step == BattleStep.SelectingAttackTarget)
+        {
+            _battleMenu.SetButtons(new ButtonState("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)));
+        }
+
+        if (_state.Step == BattleStep.CastingSpell)
+        {
+            _battleMenu.SetButtons(
+                CurrentUnit.State.Spells
+                    .Select(x => new ButtonState(x.Name, _ => _state.CurrentSpell = x))
+                    .Append(new("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)))
+                    .ToArray());
+        }
     }
 
     private void CastSpell(SpellState spell, Point position)
@@ -244,7 +254,7 @@ public class BattleComponent : ComponentBase
             DamageUnit(target, damage);
         }
 
-        AdvanceToNextUnit();
+        _battleService.AdvanceToNextUnit();
     }
 
     private void DamageUnit(BattleUnitComponent enemy, int damage)
@@ -260,36 +270,7 @@ public class BattleComponent : ComponentBase
             _state.UnitCoordinates.Remove(enemy.State);
         }
     }
-
-    private void UpdateMenuState(BattleStep step)
-    {
-        _state.Step = step;
-        _currentSpell = null;
-
-        if (_state.Step == BattleStep.Moving)
-        {
-            _battleMenu.SetButtons(
-                new("Attack", _ => UpdateMenuState(BattleStep.SelectingAttackTarget)),
-                new("Magic", _ => UpdateMenuState(BattleStep.CastingSpell)),
-                new("Wait", _ => AdvanceToNextUnit()));
-        }
-
-        if (_state.Step == BattleStep.SelectingAttackTarget)
-        {
-            _battleMenu.SetButtons(new ButtonState("Back", _ => UpdateMenuState(BattleStep.Moving)));
-        }
-
-        if (_state.Step == BattleStep.CastingSpell)
-        {
-            _battleMenu.SetButtons(
-                CurrentUnit.State.Spells
-                    .Select(x => new ButtonState(x.Name, _ => _currentSpell = x))
-                    .Append(new("Back", _ => UpdateMenuState(BattleStep.Moving)))
-                    .ToArray());
-        }
-    }
 }
 
-public record ActiveUnitChangedEvent(BattleUnitState State) : IEvent;
-public record BattleStepChangedEvent(BattleStep Step) : IEvent;
+
 public record BattleTileHoveredEvent(BattleUnitState? Unit) : IEvent;
