@@ -3,7 +3,6 @@ using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
-using Math = System.Math;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 
@@ -49,6 +48,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(UnitChanged);
         Bus.Global.Subscribe<BattleStepChangedEvent>(BattleStepChanged);
         Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
+        Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
     }
 
     public override void Update(float deltaTime)
@@ -62,23 +62,8 @@ public class BattleComponent : ComponentBase
         var currentUnitPosition = _state.UnitCoordinates[CurrentUnit.State];
         _currentUnitShadow.Shadows.SetSingle(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
 
-        var gridToUnit = _unitComponents.Values.ToLookup(x => GetTileForPosition(x.Position));
-        if (_state.Step == BattleStep.SelectingAttackTarget)
-        {
-            var currentUnit = CurrentUnit;
-            var currentUnitTile = GetTileForPosition(CurrentUnit.Position);
-            var shadows = _path
-                .CreateFanOutArea(
-                    currentUnitTile,
-                    new(_map.State.Width, _map.State.Height),
-                    CurrentUnit.State.Stats.AttackMinRange,
-                    CurrentUnit.State.Stats.AttackMaxRange)
-                .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.State.PlayerId != currentUnit.State.PlayerId))
-                .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
-                .ToList();
-
-            _attackShadow.Shadows.AddRange(shadows);
-        }
+        var attackShadows = _state.AttackTargetTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
+        _attackShadow.Shadows.Set(attackShadows);
 
         if (_state.CurrentSpell is not null)
         {
@@ -158,7 +143,7 @@ public class BattleComponent : ComponentBase
         {
             var enemy = enemies[evnt.Tile].First();
             var damage = _damage.CalcDamage(currentUnit.State.Stats.Attack, currentUnit.State.Stats.Defense);
-            DamageUnit(enemy, damage);
+            _battleService.DamageUnit(enemy.State, damage);
             _battleService.AdvanceToNextUnit();
         }
 
@@ -167,7 +152,7 @@ public class BattleComponent : ComponentBase
             CastSpell(_state.CurrentSpell, evnt.Tile);
         }
 
-        if (_moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
+        if (_state.Step == BattleStep.Moving && _moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
         {
             _state.UnitCoordinates[CurrentUnit.State] = evnt.Tile;
 
@@ -215,6 +200,16 @@ public class BattleComponent : ComponentBase
         }
     }
 
+    private void UnitsDefeated(UnitsDefeatedEvent evnt)
+    {
+        var defeatedComponents = evnt.Defeated.Select(x => _unitComponents[x]).ToList();
+        foreach (var unit in defeatedComponents)
+        {
+            unit.Visible = false;
+            _unitComponents.Remove(unit.State);
+        }
+    }
+
     private void CastSpell(SpellState spell, Point position)
     {
         var currentUnit = CurrentUnit;
@@ -238,23 +233,7 @@ public class BattleComponent : ComponentBase
         var damage = _spellDamage.CalcDamage(spell);
         foreach (var target in targets)
         {
-            DamageUnit(target, damage);
-        }
-
-        _battleService.AdvanceToNextUnit();
-    }
-
-    private void DamageUnit(BattleUnitComponent enemy, int damage)
-    {
-        enemy.State.RemainingHealth = damage >= 0
-            ? Math.Max(enemy.State.RemainingHealth - damage, 0)
-            : Math.Min(enemy.State.Stats.MaxHealth, enemy.State.RemainingHealth - damage);
-
-        if (enemy.State.RemainingHealth <= 0)
-        {
-            enemy.Visible = false;
-            _unitComponents.Remove(enemy.State);
-            _state.UnitCoordinates.Remove(enemy.State);
+            _battleService.DamageUnit(target.State, damage);
         }
     }
 }

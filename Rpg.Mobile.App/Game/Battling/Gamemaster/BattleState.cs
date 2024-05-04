@@ -1,5 +1,7 @@
 ﻿using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
+using System.Linq;
+using Windows.UI.StartScreen;
 
 namespace Rpg.Mobile.App.Game.Battling.Gamemaster;
 
@@ -25,6 +27,7 @@ public class BattleState
 
     public BattleUnitState? CurrentUnit => ActiveUnitIndex >= 0 ? TurnOrder[ActiveUnitIndex] : null;
     public List<Point> WalkableTiles { get; set; } = new();
+    public List<Point> AttackTargetTiles { get; set; } = new();
 
     public BattleState(MapState map)
     {
@@ -83,11 +86,35 @@ public class BattleStateService
     {
         _state.Step = step;
         _state.CurrentSpell = null;
+        _state.AttackTargetTiles.Clear();
+        _state.WalkableTiles.Clear();
 
-        if (step == BattleStep.Moving)
-            SetupMovingStep();
+        switch (step)
+        {
+            case BattleStep.Moving:
+                SetupMovingStep();
+                break;
+            case BattleStep.SelectingAttackTarget:
+                SetupAttackTarget();
+                break;
+        }
 
         Bus.Global.Publish(new BattleStepChangedEvent(step));
+    }
+
+    public void DamageUnit(BattleUnitState enemy, int damage)
+    {
+        enemy.RemainingHealth = damage >= 0
+            ? Math.Max(enemy.RemainingHealth - damage, 0)
+            : Math.Min(enemy.Stats.MaxHealth, enemy.RemainingHealth - damage);
+
+        if (enemy.RemainingHealth <= 0)
+        {
+            _state.UnitCoordinates.Remove(enemy);
+            Bus.Global.Publish(new UnitsDefeatedEvent(new[] { enemy }));
+        }
+
+        AdvanceToNextUnit();
     }
 
     private void SetupMovingStep()
@@ -100,8 +127,25 @@ public class BattleStateService
 
         _state.WalkableTiles = walkableTiles;
     }
+
+    private void SetupAttackTarget()
+    {
+        var gridToUnit = _state.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
+        
+        var legalTargets = _path
+            .CreateFanOutArea(
+                _state.UnitCoordinates[CurrentUnit],
+                new(_state.Map.Width, _state.Map.Height),
+                CurrentUnit.Stats.AttackMinRange,
+                CurrentUnit.Stats.AttackMaxRange)
+            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != CurrentUnit.PlayerId))
+            .ToList();
+
+        _state.AttackTargetTiles.Set(legalTargets);
+    }
 }
 
 public record BattleStartedEvent : IEvent;
 public record ActiveUnitChangedEvent(BattleUnitState State) : IEvent;
 public record BattleStepChangedEvent(BattleStep Step) : IEvent;
+public record UnitsDefeatedEvent(IEnumerable<BattleUnitState> Defeated) : IEvent;
