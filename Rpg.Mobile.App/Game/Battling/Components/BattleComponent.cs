@@ -147,9 +147,9 @@ public class BattleComponent : ComponentBase
             _battleService.AdvanceToNextUnit();
         }
 
-        if (_state.Step == BattleStep.SelectingSpell && _state.CurrentSpell is not null)
+        if (_state.Step == BattleStep.SelectingMagicTarget && _state.CurrentSpell is not null)
         {
-            throw new NotImplementedException();
+            _battleService.SetupSpell(_state.CurrentSpell);
         }
 
         if (_state.Step == BattleStep.Moving && _moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
