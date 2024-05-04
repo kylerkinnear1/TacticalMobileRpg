@@ -143,13 +143,13 @@ public class BattleComponent : ComponentBase
         {
             var enemy = enemies[evnt.Tile].First();
             var damage = _damage.CalcDamage(currentUnit.State.Stats.Attack, currentUnit.State.Stats.Defense);
-            _battleService.DamageUnit(enemy.State, damage);
+            _battleService.DamageUnits(new [] { enemy.State }, damage);
             _battleService.AdvanceToNextUnit();
         }
 
         if (_state.Step == BattleStep.SelectingMagicTarget && _state.CurrentSpell is not null)
         {
-            _battleService.SetupSpell(_state.CurrentSpell);
+            _battleService.CastSpell(_state.CurrentSpell, evnt.Tile);
         }
 
         if (_state.Step == BattleStep.Moving && _moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
@@ -194,7 +194,7 @@ public class BattleComponent : ComponentBase
         {
             _battleMenu.SetButtons(
                 CurrentUnit.State.Spells
-                    .Select(x => new ButtonState(x.Name, _ => _battleService.SetupSpell(x)))
+                    .Select(x => new ButtonState(x.Name, _ => _battleService.TargetSpell(x)))
                     .Append(new("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)))
                     .ToArray());
         }
@@ -210,6 +210,5 @@ public class BattleComponent : ComponentBase
         }
     }
 }
-
 
 public record BattleTileHoveredEvent(BattleUnitState? Unit) : IEvent;

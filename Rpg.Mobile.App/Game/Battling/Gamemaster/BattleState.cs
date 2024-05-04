@@ -39,6 +39,7 @@ public class BattleStateService
 {
     private readonly BattleState _state;
     private readonly IPathCalculator _path;
+    private readonly SpellDamageCalculator _spellDamage = new(Rng.Instance);
 
     private BattleUnitState CurrentUnit => _state.TurnOrder[_state.ActiveUnitIndex];
 
@@ -84,7 +85,6 @@ public class BattleStateService
 
     public void ChangeBattleState(BattleStep step)
     {
-        
         _state.AttackTargetTiles.Clear();
         _state.WalkableTiles.Clear();
         _state.SpellTargetTiles.Clear();
@@ -101,23 +101,54 @@ public class BattleStateService
         Bus.Global.Publish(new BattleStepChangedEvent(step));
     }
 
-    public void SetupSpell(SpellState spell)
+    public void CastSpell(SpellState spell, Point target)
+    {
+        var units = _state.UnitCoordinates.Where(x => x.Value == target);
+        var targets = units
+            .Where(x =>
+                x.Key.PlayerId == CurrentUnit.PlayerId && spell.TargetsFriendlies ||
+                x.Key.PlayerId != CurrentUnit.PlayerId && spell.TargetsEnemies)
+            .ToList();
+
+        CastSpell(spell, targets.Select(x => x.Key));
+    }
+
+    public void CastSpell(SpellState spell, IEnumerable<BattleUnitState> targets)
+    {
+        if (CurrentUnit.RemainingMp < spell.MpCost)
+        {
+            Bus.Global.Publish(new NotEnoughMpEvent(spell));
+            return;
+        }
+
+        var damage = _spellDamage.CalcDamage(spell);
+        CurrentUnit.RemainingMp -= spell.MpCost;
+        DamageUnits(targets, damage);
+    }
+
+    public void TargetSpell(SpellState spell)
     {
         _state.CurrentSpell = spell;
         ChangeBattleState(BattleStep.SelectingMagicTarget);
     }
 
-    public void DamageUnit(BattleUnitState enemy, int damage)
+    public void DamageUnits(IEnumerable<BattleUnitState> units, int damage)
     {
-        enemy.RemainingHealth = damage >= 0
-            ? Math.Max(enemy.RemainingHealth - damage, 0)
-            : Math.Min(enemy.Stats.MaxHealth, enemy.RemainingHealth - damage);
-
-        if (enemy.RemainingHealth <= 0)
+        var defeatedUnits = new List<BattleUnitState>();
+        foreach (var unit in units)
         {
-            _state.UnitCoordinates.Remove(enemy);
-            Bus.Global.Publish(new UnitsDefeatedEvent(new[] { enemy }));
+            unit.RemainingHealth = damage >= 0
+                ? Math.Max(unit.RemainingHealth - damage, 0)
+                : Math.Min(unit.Stats.MaxHealth, unit.RemainingHealth - damage);
+
+            if (unit.RemainingHealth <= 0)
+            {
+                _state.UnitCoordinates.Remove(unit);
+                defeatedUnits.Add(unit);
+            }
         }
+
+        Bus.Global.Publish(new UnitsDefeatedEvent(defeatedUnits));
 
         AdvanceToNextUnit();
     }
@@ -173,33 +204,6 @@ public class BattleStateService
         _state.SpellTargetTiles.Set(allTargets);
         return BattleStep.SelectingMagicTarget;
     }
-
-    //private void CastSpell(SpellState spell, Point position)
-    //{
-    //    //var currentUnit = CurrentUnit;
-    //    //if (currentUnit.State.RemainingMp < spell.MpCost)
-    //    //{
-    //    //    //_stats.Label = "Not enough MP"; // TODO: Less hacky way.
-    //    //    return;
-    //    //}
-
-    //    //var targets = _unitComponents.Values
-    //    //    .Where(x =>
-    //    //        GetTileForPosition(x.Position) == position &&
-    //    //        (spell.TargetsEnemies && x.State.PlayerId != currentUnit.State.PlayerId ||
-    //    //         spell.TargetsFriendlies && x.State.PlayerId == currentUnit.State.PlayerId))
-    //    //    .ToList();
-
-    //    //if (targets.Count == 0)
-    //    //    return;
-
-    //    //currentUnit.State.RemainingMp -= spell.MpCost;
-    //    //var damage = _spellDamage.CalcDamage(spell);
-    //    //foreach (var target in targets)
-    //    //{
-    //    //    _battleService.DamageUnit(target.State, damage);
-    //    //}
-    //}
 }
 
 public record BattleStartedEvent : IEvent;
