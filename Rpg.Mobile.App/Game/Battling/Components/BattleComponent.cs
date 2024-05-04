@@ -147,9 +147,9 @@ public class BattleComponent : ComponentBase
             _battleService.AdvanceToNextUnit();
         }
 
-        if (_state.Step == BattleStep.CastingSpell && _state.CurrentSpell is not null)
+        if (_state.Step == BattleStep.SelectingSpell && _state.CurrentSpell is not null)
         {
-            CastSpell(_state.CurrentSpell, evnt.Tile);
+            throw new NotImplementedException();
         }
 
         if (_state.Step == BattleStep.Moving && _moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
@@ -177,24 +177,24 @@ public class BattleComponent : ComponentBase
 
     private void BattleStepChanged(BattleStepChangedEvent evnt)
     {
-        if (_state.Step == BattleStep.Moving)
+        if (evnt.Step == BattleStep.Moving)
         {
             _battleMenu.SetButtons(
                 new("Attack", _ => _battleService.ChangeBattleState(BattleStep.SelectingAttackTarget)),
-                new("Magic", _ => _battleService.ChangeBattleState(BattleStep.CastingSpell)),
+                new("Magic", _ => BattleStepChanged(new BattleStepChangedEvent(BattleStep.SelectingSpell))),
                 new("Wait", _ => _battleService.AdvanceToNextUnit()));
         }
 
-        if (_state.Step == BattleStep.SelectingAttackTarget)
+        if (evnt.Step == BattleStep.SelectingAttackTarget)
         {
             _battleMenu.SetButtons(new ButtonState("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)));
         }
 
-        if (_state.Step == BattleStep.CastingSpell)
+        if (evnt.Step == BattleStep.SelectingSpell)
         {
             _battleMenu.SetButtons(
                 CurrentUnit.State.Spells
-                    .Select(x => new ButtonState(x.Name, _ => _state.CurrentSpell = x))
+                    .Select(x => new ButtonState(x.Name, _ => _battleService.SetupSpell(x)))
                     .Append(new("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)))
                     .ToArray());
         }
@@ -207,33 +207,6 @@ public class BattleComponent : ComponentBase
         {
             unit.Visible = false;
             _unitComponents.Remove(unit.State);
-        }
-    }
-
-    private void CastSpell(SpellState spell, Point position)
-    {
-        var currentUnit = CurrentUnit;
-        if (currentUnit.State.RemainingMp < spell.MpCost)
-        {
-            //_stats.Label = "Not enough MP"; // TODO: Less hacky way.
-            return;
-        }
-
-        var targets = _unitComponents.Values
-            .Where(x =>
-                GetTileForPosition(x.Position) == position &&
-                (spell.TargetsEnemies && x.State.PlayerId != currentUnit.State.PlayerId ||
-                 spell.TargetsFriendlies && x.State.PlayerId == currentUnit.State.PlayerId))
-            .ToList();
-
-        if (targets.Count == 0)
-            return;
-
-        currentUnit.State.RemainingMp -= spell.MpCost;
-        var damage = _spellDamage.CalcDamage(spell);
-        foreach (var target in targets)
-        {
-            _battleService.DamageUnit(target.State, damage);
         }
     }
 }

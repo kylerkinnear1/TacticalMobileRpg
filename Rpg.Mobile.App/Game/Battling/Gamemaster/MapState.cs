@@ -21,6 +21,7 @@ public class MapState
 
     public int Width => Tiles.Width;
     public int Height => Tiles.Height;
+    public Point Corner => new(Width, Height);
 
     public MapState(
         Array2d<TileState> tiles,

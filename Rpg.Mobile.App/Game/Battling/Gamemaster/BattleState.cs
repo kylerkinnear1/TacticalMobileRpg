@@ -1,7 +1,5 @@
 ﻿using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
-using System.Linq;
-using Windows.UI.StartScreen;
 
 namespace Rpg.Mobile.App.Game.Battling.Gamemaster;
 
@@ -9,8 +7,9 @@ public enum BattleStep
 {
     Setup,
     Moving,
-    CastingSpell,
-    SelectingAttackTarget
+    SelectingSpell,
+    SelectingAttackTarget,
+    SelectingMagicTarget
 }
 
 public class BattleState
@@ -28,6 +27,7 @@ public class BattleState
     public BattleUnitState? CurrentUnit => ActiveUnitIndex >= 0 ? TurnOrder[ActiveUnitIndex] : null;
     public List<Point> WalkableTiles { get; set; } = new();
     public List<Point> AttackTargetTiles { get; set; } = new();
+    public List<Point> SpellAttackTiles { get; set; } = new();
 
     public BattleState(MapState map)
     {
@@ -84,22 +84,27 @@ public class BattleStateService
 
     public void ChangeBattleState(BattleStep step)
     {
-        _state.Step = step;
-        _state.CurrentSpell = null;
+        
         _state.AttackTargetTiles.Clear();
         _state.WalkableTiles.Clear();
-
-        switch (step)
+        _state.SpellAttackTiles.Clear();
+        _state.CurrentSpell = step == BattleStep.SelectingMagicTarget ? _state.CurrentSpell : null;
+        _state.Step = step switch
         {
-            case BattleStep.Moving:
-                SetupMovingStep();
-                break;
-            case BattleStep.SelectingAttackTarget:
-                SetupAttackTarget();
-                break;
-        }
+            BattleStep.Moving => SetupMovingStep(),
+            BattleStep.SelectingAttackTarget => SetupAttackTarget(),
+            BattleStep.SelectingSpell => SetupSelectSpell(), 
+            BattleStep.SelectingMagicTarget => SetupMagicTarget(),
+            _ => throw new ArgumentException()
+        };
 
         Bus.Global.Publish(new BattleStepChangedEvent(step));
+    }
+
+    public void SetupSpell(SpellState spell)
+    {
+        _state.CurrentSpell = spell;
+        ChangeBattleState(BattleStep.SelectingMagicTarget);
     }
 
     public void DamageUnit(BattleUnitState enemy, int damage)
@@ -117,18 +122,19 @@ public class BattleStateService
         AdvanceToNextUnit();
     }
 
-    private void SetupMovingStep()
+    private BattleStep SetupMovingStep()
     {
         var walkableTiles = _path
-            .CreateFanOutArea(_state.ActiveUnitStartPosition, new(_state.Map.Width, _state.Map.Height), CurrentUnit.Stats.Movement)
+            .CreateFanOutArea(_state.ActiveUnitStartPosition, _state.Map.Corner, CurrentUnit.Stats.Movement)
             .Where(x => x == _state.ActiveUnitStartPosition ||
                         !_state.UnitCoordinates.ContainsValue(x) && _state.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
             .ToList();
 
         _state.WalkableTiles = walkableTiles;
+        return BattleStep.Moving;
     }
 
-    private void SetupAttackTarget()
+    private BattleStep SetupAttackTarget()
     {
         var gridToUnit = _state.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
         
@@ -142,10 +148,49 @@ public class BattleStateService
             .ToList();
 
         _state.AttackTargetTiles.Set(legalTargets);
+        return BattleStep.SelectingAttackTarget;
     }
+
+    private BattleStep SetupSelectSpell()
+    {
+        return BattleStep.SelectingSpell;
+    }
+
+    private BattleStep SetupMagicTarget()
+    {
+        return BattleStep.SelectingMagicTarget;
+    }
+
+    //private void CastSpell(SpellState spell, Point position)
+    //{
+    //    //var currentUnit = CurrentUnit;
+    //    //if (currentUnit.State.RemainingMp < spell.MpCost)
+    //    //{
+    //    //    //_stats.Label = "Not enough MP"; // TODO: Less hacky way.
+    //    //    return;
+    //    //}
+
+    //    //var targets = _unitComponents.Values
+    //    //    .Where(x =>
+    //    //        GetTileForPosition(x.Position) == position &&
+    //    //        (spell.TargetsEnemies && x.State.PlayerId != currentUnit.State.PlayerId ||
+    //    //         spell.TargetsFriendlies && x.State.PlayerId == currentUnit.State.PlayerId))
+    //    //    .ToList();
+
+    //    //if (targets.Count == 0)
+    //    //    return;
+
+    //    //currentUnit.State.RemainingMp -= spell.MpCost;
+    //    //var damage = _spellDamage.CalcDamage(spell);
+    //    //foreach (var target in targets)
+    //    //{
+    //    //    _battleService.DamageUnit(target.State, damage);
+    //    //}
+    //}
 }
 
 public record BattleStartedEvent : IEvent;
 public record ActiveUnitChangedEvent(BattleUnitState State) : IEvent;
 public record BattleStepChangedEvent(BattleStep Step) : IEvent;
 public record UnitsDefeatedEvent(IEnumerable<BattleUnitState> Defeated) : IEvent;
+public record NotEnoughMpEvent(SpellState Spell) : IEvent;
