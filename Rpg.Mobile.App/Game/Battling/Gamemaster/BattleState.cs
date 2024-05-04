@@ -27,7 +27,7 @@ public class BattleState
     public BattleUnitState? CurrentUnit => ActiveUnitIndex >= 0 ? TurnOrder[ActiveUnitIndex] : null;
     public List<Point> WalkableTiles { get; set; } = new();
     public List<Point> AttackTargetTiles { get; set; } = new();
-    public List<Point> SpellAttackTiles { get; set; } = new();
+    public List<Point> SpellTargetTiles { get; set; } = new();
 
     public BattleState(MapState map)
     {
@@ -87,7 +87,7 @@ public class BattleStateService
         
         _state.AttackTargetTiles.Clear();
         _state.WalkableTiles.Clear();
-        _state.SpellAttackTiles.Clear();
+        _state.SpellTargetTiles.Clear();
         _state.CurrentSpell = step == BattleStep.SelectingMagicTarget ? _state.CurrentSpell : null;
         _state.Step = step switch
         {
@@ -158,6 +158,19 @@ public class BattleStateService
 
     private BattleStep SetupMagicTarget()
     {
+        var gridToUnit = _state.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
+        var allTargets = _path
+            .CreateFanOutArea(
+                _state.UnitCoordinates[CurrentUnit],
+                new(_state.Map.Width, _state.Map.Height),
+                CurrentUnit.Stats.AttackMinRange,
+                CurrentUnit.Stats.AttackMaxRange)
+            .Where(x => 
+                (_state.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != _state.CurrentUnit.PlayerId) ||
+                 (_state.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == _state.CurrentUnit.PlayerId))))
+            .ToList();
+        
+        _state.SpellTargetTiles.Set(allTargets);
         return BattleStep.SelectingMagicTarget;
     }
 
