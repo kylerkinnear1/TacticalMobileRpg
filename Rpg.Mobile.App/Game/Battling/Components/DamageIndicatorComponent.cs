@@ -6,11 +6,10 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 public class DamageIndicatorComponent : TextboxComponent
 {
     public TimeSpan DisplayTime = TimeSpan.FromSeconds(1);
-    public float FontSize = 16f;
 
     private ITween<PointF>? _movement;
 
-    public DamageIndicatorComponent() : base(RectF.Zero, "") { }
+    public DamageIndicatorComponent() : base(new(0f, 0f, 100f, 50f), "") { }
 
     public override void Update(float deltaTime)
     {
@@ -26,9 +25,9 @@ public class DamageIndicatorComponent : TextboxComponent
 
     public void ShowDamage(int damage)
     {
-        TextColor = damage >= 0 ? Colors.DarkRed : Colors.Lime;
-        Label = $"{damage}";
+        TextColor = damage >= 0 ? Colors.Red : Colors.Lime;
+        Label = damage >= 0 ? $"-{damage}" : $"+{-damage}";
 
-        _movement = Position.TweenTo(new(Position.X, Position.Y - 50f), 50f);
+        _movement = Position.TweenTo(new(Position.X, Position.Y - 40f), 50f);
     }
 }
