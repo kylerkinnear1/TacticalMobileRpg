@@ -14,23 +14,19 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
-
-    private readonly PathCalculator _path = new();
+    
     private readonly DamageCalculator _damage = new(Rng.Instance);
-    private readonly SpellDamageCalculator _spellDamage = new(Rng.Instance);
 
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
 
     private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
-
-    // TODO: remove
+    
     private readonly MenuComponent _battleMenu;
     private readonly BattleState _state;
     private readonly BattleStateService _battleService;
 
     public BattleComponent(
-        // TODO: remove extra components
          MenuComponent battleMenu, PointF location, BattleState battle, BattleStateService battleService) 
         : base(CalcBounds(location, battle.Map.Width, battle.Map.Height, TileSize))
     {
