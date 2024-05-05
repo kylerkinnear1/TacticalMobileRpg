@@ -172,7 +172,7 @@ public class BattleStateService
         var legalTargets = _path
             .CreateFanOutArea(
                 _state.UnitCoordinates[CurrentUnit],
-                new(_state.Map.Width, _state.Map.Height),
+                _state.Map.Corner,
                 CurrentUnit.Stats.AttackMinRange,
                 CurrentUnit.Stats.AttackMaxRange)
             .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != CurrentUnit.PlayerId))
@@ -193,10 +193,11 @@ public class BattleStateService
         var allTargets = _path
             .CreateFanOutArea(
                 _state.UnitCoordinates[CurrentUnit],
-                new(_state.Map.Width, _state.Map.Height),
-                CurrentUnit.Stats.AttackMinRange,
-                CurrentUnit.Stats.AttackMaxRange)
+                _state.Map.Corner,
+                _state.CurrentSpell.MinRange,
+                _state.CurrentSpell.MaxRange)
             .Where(x => 
+                !gridToUnit.Contains(x) ||
                 (_state.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != _state.CurrentUnit.PlayerId) ||
                  (_state.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == _state.CurrentUnit.PlayerId))))
             .ToList();

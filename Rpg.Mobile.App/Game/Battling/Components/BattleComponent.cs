@@ -65,20 +65,8 @@ public class BattleComponent : ComponentBase
         var attackShadows = _state.AttackTargetTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
         _attackShadow.Shadows.Set(attackShadows);
 
-        if (_state.CurrentSpell is not null)
-        {
-            var currentUnitTile = GetTileForPosition(CurrentUnit.Position);
-            var shadows = _path
-                .CreateFanOutArea(
-                    new(currentUnitTile.X, currentUnitTile.Y),
-                    new(_map.State.Width, _map.State.Height),
-                    _state.CurrentSpell.MinRange,
-                    _state.CurrentSpell.MaxRange)
-                .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
-                .ToList();
-
-            _attackShadow.Shadows.AddRange(shadows);
-        }
+        var magicShadows = _state.SpellTargetTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
+        _attackShadow.Shadows.AddRange(magicShadows);
     }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
