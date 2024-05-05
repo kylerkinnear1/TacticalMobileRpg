@@ -115,28 +115,9 @@ public class BattleComponent : ComponentBase
 
     private void TileClicked(TileClickedEvent evnt)
     {
-        var currentUnit = CurrentUnit;
-        var clickedTileCenter = GetPositionForTile(evnt.Tile, SizeF.Zero);
+        _battleService.SelectTile(evnt.Tile);
 
-        var enemies = _unitComponents.Values
-            .Where(a => a.State.PlayerId != currentUnit.State.PlayerId && a.Visible)
-            .ToLookup(a => GetTileForPosition(a.Position));
-        
-        if (_state.Step == BattleStep.SelectingAttackTarget &&
-            _attackShadow.Shadows.Any(a => a.Contains(clickedTileCenter) && enemies.Contains(evnt.Tile)))
-        {
-            var enemy = enemies[evnt.Tile].First();
-            var damage = _damage.CalcDamage(currentUnit.State.Stats.Attack, currentUnit.State.Stats.Defense);
-            _battleService.DamageUnits(new [] { enemy.State }, damage);
-            _battleService.AdvanceToNextUnit();
-        }
-
-        if (_state.Step == BattleStep.SelectingMagicTarget && _state.CurrentSpell is not null)
-        {
-            _battleService.CastSpell(_state.CurrentSpell, evnt.Tile);
-        }
-
-        if (_state.Step == BattleStep.Moving && _moveShadow.Shadows.Any(a => a.Contains(clickedTileCenter)))
+        if (_state.Step == BattleStep.Moving && _state.WalkableTiles.Contains(evnt.Tile))
         {
             _state.UnitCoordinates[CurrentUnit.State] = evnt.Tile;
 

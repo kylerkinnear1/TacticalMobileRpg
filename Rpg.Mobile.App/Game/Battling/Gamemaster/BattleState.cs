@@ -29,6 +29,9 @@ public class BattleState
     public List<Point> AttackTargetTiles { get; set; } = new();
     public List<Point> SpellTargetTiles { get; set; } = new();
 
+    public IEnumerable<BattleUnitState> UnitsAt(Point tile) =>
+        UnitCoordinates.Where(x => x.Value == tile).Select(x => x.Key);
+
     public BattleState(MapState map)
     {
         Map = map;
@@ -39,6 +42,7 @@ public class BattleStateService
 {
     private readonly BattleState _state;
     private readonly IPathCalculator _path;
+    private readonly DamageCalculator _attackDamage = new(Rng.Instance);
     private readonly SpellDamageCalculator _spellDamage = new(Rng.Instance);
 
     private BattleUnitState CurrentUnit => _state.TurnOrder[_state.ActiveUnitIndex];
@@ -99,6 +103,26 @@ public class BattleStateService
         };
 
         Bus.Global.Publish(new BattleStepChangedEvent(step));
+    }
+
+    public void SelectTile(Point tile)
+    {
+        if (_state.Step == BattleStep.SelectingAttackTarget)
+        {
+            var enemy = _state.UnitsAt(tile).FirstOrDefault(x => x.PlayerId != _state.CurrentUnit.PlayerId);
+            if (enemy is null)
+                return;
+
+            var damage = _attackDamage.CalcDamage(_state.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
+            DamageUnits(new [] { enemy }, damage);
+        }
+
+        if (_state.Step == BattleStep.SelectingMagicTarget && _state.CurrentSpell is not null)
+        {
+            CastSpell(_state.CurrentSpell, tile);
+        }
+
+        
     }
 
     public void CastSpell(SpellState spell, Point target)
