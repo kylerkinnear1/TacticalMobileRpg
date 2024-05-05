@@ -14,8 +14,7 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
-    
-    private readonly DamageCalculator _damage = new(Rng.Instance);
+    private readonly DamageIndicatorComponent _damageIndicator;
 
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
@@ -38,6 +37,7 @@ public class BattleComponent : ComponentBase
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
+        AddChild(_damageIndicator = new());
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
@@ -45,6 +45,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<BattleStepChangedEvent>(x => BattleStepChanged(x.Step));
         Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
+        Bus.Global.Subscribe<UnitDamagedEvent>(UnitDamaged);
     }
 
     public override void Update(float deltaTime)
@@ -98,8 +99,6 @@ public class BattleComponent : ComponentBase
             (BattleUnitType.Ninja, 1) => new BattleUnitComponent(Images.NinjaIdle02, state),
             _ => throw new ArgumentException()
         };
-
-    private Point GetTileForPosition(PointF point) => new((int)(point.X / TileSize), (int)(point.Y / TileSize));
 
     private PointF GetPositionForTile(Point point, SizeF componentSize) => GetPositionForTile(point.X, point.Y, componentSize);
 
@@ -173,6 +172,12 @@ public class BattleComponent : ComponentBase
             unit.Visible = false;
             _unitComponents.Remove(unit.State);
         }
+    }
+
+    private void UnitDamaged(UnitDamagedEvent evnt)
+    {
+        _damageIndicator.Position = _unitComponents[evnt.Unit].Position;
+        _damageIndicator.ShowDamage(evnt.Damage);
     }
 }
 

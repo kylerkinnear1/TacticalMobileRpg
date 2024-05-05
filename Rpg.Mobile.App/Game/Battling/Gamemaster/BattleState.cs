@@ -121,8 +121,6 @@ public class BattleStateService
         {
             CastSpell(_state.CurrentSpell, tile);
         }
-
-        
     }
 
     public void CastSpell(SpellState spell, Point target)
@@ -164,6 +162,8 @@ public class BattleStateService
             unit.RemainingHealth = damage >= 0
                 ? Math.Max(unit.RemainingHealth - damage, 0)
                 : Math.Min(unit.Stats.MaxHealth, unit.RemainingHealth - damage);
+
+            Bus.Global.Publish(new UnitDamagedEvent(unit, damage));
 
             if (unit.RemainingHealth <= 0)
             {
@@ -232,7 +232,8 @@ public class BattleStateService
 }
 
 public record BattleStartedEvent : IEvent;
-public record ActiveUnitChangedEvent(BattleUnitState State) : IEvent;
+public record ActiveUnitChangedEvent(BattleUnitState Unit) : IEvent;
 public record BattleStepChangedEvent(BattleStep Step) : IEvent;
 public record UnitsDefeatedEvent(IEnumerable<BattleUnitState> Defeated) : IEvent;
 public record NotEnoughMpEvent(SpellState Spell) : IEvent;
+public record UnitDamagedEvent(BattleUnitState Unit, int Damage) : IEvent;
