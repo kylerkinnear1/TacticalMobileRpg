@@ -46,7 +46,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(UnitChanged);
-        Bus.Global.Subscribe<BattleStepChangedEvent>(BattleStepChanged);
+        Bus.Global.Subscribe<BattleStepChangedEvent>(x => BattleStepChanged(x.Step));
         Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
     }
@@ -163,22 +163,22 @@ public class BattleComponent : ComponentBase
         _unitTween = null;
     }
 
-    private void BattleStepChanged(BattleStepChangedEvent evnt)
+    private void BattleStepChanged(BattleStep step)
     {
-        if (evnt.Step == BattleStep.Moving)
+        if (step == BattleStep.Moving)
         {
             _battleMenu.SetButtons(
                 new("Attack", _ => _battleService.ChangeBattleState(BattleStep.SelectingAttackTarget)),
-                new("Magic", _ => BattleStepChanged(new BattleStepChangedEvent(BattleStep.SelectingSpell))),
+                new("Magic", _ => BattleStepChanged(BattleStep.SelectingSpell)),
                 new("Wait", _ => _battleService.AdvanceToNextUnit()));
         }
 
-        if (evnt.Step == BattleStep.SelectingAttackTarget)
+        if (step == BattleStep.SelectingAttackTarget)
         {
             _battleMenu.SetButtons(new ButtonState("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)));
         }
 
-        if (evnt.Step == BattleStep.SelectingSpell)
+        if (step == BattleStep.SelectingSpell)
         {
             _battleMenu.SetButtons(
                 CurrentUnit.State.Spells
