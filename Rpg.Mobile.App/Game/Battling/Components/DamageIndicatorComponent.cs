@@ -5,11 +5,12 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class DamageIndicatorComponent : TextboxComponent
 {
-    public TimeSpan DisplayTime = TimeSpan.FromSeconds(1);
-
     private ITween<PointF>? _movement;
 
-    public DamageIndicatorComponent() : base(new(0f, 0f, 100f, 50f), "") { }
+    public DamageIndicatorComponent() : base(new(0f, 0f, 100f, 50f), "")
+    {
+        FontSize = 35f;
+    }
 
     public override void Update(float deltaTime)
     {

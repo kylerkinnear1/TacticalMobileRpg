@@ -37,7 +37,7 @@ public class BattleComponent : ComponentBase
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
-        AddChild(_damageIndicator = new());
+        _damageIndicator = new();
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
@@ -82,6 +82,8 @@ public class BattleComponent : ComponentBase
             var point = _state.UnitCoordinates[component.State];
             component.Position = GetPositionForTile(point, component.Bounds.Size);
         }
+
+        AddChild(_damageIndicator);
     }
 
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitState state) =>
