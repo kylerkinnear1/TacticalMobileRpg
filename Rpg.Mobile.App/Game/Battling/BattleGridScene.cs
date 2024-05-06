@@ -9,7 +9,7 @@ public class BattleGridScene : SceneBase
 {
     private readonly BattleComponent _battle;
     private readonly MiniMapComponent _miniMap;
-    private readonly MenuComponent _battleMenu;
+    private readonly BattleMenuComponent _battleMenu;
     private readonly StatSheetComponent _stats;
     private readonly MenuComponent _stateMenu;
     private readonly MouseCoordinateComponent _mouseComponent;
@@ -19,18 +19,16 @@ public class BattleGridScene : SceneBase
 
     public BattleGridScene(IMouse mouse)
     {
-        Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
-        Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
-
         var mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.json");
         var mapLoader = new MapLoader();
         var map = mapLoader.Load(mapPath);
-
-        Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
-
         var battleState = new BattleState(map);
         var battleService = new BattleStateService(battleState, new PathCalculator());
-        Add(_battle = new(_battleMenu, new(0f, 0f), battleState, battleService));
+
+        Add(_battle = new(new(0f, 0f), battleState, battleService));
+        Add(_battleMenu = new(battleService, battleState, new(900f, 100f, 150f, 200f)));
+        Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
+        Add(_stats = new(new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
 
         Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
         {

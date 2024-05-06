@@ -1,5 +1,4 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
-using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
@@ -22,15 +21,12 @@ public class BattleComponent : ComponentBase
 
     private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
     
-    private readonly MenuComponent _battleMenu;
     private readonly BattleState _state;
     private readonly BattleStateService _battleService;
 
-    public BattleComponent(
-         MenuComponent battleMenu, PointF location, BattleState battle, BattleStateService battleService) 
+    public BattleComponent(PointF location, BattleState battle, BattleStateService battleService) 
         : base(CalcBounds(location, battle.Map.Width, battle.Map.Height, TileSize))
     {
-        _battleMenu = battleMenu;
         _battleService = battleService;
 
         _state = battle;
@@ -49,7 +45,6 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(UnitChanged);
-        Bus.Global.Subscribe<BattleStepChangedEvent>(x => BattleStepChanged(x.Step));
         Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
         Bus.Global.Subscribe<UnitDamagedEvent>(UnitDamaged);
@@ -146,31 +141,6 @@ public class BattleComponent : ComponentBase
     private void UnitChanged(ActiveUnitChangedEvent evnt)
     {
         _unitTween = null;
-    }
-
-    private void BattleStepChanged(BattleStep step)
-    {
-        if (step == BattleStep.Moving)
-        {
-            _battleMenu.SetButtons(
-                new("Attack", _ => _battleService.ChangeBattleState(BattleStep.SelectingAttackTarget)),
-                new("Magic", _ => BattleStepChanged(BattleStep.SelectingSpell)),
-                new("Wait", _ => _battleService.AdvanceToNextUnit()));
-        }
-
-        if (step == BattleStep.SelectingAttackTarget)
-        {
-            _battleMenu.SetButtons(new ButtonState("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)));
-        }
-
-        if (step == BattleStep.SelectingSpell)
-        {
-            _battleMenu.SetButtons(
-                CurrentUnit.State.Spells
-                    .Select(x => new ButtonState(x.Name, _ => _battleService.TargetSpell(x)))
-                    .Append(new("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)))
-                    .ToArray());
-        }
     }
 
     private void UnitsDefeated(UnitsDefeatedEvent evnt)

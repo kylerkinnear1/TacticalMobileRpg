@@ -4,7 +4,7 @@ namespace Rpg.Mobile.App.Game.Common;
 
 public class MenuComponent : ComponentBase
 {
-    private List<ButtonComponent> _buttons = new();
+    public List<ButtonComponent> Buttons = new();
 
     public float Spacing { get; set; } = 10f;
     public float ButtonHeight { get; set; } = 40f;
@@ -33,7 +33,7 @@ public class MenuComponent : ComponentBase
 
     public void AddButton(string label, Action<IEnumerable<PointF>> onClick)
     {
-        var bottomButton = _buttons.LastOrDefault();
+        var bottomButton = Buttons.LastOrDefault();
         var button = new ButtonComponent(
             new(Spacing,
                 bottomButton?.Bounds.Bottom + Spacing ?? Spacing,
@@ -43,16 +43,16 @@ public class MenuComponent : ComponentBase
             onClick);
 
         AddChild(button);
-        _buttons.Add(button);
+        Buttons.Add(button);
     }
 
     public void SetButtons(params ButtonState[] buttons)
     {
-        var currentButtons = _buttons.ToList();
+        var currentButtons = Buttons.ToList();
         foreach (var button in currentButtons)
             ChildList.Remove(button);
 
-        _buttons.Clear();
+        Buttons.Clear();
         foreach (var button in buttons)
             AddButton(button.Label, button.Handler);
     }
