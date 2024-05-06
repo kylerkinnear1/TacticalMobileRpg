@@ -14,6 +14,7 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
+    private readonly TileShadowComponent _targetHighlight;
     private readonly DamageIndicatorComponent _damageIndicator;
 
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
@@ -37,6 +38,12 @@ public class BattleComponent : ComponentBase
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
+        AddChild(_targetHighlight = new(_map.Bounds)
+        {
+            BackColor = Colors.Transparent,
+            BorderSize = 2f,
+            BorderColor = Colors.White
+        });
         _damageIndicator = new();
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);

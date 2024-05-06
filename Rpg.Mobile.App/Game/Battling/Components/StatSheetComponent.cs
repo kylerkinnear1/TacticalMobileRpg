@@ -33,9 +33,10 @@ public class StatSheetComponent : TextboxComponent
             $"Range: {unit.Stats.AttackMinRange}-{unit.Stats.AttackMaxRange}",
             $"Attack: {unit.Stats.Attack}",
             $"Defense: {unit.Stats.Defense}",
-            $"Movement: {unit.Stats.Movement}",
-            $"Spells: {string.Join(", ", unit.Spells
-                .Select(x => x.Name)
+            $"Movement: {unit.Stats.Movement}{Environment.NewLine}",
+            $"Spells:{Environment.NewLine}" +
+            $"{string.Join(Environment.NewLine, unit.Spells
+                .Select(x => $"{x.Name}")
                 .DefaultIfEmpty("N/A"))}");
 }
 
