@@ -16,20 +16,23 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _targetHighlight;
     private readonly DamageIndicatorComponent _damageIndicator;
 
+    private readonly BattleState _state;
+    private readonly BattleStateService _battleService;
+
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
 
     private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
-    
-    private readonly BattleState _state;
-    private readonly BattleStateService _battleService;
+
+    private static RectF CalcBounds(PointF position, int width, int height, float size) =>
+        new(position.X, position.Y, width * size, height * size);
 
     public BattleComponent(PointF location, BattleState battle, BattleStateService battleService) 
         : base(CalcBounds(location, battle.Map.Width, battle.Map.Height, TileSize))
     {
         _battleService = battleService;
-
         _state = battle;
+
         AddChild(_map = new(battle.Map));
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
@@ -44,7 +47,6 @@ public class BattleComponent : ComponentBase
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
-        Bus.Global.Subscribe<ActiveUnitChangedEvent>(UnitChanged);
         Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
         Bus.Global.Subscribe<UnitDamagedEvent>(UnitDamaged);
@@ -53,7 +55,10 @@ public class BattleComponent : ComponentBase
     public override void Update(float deltaTime)
     {
         if (_unitTween is not null)
+        {
             CurrentUnit.Position = _unitTween.Advance(deltaTime);
+            _unitTween = _unitTween.IsComplete ? null : _unitTween;
+        }
 
         var walkShadows = _state.WalkableTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
         _moveShadow.Shadows.Set(walkShadows);
@@ -68,9 +73,7 @@ public class BattleComponent : ComponentBase
         _attackShadow.Shadows.AddRange(magicShadows);
     }
 
-    public override void Render(ICanvas canvas, RectF dirtyRect)
-    {
-    }
+    public override void Render(ICanvas canvas, RectF dirtyRect) { }
 
     private void StartBattle()
     {
@@ -113,13 +116,11 @@ public class BattleComponent : ComponentBase
         return new((x * TileSize) + marginX, (y * TileSize) + marginY);
     }
 
-    private static RectF CalcBounds(PointF position, int width, int height, float size) =>
-        new(position.X, position.Y, width * size, height * size);
-
     private void TileClicked(TileClickedEvent evnt)
     {
         _battleService.SelectTile(evnt.Tile);
 
+        // TODO: Fix movement step
         if (_state.Step == BattleStep.Moving && _state.WalkableTiles.Contains(evnt.Tile))
         {
             _state.UnitCoordinates[CurrentUnit.State] = evnt.Tile;
@@ -136,11 +137,6 @@ public class BattleComponent : ComponentBase
             : null;
 
         Bus.Global.Publish(new BattleTileHoveredEvent(hoveredUnit));
-    }
-
-    private void UnitChanged(ActiveUnitChangedEvent evnt)
-    {
-        _unitTween = null;
     }
 
     private void UnitsDefeated(UnitsDefeatedEvent evnt)
