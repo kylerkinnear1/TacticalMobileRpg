@@ -25,7 +25,7 @@ public class BattleMenuComponent : MenuComponent
                 new("Magic", _ => _battleService.ChangeBattleState(BattleStep.SelectingSpell)),
                 new("Wait", _ => _battleService.AdvanceToNextUnit())
             },
-            BattleStep.SelectingAttackTarget => new ButtonState[] {
+            BattleStep.SelectingAttackTarget or BattleStep.SelectingMagicTarget => new ButtonState[] {
                 new ("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving))
             },
             BattleStep.SelectingSpell =>
