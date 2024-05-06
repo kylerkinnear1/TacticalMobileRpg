@@ -7,7 +7,7 @@ public class MouseCoordinateComponent : TextboxComponent
 {
     private readonly IMouse _mouse;
 
-    public MouseCoordinateComponent(IMouse mouse, RectF bounds) : base(bounds, "")
+    public MouseCoordinateComponent(IMouse mouse, RectF bounds) : base(bounds)
     {
         _mouse = mouse;
 

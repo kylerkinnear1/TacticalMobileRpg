@@ -19,7 +19,7 @@ public class Camera : IUpdateComponent, IDrawable
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
         Size = dirtyRect.Size;
-        foreach (var node in _components.SelectMany(x => x.All))
+        foreach (var node in _components.SelectMany(x => x.All).Where(x => x.Visible))
         {
             canvas.SaveState();
             var x = node.AbsoluteBounds.X + (node.IgnoreCamera ? 0f : Offset.X);

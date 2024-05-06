@@ -35,7 +35,7 @@ public class BattleGridScene : SceneBase
             IgnoreCamera = true
         });
 
-        Add(_hoverComponent = new(new(_stats.Bounds.Left, _stats.Bounds.Bottom + 100f, 300f, 200f), "")
+        Add(_hoverComponent = new(new(_stats.Bounds.Left, _stats.Bounds.Bottom + 100f, 300f, 200f))
         {
             IgnoreCamera = true,
             BackColor = Colors.DeepSkyBlue

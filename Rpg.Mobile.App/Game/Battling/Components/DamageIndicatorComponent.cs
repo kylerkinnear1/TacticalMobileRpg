@@ -7,7 +7,7 @@ public class DamageIndicatorComponent : TextboxComponent
 {
     private ITween<PointF>? _movement;
 
-    public DamageIndicatorComponent() : base(new(0f, 0f, 100f, 50f), "")
+    public DamageIndicatorComponent() : base(new(0f, 0f, 100f, 50f))
     {
         FontSize = 35f;
     }
