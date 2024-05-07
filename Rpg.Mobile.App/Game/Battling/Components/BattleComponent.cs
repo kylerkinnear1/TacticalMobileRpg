@@ -14,10 +14,12 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
     private readonly DamageIndicatorComponent _damageIndicator;
-    private readonly TargetIndicatorComponent _targetIndicator;
+    private readonly TargetIndicatorComponent _attackTargetHighlight;
+    private readonly TargetIndicatorComponent _currentHighlightTarget;
 
     private readonly BattleState _state;
     private readonly BattleStateService _battleService;
+    private readonly PathCalculator _path = new();
 
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
@@ -37,7 +39,17 @@ public class BattleComponent : ComponentBase
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
-        AddChild(_targetIndicator = new(MapComponent.TileSize, _map.Bounds, new PathCalculator()));
+        AddChild(_attackTargetHighlight = new(MapComponent.TileSize, _map.Bounds, _path)
+        {
+            StrokeColor = Colors.Crimson.WithAlpha(.8f),
+            StrokeWidth = 10f,
+            Visible = false
+        });
+        AddChild(_currentHighlightTarget = new(MapComponent.TileSize, _map.Bounds, _path)
+        {
+            StrokeColor = Colors.White.WithAlpha(.7f),
+            Visible = false
+        });
         _damageIndicator = new();
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
@@ -131,7 +143,15 @@ public class BattleComponent : ComponentBase
             ? _state.UnitCoordinates.First(x => x.Value == evnt.Tile).Key
             : null;
 
-        _targetIndicator.Center = evnt.Tile;
+        _currentHighlightTarget.Visible = true;
+        _currentHighlightTarget.Center = evnt.Tile;
+
+        _attackTargetHighlight.Visible = false;
+        if (_state.Step == BattleStep.SelectingAttackTarget && hoveredUnit != null && hoveredUnit.PlayerId != CurrentUnit.State.PlayerId)
+        {
+            _attackTargetHighlight.Center = evnt.Tile;
+            _attackTargetHighlight.Visible = true;
+        }
 
         Bus.Global.Publish(new BattleTileHoveredEvent(hoveredUnit));
     }
