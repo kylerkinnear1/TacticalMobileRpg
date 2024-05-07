@@ -39,9 +39,6 @@ public class TargetIndicatorComponent : ComponentBase
 
     private IEnumerable<PointF> CalculateVertices()
     {
-        if (Range != 1)
-            throw new Exception("Start simple.");
-
         var centerSquare = new RectF(Center.X * TileSize, Center.Y * TileSize, TileSize, TileSize);
         yield return new(centerSquare.Left, centerSquare.Top);
         yield return new(centerSquare.Right, centerSquare.Top);
