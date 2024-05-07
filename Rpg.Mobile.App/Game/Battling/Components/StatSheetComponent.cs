@@ -22,6 +22,8 @@ public class StatSheetComponent : TextboxComponent
     {
         Unit = unit;
         Label = unit is not null ? Format(unit) : "";
+        BackColor = unit?.PlayerId == 0 ? Colors.Aqua : Colors.Orange;
+        Visible = unit is not null;
     }
 
     private static string Format(BattleUnitState unit) =>
