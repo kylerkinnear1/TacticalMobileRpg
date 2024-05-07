@@ -13,8 +13,8 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
-    private readonly TileShadowComponent _targetHighlight;
     private readonly DamageIndicatorComponent _damageIndicator;
+    private readonly TargetIndicatorComponent _targetIndicator;
 
     private readonly BattleState _state;
     private readonly BattleStateService _battleService;
@@ -37,12 +37,7 @@ public class BattleComponent : ComponentBase
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
-        AddChild(_targetHighlight = new(_map.Bounds)
-        {
-            BackColor = Colors.Transparent,
-            BorderSize = 2f,
-            BorderColor = Colors.White
-        });
+        AddChild(_targetIndicator = new(MapComponent.TileSize, _map.Bounds, new PathCalculator()));
         _damageIndicator = new();
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
@@ -135,6 +130,8 @@ public class BattleComponent : ComponentBase
         var hoveredUnit = _state.UnitCoordinates.ContainsValue(evnt.Tile)
             ? _state.UnitCoordinates.First(x => x.Value == evnt.Tile).Key
             : null;
+
+        _targetIndicator.Center = evnt.Tile;
 
         Bus.Global.Publish(new BattleTileHoveredEvent(hoveredUnit));
     }
