@@ -39,13 +39,13 @@ public class BattleComponent : ComponentBase
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
-        AddChild(_attackTargetHighlight = new(MapComponent.TileSize, _map.Bounds, _path)
+        AddChild(_attackTargetHighlight = new(battle.Map, MapComponent.TileSize, _map.Bounds, _path)
         {
             StrokeColor = Colors.Crimson.WithAlpha(.8f),
             StrokeWidth = 10f,
             Visible = false
         });
-        AddChild(_currentHighlightTarget = new(MapComponent.TileSize, _map.Bounds, _path)
+        AddChild(_currentHighlightTarget = new(battle.Map, MapComponent.TileSize, _map.Bounds, _path)
         {
             StrokeColor = Colors.White.WithAlpha(.7f),
             Visible = false

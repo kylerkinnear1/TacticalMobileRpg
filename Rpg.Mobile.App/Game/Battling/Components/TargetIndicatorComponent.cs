@@ -14,35 +14,33 @@ public class TargetIndicatorComponent : ComponentBase
     public float StrokeWidth { get; set; } = 2f;
     public Color StrokeColor { get; set; } = Colors.White;
 
-    private readonly List<PointF> _vertices = new();
+    private readonly List<RectF> _tiles = new();
+    private readonly MapState _map;
 
-    public TargetIndicatorComponent(int tileSize, RectF bounds, IPathCalculator path) : base(bounds)
+    public TargetIndicatorComponent(MapState map, int tileSize, RectF bounds, IPathCalculator path) : base(bounds)
     {
+        _map = map;
         _path = path;
         TileSize = tileSize;
     }
 
     public override void Update(float deltaTime)
     {
-        _vertices.Set(CalculateVertices());
+        _tiles.Set(CalculateTiles());
     }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
         canvas.StrokeColor = StrokeColor;
         canvas.StrokeSize = StrokeWidth;
-        foreach (var (v1, v2) in _vertices.Zip(_vertices.Skip(1).Append(_vertices[0])))
+        foreach (var tile in _tiles)
         {
-            canvas.DrawLine(v1, v2);
+            canvas.DrawRectangle(tile);
         }
     }
 
-    private IEnumerable<PointF> CalculateVertices()
-    {
-        var centerSquare = new RectF(Center.X * TileSize, Center.Y * TileSize, TileSize, TileSize);
-        yield return new(centerSquare.Left, centerSquare.Top);
-        yield return new(centerSquare.Right, centerSquare.Top);
-        yield return new(centerSquare.Right, centerSquare.Bottom);
-        yield return new(centerSquare.Left, centerSquare.Bottom);
-    }
+    private IEnumerable<RectF> CalculateTiles() =>
+        _path
+            .CreateFanOutArea(Center, _map.Corner, Range - 1)
+            .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
 }
