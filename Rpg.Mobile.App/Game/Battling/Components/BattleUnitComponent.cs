@@ -40,7 +40,7 @@ public class BattleUnitHealthBarComponent : ComponentBase
         canvas.Font = Font;
         canvas.FontSize = HasGone ? 19f : 22f;
 
-        canvas.FillColor = HasGone ? Colors.SlateGray.WithAlpha(.8f) : Colors.Black.WithAlpha(.6f);
+        canvas.FillColor = HasGone ? Colors.SlateGray.WithAlpha(.8f) : Colors.Black.WithAlpha(.4f);
         canvas.FontColor = State.PlayerId switch
         {
             0 when !HasGone => Colors.Aqua,
