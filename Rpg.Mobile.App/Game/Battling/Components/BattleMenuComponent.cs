@@ -24,7 +24,7 @@ public class BattleMenuComponent : MenuComponent
                 new("Attack", _ => _battleService.ChangeBattleState(BattleStep.SelectingAttackTarget)),
                 new("Magic", _ => _battleService.ChangeBattleState(BattleStep.SelectingSpell)),
                 new("Wait", _ => _battleService.AdvanceToNextUnit()),
-                new("Re-roll", _ => _battleService.RerollUnit())
+                // TODO: Fix new("Re-roll", _ => _battleService.RerollUnit())
             },
             BattleStep.SelectingAttackTarget or BattleStep.SelectingMagicTarget => new ButtonState[] {
                 new ("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving))

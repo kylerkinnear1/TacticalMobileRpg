@@ -6,10 +6,10 @@ public class MenuComponent : ComponentBase
 {
     public List<ButtonComponent> Buttons = new();
 
-    public float Spacing { get; set; } = 10f;
+    public float Spacing { get; set; } = 20f;
     public float ButtonHeight { get; set; } = 40f;
     public Color FillColor { get; set; } = Colors.Navy;
-    public Color StrokeColor { get; set; } = Colors.Black;
+    public Color StrokeColor { get; set; } = Colors.GhostWhite;
     public float StrokeSize { get; set; } = 2f;
     public float CornerRadius { get; set; } = 2f;
 
@@ -55,6 +55,8 @@ public class MenuComponent : ComponentBase
         Buttons.Clear();
         foreach (var button in buttons)
             AddButton(button.Label, button.Handler);
+
+        Bounds = new(Bounds.Location, new(Bounds.Width, Buttons.LastOrDefault()?.Bounds.Bottom + Spacing ?? Bounds.Bottom));
     }
 }
 
