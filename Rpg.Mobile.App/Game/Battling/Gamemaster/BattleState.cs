@@ -141,7 +141,11 @@ public class BattleStateService
 
     public void CastSpell(SpellState spell, Point target)
     {
-        var units = _state.UnitCoordinates.Where(x => x.Value == target);
+        var hits = _path
+            .CreateFanOutArea(target, _state.Map.Corner, spell.MinRange - 1, spell.MaxRange - 1)
+            .ToHashSet();
+
+        var units = _state.UnitCoordinates.Where(x => hits.Contains(x.Value));
         var targets = units
             .Where(x =>
                 x.Key.PlayerId == CurrentUnit.PlayerId && spell.TargetsFriendlies ||
@@ -173,13 +177,14 @@ public class BattleStateService
     public void DamageUnits(IEnumerable<BattleUnitState> units, int damage)
     {
         var defeatedUnits = new List<BattleUnitState>();
+        var damagedUnits = new List<(BattleUnitState, int)>();
         foreach (var unit in units)
         {
             unit.RemainingHealth = damage >= 0
                 ? Math.Max(unit.RemainingHealth - damage, 0)
                 : Math.Min(unit.Stats.MaxHealth, unit.RemainingHealth - damage);
 
-            Bus.Global.Publish(new UnitDamagedEvent(unit, damage));
+            damagedUnits.Add((unit, damage));
 
             if (unit.RemainingHealth <= 0)
             {
@@ -188,6 +193,7 @@ public class BattleStateService
             }
         }
 
+        Bus.Global.Publish(new UnitDamagedEvent(damagedUnits));
         Bus.Global.Publish(new UnitsDefeatedEvent(defeatedUnits));
 
         AdvanceToNextUnit();
@@ -269,4 +275,4 @@ public record ActiveUnitChangedEvent(BattleUnitState Unit) : IEvent;
 public record BattleStepChangedEvent(BattleStep Step) : IEvent;
 public record UnitsDefeatedEvent(IEnumerable<BattleUnitState> Defeated) : IEvent;
 public record NotEnoughMpEvent(SpellState Spell) : IEvent;
-public record UnitDamagedEvent(BattleUnitState Unit, int Damage) : IEvent;
+public record UnitDamagedEvent(List<(BattleUnitState Unit, int Damage)> Hits) : IEvent;

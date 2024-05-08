@@ -13,7 +13,7 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _moveShadow;
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
-    private readonly DamageIndicatorComponent _damageIndicator;
+    private readonly MultiDamageIndicatorComponent _damageIndicator;
     private readonly TargetIndicatorComponent _attackTargetHighlight;
     private readonly TargetIndicatorComponent _currentHighlightTarget;
 
@@ -50,7 +50,7 @@ public class BattleComponent : ComponentBase
             StrokeColor = Colors.White.WithAlpha(.7f),
             Visible = false
         });
-        _damageIndicator = new();
+        _damageIndicator = new(_map.Bounds);
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
@@ -175,8 +175,11 @@ public class BattleComponent : ComponentBase
 
     private void UnitDamaged(UnitDamagedEvent evnt)
     {
-        _damageIndicator.Position = _unitComponents[evnt.Unit].Position;
-        _damageIndicator.ShowDamage(evnt.Damage);
+        var positions = evnt.Hits
+            .Select(x => (_unitComponents[x.Unit].Position, x.Damage))
+            .ToList();
+
+        _damageIndicator.SetDamage(positions);
     }
 }
 
