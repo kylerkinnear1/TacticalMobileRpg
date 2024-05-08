@@ -172,7 +172,6 @@ public class BattleComponent : ComponentBase
         foreach (var unit in defeatedComponents)
         {
             unit.Visible = false;
-            _unitComponents.Remove(unit.State);
         }
     }
 
