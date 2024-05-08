@@ -3,7 +3,6 @@ using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App.Windows;
 
-// TODO: Get Windows specific out of library.
 public class MouseWindowsUser32 : IMouse
 {
     [DllImport("user32.dll")]
