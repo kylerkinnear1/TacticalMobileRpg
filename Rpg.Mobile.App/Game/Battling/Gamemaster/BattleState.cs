@@ -42,8 +42,6 @@ public class BattleStateService
 {
     private readonly BattleState _state;
     private readonly IPathCalculator _path;
-    private readonly DamageCalculator _attackDamage = new(Rng.Instance);
-    private readonly SpellDamageCalculator _spellDamage = new(Rng.Instance);
 
     private BattleUnitState CurrentUnit => _state.TurnOrder[_state.ActiveUnitIndex];
 
@@ -113,7 +111,7 @@ public class BattleStateService
             if (enemy is null)
                 return;
 
-            var damage = _attackDamage.CalcDamage(_state.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
+            var damage = CalcAttackDamage(_state.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
             DamageUnits(new [] { enemy }, damage);
         }
 
@@ -122,6 +120,24 @@ public class BattleStateService
             CastSpell(_state.CurrentSpell, tile);
         }
     }
+
+    public int CalcAttackDamage(int attack, int defense)
+    {
+        var deterministicDamage = Math.Max(1, attack - defense);
+        var damageRangeModifier = Rng.Instance.Double(0.25) * deterministicDamage;
+
+        var damage = deterministicDamage + (int)Math.Round(damageRangeModifier);
+        return Math.Max(1, damage);
+    }
+
+    public int CalcSpellDamage(SpellState spell) =>
+        spell.Type switch
+        {
+            SpellType.Fire1 => Rng.Instance.Int(6, 8),
+            SpellType.Fire2 => Rng.Instance.Int(7, 9),
+            SpellType.Cure1 => -6,
+            _ => throw new ArgumentException()
+        };
 
     public void CastSpell(SpellState spell, Point target)
     {
@@ -143,7 +159,7 @@ public class BattleStateService
             return;
         }
 
-        var damage = _spellDamage.CalcDamage(spell);
+        var damage = CalcSpellDamage(spell);
         CurrentUnit.RemainingMp -= spell.MpCost;
         DamageUnits(targets, damage);
     }
@@ -175,6 +191,23 @@ public class BattleStateService
         Bus.Global.Publish(new UnitsDefeatedEvent(defeatedUnits));
 
         AdvanceToNextUnit();
+    }
+
+    public bool IsValidMagicTargetTile(Point tile)
+    {
+        var hoveredUnit = _state.UnitsAt(tile).FirstOrDefault();
+        return _state.Step == BattleStep.SelectingMagicTarget &&
+               hoveredUnit != null &&
+               ((_state.CurrentSpell.TargetsEnemies && hoveredUnit.PlayerId != CurrentUnit.PlayerId) ||
+                (_state.CurrentSpell.TargetsFriendlies && hoveredUnit.PlayerId == CurrentUnit.PlayerId));
+    }
+
+    public bool IsValidAttackTargetTile(Point tile)
+    {
+        var hoveredUnit = _state.UnitsAt(tile).FirstOrDefault();
+        return _state.Step == BattleStep.SelectingAttackTarget &&
+               hoveredUnit != null &&
+               hoveredUnit.PlayerId != CurrentUnit.PlayerId;
     }
 
     private BattleStep SetupMovingStep()

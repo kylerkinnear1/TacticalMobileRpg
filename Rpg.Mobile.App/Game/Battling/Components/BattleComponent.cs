@@ -147,13 +147,13 @@ public class BattleComponent : ComponentBase
         _currentHighlightTarget.Center = evnt.Tile;
 
         _attackTargetHighlight.Visible = false;
-        if (IsAttackTargetHover())
+        if (_battleService.IsValidAttackTargetTile(evnt.Tile))
         {
             _attackTargetHighlight.Center = evnt.Tile;
             _attackTargetHighlight.Visible = true;
         }
 
-        if (IsMagicTargetHover())
+        if (_battleService.IsValidMagicTargetTile(evnt.Tile))
         {
             _attackTargetHighlight.Center = evnt.Tile;
             _attackTargetHighlight.Range = _state.CurrentSpell.Aoe;
@@ -161,21 +161,6 @@ public class BattleComponent : ComponentBase
         }
 
         Bus.Global.Publish(new BattleTileHoveredEvent(hoveredUnit));
-
-        bool IsMagicTargetHover()
-        {
-            return _state.Step == BattleStep.SelectingMagicTarget &&
-                   hoveredUnit != null &&
-                   ((_state.CurrentSpell.TargetsEnemies && hoveredUnit.PlayerId != CurrentUnit.State.PlayerId) ||
-                   (_state.CurrentSpell.TargetsFriendlies && hoveredUnit.PlayerId == CurrentUnit.State.PlayerId));
-        }
-
-        bool IsAttackTargetHover()
-        {
-            return _state.Step == BattleStep.SelectingAttackTarget && 
-                   hoveredUnit != null && 
-                   hoveredUnit.PlayerId != CurrentUnit.State.PlayerId;
-        }
     }
 
     private void UnitsDefeated(UnitsDefeatedEvent evnt)
