@@ -28,6 +28,7 @@ public class BattleState
     public List<Point> WalkableTiles { get; set; } = new();
     public List<Point> AttackTargetTiles { get; set; } = new();
     public List<Point> SpellTargetTiles { get; set; } = new();
+    public HashSet<int> PlayerRerolls { get; set; } = new();
 
     public IEnumerable<BattleUnitState> UnitsAt(Point tile) =>
         UnitCoordinates.Where(x => x.Value == tile).Select(x => x.Key);
@@ -76,9 +77,10 @@ public class BattleStateService
         var isLastUnit = _state.ActiveUnitIndex + 1 >= _state.TurnOrder.Count;
         _state.ActiveUnitIndex = !isLastUnit ? _state.ActiveUnitIndex + 1 : 0;
         if (isLastUnit)
-            _state.TurnOrder.Set( _state.TurnOrder.Shuffle(Rng.Instance).ToList());
+            _state.TurnOrder.Set(_state.TurnOrder.Shuffle(Rng.Instance).ToList());
         
         _state.ActiveUnitStartPosition = _state.UnitCoordinates[CurrentUnit];
+        _state.PlayerRerolls.Clear();
 
         Bus.Global.Publish(new ActiveUnitChangedEvent(CurrentUnit));
 
@@ -214,6 +216,28 @@ public class BattleStateService
         return _state.Step == BattleStep.SelectingAttackTarget &&
                hoveredUnit != null &&
                hoveredUnit.PlayerId != CurrentUnit.PlayerId;
+    }
+
+    public void RerollUnit()
+    {
+        if (_state.PlayerRerolls.Contains(_state.CurrentUnit.PlayerId))
+            return;
+
+        var alreadyGoneUnits = _state.TurnOrder.Where((_, i) => i < _state.ActiveUnitIndex);
+        var remainingUnits = _state.TurnOrder
+            .Where((_, i) => i >= _state.ActiveUnitIndex)
+            .Shuffle(Rng.Instance);
+
+        var selection = remainingUnits.First(x => x.PlayerId == _state.CurrentUnit.PlayerId);
+        var newTurnOrder = alreadyGoneUnits
+            .Append(selection)
+            .Concat(remainingUnits
+                .Skip(1));
+        _state.TurnOrder.Set(newTurnOrder);
+        _state.PlayerRerolls.Add(_state.CurrentUnit.PlayerId);
+
+        Bus.Global.Publish(new ActiveUnitChangedEvent(_state.CurrentUnit));
+        Bus.Global.Publish(new BattleStepChangedEvent(BattleStep.Moving));
     }
 
     private BattleStep SetupMovingStep()
