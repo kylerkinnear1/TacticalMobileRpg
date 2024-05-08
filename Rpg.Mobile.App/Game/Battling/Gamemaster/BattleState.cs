@@ -56,8 +56,8 @@ public class BattleStateService
         if (_state.ActiveUnitIndex >= 0)
             throw new NotSupportedException("Battle already started.");
 
-        var player1Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
-        var player2Units = StatPresets.All.Shuffle(Rng.Instance).ToList();
+        var player1Units = StatPresets.All.Append(StatPresets.Warrior).Shuffle(Rng.Instance).ToList();
+        var player2Units = StatPresets.All.Append(StatPresets.Warrior).Shuffle(Rng.Instance).ToList();
         player2Units.ForEach(x => x.PlayerId = 1);
 
         foreach (var (unit, point) in player1Units.Zip(_state.Map.Player1Origins))
