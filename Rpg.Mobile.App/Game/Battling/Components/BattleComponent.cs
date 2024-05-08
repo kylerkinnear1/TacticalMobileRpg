@@ -125,8 +125,6 @@ public class BattleComponent : ComponentBase
 
     private void TileClicked(TileClickedEvent evnt)
     {
-        _battleService.SelectTile(evnt.Tile);
-
         // TODO: Fix movement step
         if (_state.Step == BattleStep.Moving && _state.WalkableTiles.Contains(evnt.Tile))
         {
@@ -135,6 +133,8 @@ public class BattleComponent : ComponentBase
             var finalTarget = GetPositionForTile(evnt.Tile, CurrentUnit.Bounds.Size);
             _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
         }
+
+        _battleService.SelectTile(evnt.Tile);
     }
 
     private void TileHovered(TileHoveredEvent evnt)
