@@ -78,6 +78,9 @@ public class BattleComponent : ComponentBase
 
         var magicShadows = _state.SpellTargetTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
         _attackShadow.Shadows.AddRange(magicShadows);
+
+        for (var i = 0; i < _state.TurnOrder.Count; i++)
+            _unitComponents[_state.TurnOrder[i]].HealthBar.HasGone = i < _state.ActiveUnitIndex;
     }
 
     public override void Render(ICanvas canvas, RectF dirtyRect) { }

@@ -24,7 +24,6 @@ public abstract class SpriteComponentBase : ComponentBase
     {
         if (!Visible)
             return;
-
         canvas.DrawImage(Sprite, Scale);
     }
 
