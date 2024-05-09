@@ -57,6 +57,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
         Bus.Global.Subscribe<UnitDamagedEvent>(UnitDamaged);
+        Bus.Global.Subscribe<ActiveUnitChangedEvent>(ActiveUnitChanged);
     }
 
     public override void Update(float deltaTime)
@@ -182,6 +183,17 @@ public class BattleComponent : ComponentBase
             .ToList();
 
         _damageIndicator.SetDamage(positions);
+    }
+
+    private void ActiveUnitChanged(ActiveUnitChangedEvent evnt)
+    {
+        _unitTween = null;
+        if (evnt.PreviousUnit is null)
+            return;
+
+        var previousComponent = _unitComponents[evnt.PreviousUnit];
+        var coordinate = _state.UnitCoordinates[evnt.PreviousUnit];
+        previousComponent.Position = GetPositionForTile(coordinate, previousComponent.Bounds.Size);
     }
 }
 

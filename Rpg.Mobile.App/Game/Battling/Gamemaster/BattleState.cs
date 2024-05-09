@@ -74,6 +74,7 @@ public class BattleStateService
 
     public void AdvanceToNextUnit()
     {
+        var previousUnit = _state.ActiveUnitIndex >= 0 ? CurrentUnit : null;
         var isLastUnit = _state.ActiveUnitIndex + 1 >= _state.TurnOrder.Count;
         _state.ActiveUnitIndex = !isLastUnit ? _state.ActiveUnitIndex + 1 : 0;
         if (isLastUnit)
@@ -82,7 +83,7 @@ public class BattleStateService
         _state.ActiveUnitStartPosition = _state.UnitCoordinates[CurrentUnit];
         _state.PlayerRerolls.Clear();
 
-        Bus.Global.Publish(new ActiveUnitChangedEvent(CurrentUnit));
+        Bus.Global.Publish(new ActiveUnitChangedEvent(previousUnit, CurrentUnit));
 
         ChangeBattleState(BattleStep.Moving);
     }
@@ -190,7 +191,6 @@ public class BattleStateService
 
             if (unit.RemainingHealth <= 0)
             {
-                _state.UnitCoordinates.Remove(unit);
                 defeatedUnits.Add(unit);
             }
         }
@@ -224,6 +224,7 @@ public class BattleStateService
             return;
 
         var alreadyGoneUnits = _state.TurnOrder.Where((_, i) => i < _state.ActiveUnitIndex);
+        var previousUnit = CurrentUnit;
         var remainingUnits = _state.TurnOrder
             .Where((_, i) => i >= _state.ActiveUnitIndex)
             .Shuffle(Rng.Instance);
@@ -236,7 +237,7 @@ public class BattleStateService
         _state.TurnOrder.Set(newTurnOrder);
         _state.PlayerRerolls.Add(_state.CurrentUnit.PlayerId);
 
-        Bus.Global.Publish(new ActiveUnitChangedEvent(_state.CurrentUnit));
+        Bus.Global.Publish(new ActiveUnitChangedEvent(previousUnit, _state.CurrentUnit));
         Bus.Global.Publish(new BattleStepChangedEvent(BattleStep.Moving));
     }
 
@@ -295,7 +296,7 @@ public class BattleStateService
 }
 
 public record BattleStartedEvent : IEvent;
-public record ActiveUnitChangedEvent(BattleUnitState Unit) : IEvent;
+public record ActiveUnitChangedEvent(BattleUnitState? PreviousUnit, BattleUnitState NextUnit) : IEvent;
 public record BattleStepChangedEvent(BattleStep Step) : IEvent;
 public record UnitsDefeatedEvent(IEnumerable<BattleUnitState> Defeated) : IEvent;
 public record NotEnoughMpEvent(SpellState Spell) : IEvent;
