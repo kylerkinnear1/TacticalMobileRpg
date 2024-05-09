@@ -59,6 +59,8 @@ public class BattleUnitStats
 
 public class StatPresets
 {
+    public static BattleUnitState GetStatsByType(BattleUnitType type) => All.Single(x => x.Stats.UnitType == type);
+
     public static IEnumerable<BattleUnitState> All
     {
         get
