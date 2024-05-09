@@ -17,6 +17,8 @@ public class BattleState
 {
     public MapState Map { get; set; }
 
+    public int CurrentPlaceOrder { get; set; } = 0;
+    public List<BattleUnitState> PlaceOrder { get; set; } = new();
     public List<BattleUnitState> TurnOrder { get; set; } = new();
     public Dictionary<BattleUnitState, Point> UnitCoordinates { get; set; } = new();
     public int ActiveUnitIndex { get; set; } = -1;
@@ -37,6 +39,13 @@ public class BattleState
     public BattleState(MapState map)
     {
         Map = map;
+
+        // TODO: Move out of here
+        var team1 = map.Team1.Select(StatPresets.GetStatsByType);
+        var team2 = map.Team2.Select(StatPresets.GetStatsByType).ToList();
+        foreach (var unit in team2) unit.PlayerId = 1;
+
+        PlaceOrder = team1.Zip(team2).SelectMany(x => new[] { x.First, x.Second }).ToList();
     }
 }
 
@@ -50,6 +59,7 @@ public class BattleStateService
     private readonly SelectTileHandler _selectTile;
     private readonly TargetSpellHandler _targetSpell;
     private readonly ValidTargetCalculator _validTargetCalculator;
+    private readonly PlaceUnitHandler _placeUnit;
 
     private BattleUnitState CurrentUnit => _state.TurnOrder[_state.ActiveUnitIndex];
 
@@ -61,13 +71,14 @@ public class BattleStateService
         _changeStep = new(_state, _path);
         _advanceUnit = new(_state, _changeStep);
         _startBattle = new(_state, _advanceUnit);
-        _selectTile = new(_state, _path, _advanceUnit);
+        _placeUnit = new(_state, _startBattle);
+        _selectTile = new(_state, _path, _placeUnit, _advanceUnit);
         _targetSpell = new(_state, _changeStep);
-
+        
         _validTargetCalculator = new ValidTargetCalculator(_state);
     }
 
-    public void StartBattle() => _startBattle.Handle();
+    public void PlaceUnit(Point tile) => _placeUnit.Handle(tile);
 
     public void AdvanceToNextUnit() => _advanceUnit.Handle();
 

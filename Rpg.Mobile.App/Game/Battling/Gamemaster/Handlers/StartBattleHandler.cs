@@ -18,17 +18,7 @@ public class StartBattleHandler
         if (_state.ActiveUnitIndex >= 0)
             throw new NotSupportedException("Battle already started.");
 
-        var player1Units = _state.Map.Team1.Select(StatPresets.GetStatsByType).ToList();
-        var player2Units = _state.Map.Team2.Select(StatPresets.GetStatsByType).ToList();
-        player2Units.ForEach(x => x.PlayerId = 1);
-
-        foreach (var (unit, point) in player1Units.Zip(_state.Map.Player1Origins))
-            _state.UnitCoordinates[unit] = point;
-
-        foreach (var (unit, point) in player2Units.Zip(_state.Map.Player2Origins))
-            _state.UnitCoordinates[unit] = point;
-
-        _state.TurnOrder = player1Units.Concat(player2Units).Shuffle(Rng.Instance).ToList();
+        _state.TurnOrder = _state.PlaceOrder.Shuffle(Rng.Instance).ToList();
         Bus.Global.Publish(new BattleStartedEvent());
 
         _nextUnitHandler.Handle();

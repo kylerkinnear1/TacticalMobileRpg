@@ -6,17 +6,28 @@ public class SelectTileHandler
 {
     private readonly BattleState _state;
     private readonly IPathCalculator _path;
+    private readonly PlaceUnitHandler _placeUnit;
     private readonly AdvanceToNextUnitHandler _advanceUnit;
 
-    public SelectTileHandler(BattleState state, IPathCalculator path, AdvanceToNextUnitHandler advanceUnit)
+    public SelectTileHandler(
+        BattleState state,
+        IPathCalculator path,
+        PlaceUnitHandler placeUnit,
+        AdvanceToNextUnitHandler advanceUnit)
     {
         _state = state;
         _path = path;
+        _placeUnit = placeUnit;
         _advanceUnit = advanceUnit;
     }
 
     public void Handle(Point tile)
     {
+        if (_state.Step == BattleStep.Setup)
+        {
+            _placeUnit.Handle(tile);
+        }
+
         if (_state.Step == BattleStep.Moving && _state.WalkableTiles.Contains(tile))
         {
             _state.UnitCoordinates[_state.CurrentUnit] = tile;

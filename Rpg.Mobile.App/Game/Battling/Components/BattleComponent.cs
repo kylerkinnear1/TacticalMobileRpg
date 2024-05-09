@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
+using Rpg.Mobile.App.Game.Battling.Gamemaster.Handlers;
 using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
@@ -54,16 +55,17 @@ public class BattleComponent : ComponentBase
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
-        Bus.Global.Subscribe<BattleStartedEvent>(_ => BattleStarted());
+        Bus.Global.Subscribe<BattleStartedEvent>(_ => AddChild(_damageIndicator));
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
         Bus.Global.Subscribe<UnitDamagedEvent>(UnitDamaged);
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(ActiveUnitChanged);
         Bus.Global.Subscribe<UnitMovedEvent>(UnitMoved);
+        Bus.Global.Subscribe<UnitPlacedEvent>(UnitPlaced);
     }
 
     public override void Update(float deltaTime)
     {
-        if (_state.UnitCoordinates.Count == 0)
+        if (_state.Step == BattleStep.Setup)
         {
             var originTiles = _state.Map.Player1Origins
                 .Concat(_state.Map.Player2Origins)
@@ -121,20 +123,18 @@ public class BattleComponent : ComponentBase
         return new((x * TileSize) + marginX, (y * TileSize) + marginY);
     }
 
-    private void BattleStarted()
+    private void UnitPlaced(UnitPlacedEvent evnt)
     {
+        var component = CreateBattleUnitComponent(evnt.Unit);
+        _unitComponents[evnt.Unit] = component;
+        AddChild(component);
+
+        var point = _state.UnitCoordinates[component.State];
+        component.Position = GetPositionForTile(point, component.Bounds.Size);
         _unitComponents = _state.TurnOrder
             .Select(CreateBattleUnitComponent)
             .Select(AddChild)
             .ToDictionary(x => x.State);
-
-        foreach (var component in _unitComponents.Values)
-        {
-            var point = _state.UnitCoordinates[component.State];
-            component.Position = GetPositionForTile(point, component.Bounds.Size);
-        }
-
-        AddChild(_damageIndicator);
     }
 
     private void TileClicked(TileClickedEvent evnt)
