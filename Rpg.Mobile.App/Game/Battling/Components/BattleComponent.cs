@@ -63,6 +63,15 @@ public class BattleComponent : ComponentBase
 
     public override void Update(float deltaTime)
     {
+        if (_state.UnitCoordinates.Count == 0)
+        {
+            var originTiles = _state.Map.Player1Origins
+                .Concat(_state.Map.Player2Origins)
+                .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
+            _moveShadow.Shadows.Set(originTiles);
+            return;
+        }
+
         if (_unitTween is not null)
         {
             CurrentUnit.Position = _unitTween.Advance(deltaTime);
@@ -148,8 +157,7 @@ public class BattleComponent : ComponentBase
             _attackTargetHighlight.Center = evnt.Tile;
             _attackTargetHighlight.Visible = true;
         }
-
-        if (_battleService.IsValidMagicTargetTile(evnt.Tile))
+        else if (_battleService.IsValidMagicTargetTile(evnt.Tile))
         {
             _attackTargetHighlight.Center = evnt.Tile;
             _attackTargetHighlight.Range = _state.CurrentSpell.Aoe;

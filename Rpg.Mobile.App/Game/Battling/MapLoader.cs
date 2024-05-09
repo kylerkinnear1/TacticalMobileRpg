@@ -23,7 +23,7 @@ public class MapLoader
     public MapState Load(string path)
     {
         var mapJson = LoadMap(path);
-        var tiles = new Array2d<TileState>(mapJson.ColumnCount, mapJson.ColumnCount);
+        var tiles = new Array2d<TileState>(mapJson.RowCount, mapJson.ColumnCount);
         for (var i = 0; i < tiles.Data.Length; i++)
             tiles[i] = new();
 

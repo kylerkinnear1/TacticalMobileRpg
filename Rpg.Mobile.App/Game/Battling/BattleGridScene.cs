@@ -49,7 +49,7 @@ public class BattleGridScene : SceneBase
 
         ActiveCamera.Offset = new PointF(80f, 80f);
 
-        battleService.StartBattle();
+        //battleService.StartBattle();
     }
 
     public override void Update(float deltaTime)
