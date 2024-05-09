@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.App.Infrastructure;
+﻿using Rpg.Mobile.App.Game.Battling.Gamemaster.Handlers;
+using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
 
 namespace Rpg.Mobile.App.Game.Battling.Gamemaster;
@@ -43,6 +44,9 @@ public class BattleStateService
 {
     private readonly BattleState _state;
     private readonly IPathCalculator _path;
+    private readonly StartBattleHandler _startBattle;
+    private readonly AdvanceToNextUnitHandler _advanceUnit;
+    private readonly ChangeBattleStateHandler _changeStep;
 
     private BattleUnitState CurrentUnit => _state.TurnOrder[_state.ActiveUnitIndex];
 
@@ -50,61 +54,17 @@ public class BattleStateService
     {
         _state = state;
         _path = path;
+
+        _changeStep = new(_state, _path);
+        _advanceUnit = new(_state, _changeStep);
+        _startBattle = new(_state, _advanceUnit);
     }
 
-    public void StartBattle()
-    {
-        if (_state.ActiveUnitIndex >= 0)
-            throw new NotSupportedException("Battle already started.");
+    public void StartBattle() => _startBattle.Handle();
 
-        var player1Units = StatPresets.All.Append(StatPresets.Warrior).Shuffle(Rng.Instance).ToList();
-        var player2Units = StatPresets.All.Append(StatPresets.Warrior).Shuffle(Rng.Instance).ToList();
-        player2Units.ForEach(x => x.PlayerId = 1);
+    public void AdvanceToNextUnit() => _advanceUnit.Handle();
 
-        foreach (var (unit, point) in player1Units.Zip(_state.Map.Player1Origins))
-            _state.UnitCoordinates[unit] = point;
-
-        foreach (var (unit, point) in player2Units.Zip(_state.Map.Player2Origins))
-            _state.UnitCoordinates[unit] = point;
-
-        _state.TurnOrder = player1Units.Concat(player2Units).Shuffle(Rng.Instance).ToList();
-        Bus.Global.Publish(new BattleStartedEvent());
-        AdvanceToNextUnit();
-    }
-
-    public void AdvanceToNextUnit()
-    {
-        var previousUnit = _state.ActiveUnitIndex >= 0 ? CurrentUnit : null;
-        var isLastUnit = _state.ActiveUnitIndex + 1 >= _state.TurnOrder.Count;
-        _state.ActiveUnitIndex = !isLastUnit ? _state.ActiveUnitIndex + 1 : 0;
-        if (isLastUnit)
-            _state.TurnOrder.Set(_state.TurnOrder.Shuffle(Rng.Instance).ToList());
-        
-        _state.ActiveUnitStartPosition = _state.UnitCoordinates[CurrentUnit];
-        _state.PlayerRerolls.Clear();
-
-        Bus.Global.Publish(new ActiveUnitChangedEvent(previousUnit, CurrentUnit));
-
-        ChangeBattleState(BattleStep.Moving);
-    }
-
-    public void ChangeBattleState(BattleStep step)
-    {
-        _state.AttackTargetTiles.Clear();
-        _state.WalkableTiles.Clear();
-        _state.SpellTargetTiles.Clear();
-        _state.CurrentSpell = step == BattleStep.SelectingMagicTarget ? _state.CurrentSpell : null;
-        _state.Step = step switch
-        {
-            BattleStep.Moving => SetupMovingStep(),
-            BattleStep.SelectingAttackTarget => SetupAttackTarget(),
-            BattleStep.SelectingSpell => SetupSelectSpell(), 
-            BattleStep.SelectingMagicTarget => SetupMagicTarget(),
-            _ => throw new ArgumentException()
-        };
-
-        Bus.Global.Publish(new BattleStepChangedEvent(step));
-    }
+    public void ChangeBattleState(BattleStep step) => _changeStep.Handle(step);
 
     public void SelectTile(Point tile)
     {
@@ -245,59 +205,6 @@ public class BattleStateService
 
         Bus.Global.Publish(new ActiveUnitChangedEvent(previousUnit, _state.CurrentUnit));
         Bus.Global.Publish(new BattleStepChangedEvent(BattleStep.Moving));
-    }
-
-    private BattleStep SetupMovingStep()
-    {
-        var walkableTiles = _path
-            .CreateFanOutArea(_state.ActiveUnitStartPosition, _state.Map.Corner, CurrentUnit.Stats.Movement)
-            .Where(x => x == _state.ActiveUnitStartPosition ||
-                        !_state.UnitCoordinates.ContainsValue(x) && _state.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
-            .ToList();
-
-        _state.WalkableTiles = walkableTiles;
-        return BattleStep.Moving;
-    }
-
-    private BattleStep SetupAttackTarget()
-    {
-        var gridToUnit = _state.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
-        
-        var legalTargets = _path
-            .CreateFanOutArea(
-                _state.UnitCoordinates[CurrentUnit],
-                _state.Map.Corner,
-                CurrentUnit.Stats.AttackMinRange,
-                CurrentUnit.Stats.AttackMaxRange)
-            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != CurrentUnit.PlayerId))
-            .ToList();
-
-        _state.AttackTargetTiles.Set(legalTargets);
-        return BattleStep.SelectingAttackTarget;
-    }
-
-    private BattleStep SetupSelectSpell()
-    {
-        return BattleStep.SelectingSpell;
-    }
-
-    private BattleStep SetupMagicTarget()
-    {
-        var gridToUnit = _state.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
-        var allTargets = _path
-            .CreateFanOutArea(
-                _state.UnitCoordinates[CurrentUnit],
-                _state.Map.Corner,
-                _state.CurrentSpell.MinRange,
-                _state.CurrentSpell.MaxRange)
-            .Where(x => 
-                !gridToUnit.Contains(x) ||
-                (_state.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != _state.CurrentUnit.PlayerId) ||
-                 (_state.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == _state.CurrentUnit.PlayerId))))
-            .ToList();
-        
-        _state.SpellTargetTiles.Set(allTargets);
-        return BattleStep.SelectingMagicTarget;
     }
 }
 
