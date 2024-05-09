@@ -67,8 +67,11 @@ public class BattleComponent : ComponentBase
     {
         if (_state.Step == BattleStep.Setup)
         {
-            var originTiles = _state.Map.Player1Origins
-                .Concat(_state.Map.Player2Origins)
+            var currentOrigins = _state.CurrentPlaceOrder % 2 == 0
+                ? _state.Map.Player1Origins
+                : _state.Map.Player2Origins;
+
+            var originTiles = currentOrigins
                 .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
             _moveShadow.Shadows.Set(originTiles);
             return;

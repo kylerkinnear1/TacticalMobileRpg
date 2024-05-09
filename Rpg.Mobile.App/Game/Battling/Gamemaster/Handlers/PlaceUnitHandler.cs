@@ -18,6 +18,13 @@ public class PlaceUnitHandler
         if (_state.UnitCoordinates.ContainsValue(tile))
             return;
 
+        var currentOrigins = _state.CurrentPlaceOrder % 2 == 0
+            ? _state.Map.Player1Origins
+            : _state.Map.Player2Origins;
+
+        if (!currentOrigins.Contains(tile))
+            return;
+
         var unit = _state.PlaceOrder[_state.CurrentPlaceOrder];
         _state.UnitCoordinates[unit] = tile;
 
