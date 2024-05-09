@@ -54,7 +54,7 @@ public class BattleComponent : ComponentBase
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
-        Bus.Global.Subscribe<BattleStartedEvent>(_ => StartBattle());
+        Bus.Global.Subscribe<BattleStartedEvent>(_ => BattleStarted());
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
         Bus.Global.Subscribe<UnitDamagedEvent>(UnitDamaged);
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(ActiveUnitChanged);
@@ -87,22 +87,6 @@ public class BattleComponent : ComponentBase
 
     public override void Render(ICanvas canvas, RectF dirtyRect) { }
 
-    private void StartBattle()
-    {
-        _unitComponents = _state.TurnOrder
-            .Select(CreateBattleUnitComponent)
-            .Select(AddChild)
-            .ToDictionary(x => x.State);
-
-        foreach (var component in _unitComponents.Values)
-        {
-            var point = _state.UnitCoordinates[component.State];
-            component.Position = GetPositionForTile(point, component.Bounds.Size);
-        }
-
-        AddChild(_damageIndicator);
-    }
-
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitState state) =>
         (state.Stats.UnitType, state.PlayerId) switch
         {
@@ -126,6 +110,22 @@ public class BattleComponent : ComponentBase
         var marginX = (TileSize - componentSize.Width) / 2;
         var marginY = (TileSize - componentSize.Height) / 2;
         return new((x * TileSize) + marginX, (y * TileSize) + marginY);
+    }
+
+    private void BattleStarted()
+    {
+        _unitComponents = _state.TurnOrder
+            .Select(CreateBattleUnitComponent)
+            .Select(AddChild)
+            .ToDictionary(x => x.State);
+
+        foreach (var component in _unitComponents.Values)
+        {
+            var point = _state.UnitCoordinates[component.State];
+            component.Position = GetPositionForTile(point, component.Bounds.Size);
+        }
+
+        AddChild(_damageIndicator);
     }
 
     private void TileClicked(TileClickedEvent evnt)
