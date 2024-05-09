@@ -26,12 +26,14 @@ public class SelectTileHandler
         if (_state.Step == BattleStep.Setup)
         {
             _placeUnit.Handle(tile);
+            return;
         }
 
         if (_state.Step == BattleStep.Moving && _state.WalkableTiles.Contains(tile))
         {
             _state.UnitCoordinates[_state.CurrentUnit] = tile;
             Bus.Global.Publish(new UnitMovedEvent(_state.CurrentUnit, tile));
+            return;
         }
 
         if (_state.Step == BattleStep.SelectingAttackTarget)
@@ -42,11 +44,13 @@ public class SelectTileHandler
 
             var damage = CalcAttackDamage(_state.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
             DamageUnits(new[] { enemy }, damage);
+            return;
         }
 
         if (_state.Step == BattleStep.SelectingMagicTarget && _state.CurrentSpell is not null)
         {
             CastSpell(_state.CurrentSpell, tile);
+            return;
         }
     }
 
