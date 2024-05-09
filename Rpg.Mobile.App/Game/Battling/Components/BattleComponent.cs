@@ -58,6 +58,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<UnitsDefeatedEvent>(UnitsDefeated);
         Bus.Global.Subscribe<UnitDamagedEvent>(UnitDamaged);
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(ActiveUnitChanged);
+        Bus.Global.Subscribe<UnitMovedEvent>(UnitMoved);
     }
 
     public override void Update(float deltaTime)
@@ -129,15 +130,6 @@ public class BattleComponent : ComponentBase
 
     private void TileClicked(TileClickedEvent evnt)
     {
-        // TODO: Fix movement step
-        if (_state.Step == BattleStep.Moving && _state.WalkableTiles.Contains(evnt.Tile))
-        {
-            _state.UnitCoordinates[CurrentUnit.State] = evnt.Tile;
-
-            var finalTarget = GetPositionForTile(evnt.Tile, CurrentUnit.Bounds.Size);
-            _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
-        }
-
         _battleService.SelectTile(evnt.Tile);
     }
 
@@ -194,6 +186,12 @@ public class BattleComponent : ComponentBase
         var previousComponent = _unitComponents[evnt.PreviousUnit];
         var coordinate = _state.UnitCoordinates[evnt.PreviousUnit];
         previousComponent.Position = GetPositionForTile(coordinate, previousComponent.Bounds.Size);
+    }
+
+    private void UnitMoved(UnitMovedEvent evnt)
+    {
+        var finalTarget = GetPositionForTile(evnt.Tile, CurrentUnit.Bounds.Size);
+        _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
     }
 }
 

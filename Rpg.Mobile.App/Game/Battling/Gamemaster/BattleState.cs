@@ -108,6 +108,12 @@ public class BattleStateService
 
     public void SelectTile(Point tile)
     {
+        if (_state.Step == BattleStep.Moving && _state.WalkableTiles.Contains(tile))
+        {
+            _state.UnitCoordinates[CurrentUnit] = tile;
+            Bus.Global.Publish(new UnitMovedEvent(CurrentUnit, tile));
+        }
+
         if (_state.Step == BattleStep.SelectingAttackTarget)
         {
             var enemy = _state.UnitsAt(tile).FirstOrDefault(x => x.PlayerId != _state.CurrentUnit.PlayerId);
@@ -301,3 +307,4 @@ public record BattleStepChangedEvent(BattleStep Step) : IEvent;
 public record UnitsDefeatedEvent(IEnumerable<BattleUnitState> Defeated) : IEvent;
 public record NotEnoughMpEvent(SpellState Spell) : IEvent;
 public record UnitDamagedEvent(List<(BattleUnitState Unit, int Damage)> Hits) : IEvent;
+public record UnitMovedEvent(BattleUnitState Unit, Point Tile) : IEvent;
