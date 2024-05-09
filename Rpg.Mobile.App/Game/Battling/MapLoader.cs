@@ -44,6 +44,28 @@ public class MapLoader
         if (!File.Exists(path))
             throw new FileNotFoundException($"Could not find map: {path}");
 
+        // Overwrite map file programmatically.
+        //var map = new MapJson(
+        //    12,
+        //    10,
+        //    StatPresets.All.Append(StatPresets.Warrior).Select(x => x.Stats.UnitType).ToList(),
+        //    StatPresets.All.Append(StatPresets.Warrior).Select(x => x.Stats.UnitType).ToList(),
+        //    Enumerable.Range(0, 2)
+        //        .SelectMany(x => Enumerable.Range(0, 10).Select(y => new Coordinate(x, y)))
+        //        .ToList(),
+        //    Enumerable.Range(8, 2)
+        //        .SelectMany(x => Enumerable.Range(0, 10).Select(y => new Coordinate(x, y)))
+        //        .ToList(),
+        //    new());
+
+        //File.WriteAllText(path, JsonSerializer.Serialize(map, new JsonSerializerOptions
+        //{
+        //    Converters =
+        //    {
+        //        new JsonStringEnumConverter()
+        //    },
+        //    WriteIndented = true
+        //}));
         var mapText = File.ReadAllText(path);
         return JsonSerializer.Deserialize<MapJson>(mapText, new JsonSerializerOptions
         {
