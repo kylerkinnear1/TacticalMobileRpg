@@ -131,10 +131,6 @@ public class BattleComponent : ComponentBase
 
         var point = _state.UnitCoordinates[component.State];
         component.Position = GetPositionForTile(point, component.Bounds.Size);
-        _unitComponents = _state.TurnOrder
-            .Select(CreateBattleUnitComponent)
-            .Select(AddChild)
-            .ToDictionary(x => x.State);
     }
 
     private void TileClicked(TileClickedEvent evnt)
