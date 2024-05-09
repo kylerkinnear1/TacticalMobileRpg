@@ -19,7 +19,6 @@ public class BattleComponent : ComponentBase
 
     private readonly BattleState _state;
     private readonly BattleStateService _battleService;
-    private readonly PathCalculator _path = new();
 
     private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
@@ -35,17 +34,18 @@ public class BattleComponent : ComponentBase
         _battleService = battleService;
         _state = battle;
 
+        var path = new PathCalculator();
         AddChild(_map = new(battle.Map));
         AddChild(_moveShadow = new(_map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(_attackShadow = new(_map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
         AddChild(_currentUnitShadow = new(_map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
-        AddChild(_attackTargetHighlight = new(battle.Map, MapComponent.TileSize, _map.Bounds, _path)
+        AddChild(_attackTargetHighlight = new(battle.Map, MapComponent.TileSize, _map.Bounds, path)
         {
             StrokeColor = Colors.Crimson.WithAlpha(.8f),
             StrokeWidth = 10f,
             Visible = false
         });
-        AddChild(_currentHighlightTarget = new(battle.Map, MapComponent.TileSize, _map.Bounds, _path)
+        AddChild(_currentHighlightTarget = new(battle.Map, MapComponent.TileSize, _map.Bounds, path)
         {
             StrokeColor = Colors.White.WithAlpha(.7f),
             Visible = false
