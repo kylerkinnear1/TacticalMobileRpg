@@ -16,7 +16,7 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
     private readonly MultiDamageIndicatorComponent _damageIndicator;
-    private readonly TextIndicatorComponent _message = new();
+    private readonly TextIndicatorComponent _message;
     private readonly TargetIndicatorComponent _attackTargetHighlight;
     private readonly TargetIndicatorComponent _currentHighlightTarget;
     private readonly Sprite _placeUnitSprite;
@@ -57,7 +57,11 @@ public class BattleComponent : ComponentBase
         AddChild(_placeUnitSprite = new(Images.WarriorIdle01) { Visible = false });
         _placeUnitSprite.UpdateScale(1.5f);
         _damageIndicator = new(_map.Bounds);
-        AddChild(_message);
+        AddChild(_message = new() 
+        { 
+            Bounds = new(_map.Bounds.Left, _map.Bounds.Height - 10f, _map.Bounds.Width, 200f)
+        });
+        _message.Position = new(_map.Bounds.Left, _map.Bounds.Top - 10f);
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
@@ -67,6 +71,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(ActiveUnitChanged);
         Bus.Global.Subscribe<UnitMovedEvent>(UnitMoved);
         Bus.Global.Subscribe<UnitPlacedEvent>(UnitPlaced);
+        Bus.Global.Subscribe<NotEnoughMpEvent>(x => ShowMessage("Not enough MP."));
     }
 
     public override void Update(float deltaTime)
@@ -130,6 +135,12 @@ public class BattleComponent : ComponentBase
         var marginX = (TileSize - componentSize.Width) / 2;
         var marginY = (TileSize - componentSize.Height) / 2;
         return new((x * TileSize) + marginX, (y * TileSize) + marginY);
+    }
+
+    private void ShowMessage(string message)
+    {
+        _message.Position = new(_map.Bounds.Left, _map.Bounds.Top - 10f);
+        _message.Play(message);
     }
 
     private void UnitPlaced(UnitPlacedEvent evnt)
