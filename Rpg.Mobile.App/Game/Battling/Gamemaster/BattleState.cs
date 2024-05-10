@@ -48,6 +48,13 @@ public class BattleState
             .Select(x => new BattleUnitState(1, x));
 
         PlaceOrder = team1.Zip(team2).SelectMany(x => new[] { x.First, x.Second }).ToList();
+
+        // TODO: workaround
+        foreach (var unit in PlaceOrder.Where(x => x.Stats.UnitType == BattleUnitType.Mage))
+            unit.Spells = new() { SpellPresets.Fire1, SpellPresets.Fire2 };
+
+        foreach (var unit in PlaceOrder.Where(x => x.Stats.UnitType == BattleUnitType.Healer))
+            unit.Spells = new() { SpellPresets.Cure1 };
     }
 }
 
