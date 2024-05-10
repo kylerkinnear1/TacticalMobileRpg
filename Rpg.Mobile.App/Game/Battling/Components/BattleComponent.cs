@@ -1,5 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
 using Rpg.Mobile.App.Game.Battling.Gamemaster.Handlers;
+using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
 using static Rpg.Mobile.App.Game.Sprites;
@@ -15,6 +16,7 @@ public class BattleComponent : ComponentBase
     private readonly TileShadowComponent _attackShadow;
     private readonly TileShadowComponent _currentUnitShadow;
     private readonly MultiDamageIndicatorComponent _damageIndicator;
+    private readonly TextIndicatorComponent _message = new();
     private readonly TargetIndicatorComponent _attackTargetHighlight;
     private readonly TargetIndicatorComponent _currentHighlightTarget;
     private readonly Sprite _placeUnitSprite;
@@ -55,6 +57,7 @@ public class BattleComponent : ComponentBase
         AddChild(_placeUnitSprite = new(Images.WarriorIdle01) { Visible = false });
         _placeUnitSprite.UpdateScale(1.5f);
         _damageIndicator = new(_map.Bounds);
+        AddChild(_message);
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);

@@ -26,32 +26,18 @@ public class MultiDamageIndicatorComponent : ComponentBase
     }
 }
 
-public class DamageIndicatorComponent : TextboxComponent
+public class DamageIndicatorComponent : ComponentBase
 {
-    private ITween<PointF>? _movement;
+    private readonly TextIndicatorComponent _text;
 
-    public DamageIndicatorComponent() : base(new(0f, 0f, 100f, 50f))
-    {
-        FontSize = 35f;
-    }
+    public DamageIndicatorComponent(TextIndicatorComponent text) : base(text.Bounds) => AddChild(_text = text);
+    public DamageIndicatorComponent() : this(new()) { }
 
-    public override void Update(float deltaTime)
-    {
-        if (_movement?.IsComplete ?? true)
-        {
-            Visible = false;
-            return;
-        }
+    public void ShowDamage(int damage) =>
+        _text.Play(
+            damage >= 0 ? $"-{damage}" : $"+{-damage}",
+            damage >= 0 ? Colors.Red : Colors.Lime);
 
-        Visible = true;
-        Position = _movement.Advance(deltaTime);
-    }
-
-    public void ShowDamage(int damage)
-    {
-        TextColor = damage >= 0 ? Colors.Red : Colors.Lime;
-        Label = damage >= 0 ? $"-{damage}" : $"+{-damage}";
-
-        _movement = Position.TweenTo(new(Position.X, Position.Y - 40f), 50f);
-    }
+    public override void Update(float deltaTime) { }
+    public override void Render(ICanvas canvas, RectF dirtyRect) { }
 }
