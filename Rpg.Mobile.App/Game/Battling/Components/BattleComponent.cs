@@ -17,6 +17,7 @@ public class BattleComponent : ComponentBase
     private readonly MultiDamageIndicatorComponent _damageIndicator;
     private readonly TargetIndicatorComponent _attackTargetHighlight;
     private readonly TargetIndicatorComponent _currentHighlightTarget;
+    private readonly Sprite _placeUnitSprite;
 
     private readonly BattleState _state;
     private readonly BattleStateService _battleService;
@@ -51,6 +52,8 @@ public class BattleComponent : ComponentBase
             StrokeColor = Colors.White.WithAlpha(.7f),
             Visible = false
         });
+        AddChild(_placeUnitSprite = new(Images.WarriorIdle01) { Visible = false });
+        _placeUnitSprite.UpdateScale(1.5f);
         _damageIndicator = new(_map.Bounds);
 
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
@@ -161,6 +164,19 @@ public class BattleComponent : ComponentBase
             _attackTargetHighlight.Center = evnt.Tile;
             _attackTargetHighlight.Range = _state.CurrentSpell.Aoe;
             _attackTargetHighlight.Visible = true;
+        }
+
+        _placeUnitSprite.Visible = _state.Step == BattleStep.Setup;
+
+        var origins = _state.CurrentPlaceOrder % 2 == 0
+            ? _state.Map.Player1Origins
+            : _state.Map.Player2Origins;
+
+        _placeUnitSprite.Visible = _state.Step == BattleStep.Setup && origins.Contains(evnt.Tile);
+        if (_placeUnitSprite.Visible)
+        {
+            _placeUnitSprite.Position = GetPositionForTile(evnt.Tile, _placeUnitSprite.Bounds.Size);
+            _placeUnitSprite.Sprite = CreateBattleUnitComponent(_state.PlaceOrder[_state.CurrentPlaceOrder]).Sprite;
         }
 
         Bus.Global.Publish(new BattleTileHoveredEvent(hoveredUnit));
