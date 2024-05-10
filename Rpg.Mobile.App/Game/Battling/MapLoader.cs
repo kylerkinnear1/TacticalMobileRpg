@@ -13,7 +13,8 @@ public record MapJson(
     List<BattleUnitType> Player2Team,
     List<Coordinate> Player1Origins,
     List<Coordinate> Player2Origins,
-    List<Coordinate> RockPositions);
+    List<Coordinate> RockPositions,
+    List<BattleUnitStats> BaseStats);
 
 public record LoadStateClickedEvent : IEvent;
 public record SaveStateClickedEvent : IEvent;
@@ -34,7 +35,8 @@ public class MapLoader
             mapJson.Player1Team,
             mapJson.Player2Team,
             mapJson.Player1Origins.Select(x => new Point(x.X, x.Y)).ToList(),
-            mapJson.Player2Origins.Select(x => new Point(x.X, x.Y)).ToList());
+            mapJson.Player2Origins.Select(x => new Point(x.X, x.Y)).ToList(),
+            mapJson.BaseStats);
 
         return state;
     }
@@ -44,19 +46,21 @@ public class MapLoader
         if (!File.Exists(path))
             throw new FileNotFoundException($"Could not find map: {path}");
 
-        // Overwrite map file programmatically.
+        //var width = 10;
+        //var height = 12;
         //var map = new MapJson(
-        //    12,
-        //    10,
+        //    height,
+        //    width,
         //    StatPresets.All.Append(StatPresets.Warrior).Select(x => x.Stats.UnitType).ToList(),
         //    StatPresets.All.Append(StatPresets.Warrior).Select(x => x.Stats.UnitType).ToList(),
         //    Enumerable.Range(0, 2)
-        //        .SelectMany(x => Enumerable.Range(0, 10).Select(y => new Coordinate(x, y)))
+        //        .SelectMany(x => Enumerable.Range(0, height).Select(y => new Coordinate(x, y)))
         //        .ToList(),
         //    Enumerable.Range(8, 2)
-        //        .SelectMany(x => Enumerable.Range(0, 10).Select(y => new Coordinate(x, y)))
+        //        .SelectMany(x => Enumerable.Range(0, height).Select(y => new Coordinate(x, y)))
         //        .ToList(),
-        //    new());
+        //    new(),
+        //    StatPresets.All.Select(x => x.Stats).ToList());
 
         //File.WriteAllText(path, JsonSerializer.Serialize(map, new JsonSerializerOptions
         //{

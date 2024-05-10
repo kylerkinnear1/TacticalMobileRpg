@@ -40,10 +40,12 @@ public class BattleState
     {
         Map = map;
 
-        // TODO: Move out of here
-        var team1 = map.Team1.Select(StatPresets.GetStatsByType);
-        var team2 = map.Team2.Select(StatPresets.GetStatsByType).ToList();
-        foreach (var unit in team2) unit.PlayerId = 1;
+        var team1 = map.Team1
+            .Select(x => map.BaseStats.Single(y => x == y.UnitType))
+            .Select(x => new BattleUnitState(0, x));
+        var team2 = map.Team2
+            .Select(x => map.BaseStats.Single(y => x == y.UnitType))
+            .Select(x => new BattleUnitState(1, x));
 
         PlaceOrder = team1.Zip(team2).SelectMany(x => new[] { x.First, x.Second }).ToList();
     }

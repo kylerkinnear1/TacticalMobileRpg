@@ -246,5 +246,57 @@
       "X": 5,
       "Y": 8
     }
+  ],
+  "BaseStats": [
+    {
+      "UnitType": "Archer",
+      "MaxHealth": 10,
+      "MaxMp": 0,
+      "Movement": 5,
+      "AttackMinRange": 2,
+      "AttackMaxRange": 3,
+      "Attack": 10,
+      "Defense": 4
+    },
+    {
+      "UnitType": "Warrior",
+      "MaxHealth": 16,
+      "MaxMp": 0,
+      "Movement": 3,
+      "AttackMinRange": 1,
+      "AttackMaxRange": 1,
+      "Attack": 11,
+      "Defense": 6
+    },
+    {
+      "UnitType": "Mage",
+      "MaxHealth": 9,
+      "MaxMp": 10,
+      "Movement": 5,
+      "AttackMinRange": 1,
+      "AttackMaxRange": 1,
+      "Attack": 9,
+      "Defense": 5
+    },
+    {
+      "UnitType": "Ninja",
+      "MaxHealth": 11,
+      "MaxMp": 0,
+      "Movement": 7,
+      "AttackMinRange": 1,
+      "AttackMaxRange": 1,
+      "Attack": 11,
+      "Defense": 6
+    },
+    {
+      "UnitType": "Healer",
+      "MaxHealth": 8,
+      "MaxMp": 12,
+      "Movement": 6,
+      "AttackMinRange": 1,
+      "AttackMaxRange": 2,
+      "Attack": 9,
+      "Defense": 6
+    }
   ]
 }

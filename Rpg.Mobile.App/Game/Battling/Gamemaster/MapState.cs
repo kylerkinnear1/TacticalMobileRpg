@@ -20,6 +20,7 @@ public class MapState
     public List<Point> Player2Origins { get; set; }
     public List<BattleUnitType> Team1 { get; set; }
     public List<BattleUnitType> Team2 { get; set; }
+    public List<BattleUnitStats> BaseStats { get; set; }
 
     public int Width => Tiles.Width;
     public int Height => Tiles.Height;
@@ -30,12 +31,14 @@ public class MapState
         List<BattleUnitType> team1,
         List<BattleUnitType> team2,
         List<Point> player1Origins,
-        List<Point> player2Origins)
+        List<Point> player2Origins, 
+        List<BattleUnitStats> baseStats)
     {
         Tiles = tiles;
         Team1 = team1;
         Team2 = team2;
         Player1Origins = player1Origins;
         Player2Origins = player2Origins;
+        BaseStats = baseStats;
     }
 }
