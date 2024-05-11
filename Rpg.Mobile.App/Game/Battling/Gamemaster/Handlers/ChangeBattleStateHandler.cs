@@ -37,7 +37,8 @@ public class ChangeBattleStateHandler
         var walkableTiles = _path
             .CreateFanOutArea(_state.ActiveUnitStartPosition, _state.Map.Corner, _state.CurrentUnit.Stats.Movement)
             .Where(x => x == _state.ActiveUnitStartPosition ||
-                        !_state.UnitCoordinates.ContainsValue(x) && _state.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
+                        !_state.UnitCoordinates.ContainsValue(x) && 
+                        _state.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
             .ToList();
 
         _state.WalkableTiles = walkableTiles;

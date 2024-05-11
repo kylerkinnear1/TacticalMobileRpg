@@ -116,9 +116,11 @@ public class SelectTileHandler
             if (unit.RemainingHealth <= 0)
             {
                 defeatedUnits.Add(unit);
+                _state.TurnOrder.Remove(unit);
+                _state.UnitCoordinates.Remove(unit);
             }
         }
-
+        
         Bus.Global.Publish(new UnitDamagedEvent(damagedUnits));
         Bus.Global.Publish(new UnitsDefeatedEvent(defeatedUnits));
 

@@ -5,13 +5,8 @@ namespace Rpg.Mobile.App.Game.Common;
 public class TextIndicatorComponent : TextboxComponent
 {
     private Color _baseColor = Colors.Red;
+    private PointF? _start;
     private ITween<PointF>? _movement;
-
-    public TimeSpan? FadeIn { get; set; } = TimeSpan.FromSeconds(2f);
-    public TimeSpan? DelayFadeOut { get; set; } = TimeSpan.FromSeconds(10f);
-    public TimeSpan? FadeOut { get; set; } = TimeSpan.FromSeconds(5);
-
-    private MultiTweenF? _fade;
 
     public TextIndicatorComponent() : base(new(0f, 0f, 100f, 50f))
     {
@@ -21,11 +16,10 @@ public class TextIndicatorComponent : TextboxComponent
 
     public override void Update(float deltaTime)
     {
-        if (
-            _movement == null || _movement.IsComplete || 
-            (_fade != null && _fade.IsComplete))
+        if (_movement == null || _movement.IsComplete)
         {
             Visible = false;
+            Position = _start ?? Position;
             return;
         }
 
@@ -33,7 +27,6 @@ public class TextIndicatorComponent : TextboxComponent
         Position = _movement.Advance(deltaTime);
 
         TextColor = _baseColor;
-        //TextColor = _baseColor.WithAlpha(_fade?.Advance(deltaTime) ?? 1.0f);
     }
 
     public void Play(string label, Color? color = null)
@@ -41,13 +34,7 @@ public class TextIndicatorComponent : TextboxComponent
         _baseColor = color ?? _baseColor;
         Label = label;
 
-        // TODO: Fix the real bug, but this workaround looks.... ok for now.
-        _movement = Position.SpeedTween(new(Position.X, Position.Y - 50f), 30f);
-        //_fade = FadeIn.HasValue || DelayFadeOut.HasValue || FadeOut.HasValue
-        //    ? new MultiTweenF(
-        //        new TimeTween(0f, 10f, FadeIn ?? TimeSpan.Zero), 
-        //        new TimeTween(10f, 10f, DelayFadeOut ?? TimeSpan.Zero), 
-        //        new TimeTween(10f, 0f, FadeOut ?? TimeSpan.Zero))
-        //    : null;
+        _start = Position;
+        _movement = Position.SpeedTween(new(Position.X, Position.Y - 40f), 30f);
     }
 }
