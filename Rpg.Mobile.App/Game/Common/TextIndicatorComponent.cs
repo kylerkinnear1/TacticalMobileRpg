@@ -21,7 +21,9 @@ public class TextIndicatorComponent : TextboxComponent
 
     public override void Update(float deltaTime)
     {
-        if (_movement == null || _movement.IsComplete || (_fade != null && _fade.IsComplete))
+        if (
+            _movement == null || _movement.IsComplete || 
+            (_fade != null && _fade.IsComplete))
         {
             Visible = false;
             return;
