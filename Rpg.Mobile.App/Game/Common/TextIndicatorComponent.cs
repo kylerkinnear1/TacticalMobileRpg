@@ -31,8 +31,9 @@ public class TextIndicatorComponent : TextboxComponent
 
         Visible = true;
         Position = _movement.Advance(deltaTime);
-        
-        TextColor = _baseColor.WithAlpha(_fade?.Advance(deltaTime) ?? 1.0f);
+
+        TextColor = _baseColor;
+        //TextColor = _baseColor.WithAlpha(_fade?.Advance(deltaTime) ?? 1.0f);
     }
 
     public void Play(string label, Color? color = null)
@@ -41,12 +42,12 @@ public class TextIndicatorComponent : TextboxComponent
         Label = label;
 
         // TODO: Fix the real bug, but this workaround looks.... ok for now.
-        _movement = Position.SpeedTween(new(Position.X, Position.Y - 1000f), 30f);
-        _fade = FadeIn.HasValue || DelayFadeOut.HasValue || FadeOut.HasValue
-            ? new MultiTweenF(
-                new TimeTween(0f, 10f, FadeIn ?? TimeSpan.Zero), 
-                new TimeTween(10f, 10f, DelayFadeOut ?? TimeSpan.Zero), 
-                new TimeTween(10f, 0f, FadeOut ?? TimeSpan.Zero))
-            : null;
+        _movement = Position.SpeedTween(new(Position.X, Position.Y - 50f), 30f);
+        //_fade = FadeIn.HasValue || DelayFadeOut.HasValue || FadeOut.HasValue
+        //    ? new MultiTweenF(
+        //        new TimeTween(0f, 10f, FadeIn ?? TimeSpan.Zero), 
+        //        new TimeTween(10f, 10f, DelayFadeOut ?? TimeSpan.Zero), 
+        //        new TimeTween(10f, 0f, FadeOut ?? TimeSpan.Zero))
+        //    : null;
     }
 }
