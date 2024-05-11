@@ -3,7 +3,6 @@
 public class TimeTween : IMoveStartTween<float>
 {
     public bool IsComplete => LastTick.HasValue && StartTick.HasValue && LastTick - StartTick >= TargetDuration;
-    public TimeSpan? CurrentDuration => StartTick.HasValue ? DateTime.Now - StartTick.Value : null;
     public DateTime? StartTick { get; private set; }
     public DateTime? LastTick { get; private set; }
     
@@ -20,8 +19,8 @@ public class TimeTween : IMoveStartTween<float>
 
         LastTick = DateTime.Now;
 
-        var percent = CurrentDuration!.Value.TotalSeconds / TargetDuration.TotalSeconds;
-        var value = (End - Start) * (float)percent;
+        var percent = (float)(LastTick.Value - StartTick.Value).TotalSeconds;
+        var value = (End - Start) * percent;
         return Math.Min(1.0f * End, value);
     }
 

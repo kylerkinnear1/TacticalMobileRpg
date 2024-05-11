@@ -8,8 +8,8 @@ public class TextIndicatorComponent : TextboxComponent
     private ITween<PointF>? _movement;
 
     public TimeSpan? FadeIn { get; set; } = TimeSpan.FromSeconds(0.25f);
-    public TimeSpan? DelayFadeOut { get; set; } = TimeSpan.FromSeconds(20f);
-    public TimeSpan? FadeOut { get; set; } = TimeSpan.FromSeconds(3f);
+    public TimeSpan? DelayFadeOut { get; set; } = TimeSpan.FromSeconds(4f);
+    public TimeSpan? FadeOut { get; set; } = TimeSpan.FromSeconds(1f);
 
     private MultiTween<float>? _fade;
 
