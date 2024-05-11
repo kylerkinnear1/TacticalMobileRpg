@@ -3,6 +3,7 @@ using Rpg.Mobile.App.Game.Battling.Gamemaster.Handlers;
 using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Tweening;
 using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
@@ -228,7 +229,7 @@ public class BattleComponent : ComponentBase
     private void UnitMoved(UnitMovedEvent evnt)
     {
         var finalTarget = GetPositionForTile(evnt.Tile, CurrentUnit.Bounds.Size);
-        _unitTween = CurrentUnit.Position.TweenTo(500f, finalTarget);
+        _unitTween = CurrentUnit.Position.SpeedTween(500f, finalTarget);
     }
 }
 

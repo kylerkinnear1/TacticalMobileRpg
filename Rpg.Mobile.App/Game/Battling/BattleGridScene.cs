@@ -2,6 +2,7 @@
 using Rpg.Mobile.App.Game.Battling.Gamemaster;
 using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Tweening;
 
 namespace Rpg.Mobile.App.Game.Battling;
 
@@ -63,7 +64,7 @@ public class BattleGridScene : SceneBase
         var xPercent = touch.Position.X / _miniMap.Bounds.Width;
         var yPercent = touch.Position.Y / _miniMap.Bounds.Height;
         var target = new PointF(ActiveCamera.Size.Width * xPercent * 2, ActiveCamera.Size.Height * yPercent * 2);
-        _cameraTween = ActiveCamera.Offset.TweenTo(target, 1000f);
+        _cameraTween = ActiveCamera.Offset.SpeedTween(target, 1000f);
     }
 
     private void SaveStateClicked(IEnumerable<PointF> touches) => Bus.Global.Publish(new SaveStateClickedEvent());
