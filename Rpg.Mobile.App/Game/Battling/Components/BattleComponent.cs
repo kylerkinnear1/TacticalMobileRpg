@@ -172,6 +172,7 @@ public class BattleComponent : ComponentBase
         if (_battleService.IsValidAttackTargetTile(evnt.Tile))
         {
             _attackTargetHighlight.Center = evnt.Tile;
+            _attackTargetHighlight.Range = 1;
             _attackTargetHighlight.Visible = true;
         }
         else if (_battleService.IsValidMagicTargetTile(evnt.Tile))
