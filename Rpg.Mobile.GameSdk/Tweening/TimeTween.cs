@@ -14,14 +14,14 @@ public class TimeTween : IMoveStartTween<float>
     {
         StartTick ??= DateTime.Now;
         LastTick ??= DateTime.Now;
-        if (IsComplete)
+        if (LastTick - StartTick >= TargetDuration)
             return End;
 
         LastTick = DateTime.Now;
 
         var percent = (float)(LastTick.Value - StartTick.Value).TotalSeconds;
-        var value = (End - Start) * percent;
-        return Math.Min(1.0f * End, value);
+        var value = (End >= Start ? End - Start : Start - End) * percent;
+        return value;
     }
 
     public TimeTween(float start, float end, TimeSpan duration)

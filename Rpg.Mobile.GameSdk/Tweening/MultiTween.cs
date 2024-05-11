@@ -2,34 +2,23 @@
 
 namespace Rpg.Mobile.GameSdk.Tweening;
 
-public class MultiTween : MultiTween<PointF>
-{
-    public MultiTween(IMoveStartTween<PointF> initial) : base(initial)
-    {
-    }
-
-    public MultiTween(IEnumerable<IMoveStartTween<PointF>> steps) : base(steps)
-    {
-    }
-}
-
-public class MultiTween<T> : ITween<T>
+public class MultiTween : ITween<PointF>
 {
     private int _index = 0;
-    public List<IMoveStartTween<T>> Steps { get; } = new();
-    public IMoveStartTween<T> CurrentTween => IsComplete ? Steps.Last() : Steps[_index];
-    public T? Last { get; private set; }
+    public List<IMoveStartTween<PointF>> Steps { get; } = new();
+    public IMoveStartTween<PointF> CurrentTween => IsComplete ? Steps.Last() : Steps[_index];
+    public PointF? Last { get; private set; }
 
-    public MultiTween(IMoveStartTween<T> initial) => Steps.Add(initial);
-    public MultiTween(IEnumerable<IMoveStartTween<T>> steps) => Steps.AddRange(steps);
+    public MultiTween(IMoveStartTween<PointF> initial) => Steps.Add(initial);
+    public MultiTween(IEnumerable<IMoveStartTween<PointF>> steps) => Steps.AddRange(steps);
 
     public bool IsComplete => _index >= Steps.Count;
 
-    public T GetNext(float deltaTime)
+    public PointF GetNext(float deltaTime)
     {
         if (IsComplete)
-            return Last ?? default!;
-
+            return Last ?? PointF.Zero;
+        
         var lastTween = CurrentTween;
         if (!lastTween.IsComplete)
         {
@@ -41,9 +30,33 @@ public class MultiTween<T> : ITween<T>
         return CurrentTween.Advance(deltaTime);
     }
 
-    public T Advance(float deltaTime)
+    public PointF Advance(float deltaTime)
     {
         Last = GetNext(deltaTime);
+        return Last ?? PointF.Zero;
+    }
+}
+
+public class MultiTweenF : ITween<float>
+{
+    private int _index = 0;
+    public ITween<float>[] Steps { get; }
+    public ITween<float> CurrentTween => IsComplete ? Steps.Last() : Steps[_index];
+    public float Last { get; private set; } = default;
+
+    public MultiTweenF(params ITween<float>[] steps) => Steps = steps;
+
+    public bool IsComplete => Steps.Last().IsComplete;
+
+    public float Advance(float deltaTime)
+    {
+        if (IsComplete)
+            return Last;
+
+        if (CurrentTween.IsComplete)
+            _index++;
+
+        Last = CurrentTween.Advance(deltaTime);
         return Last;
     }
 }

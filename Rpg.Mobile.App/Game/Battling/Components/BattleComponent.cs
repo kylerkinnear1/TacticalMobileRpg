@@ -152,6 +152,8 @@ public class BattleComponent : ComponentBase
 
         var point = _state.UnitCoordinates[component.State];
         component.Position = GetPositionForTile(point, component.Bounds.Size);
+
+        ShowMessage("test");
     }
 
     private void TileClicked(TileClickedEvent evnt)

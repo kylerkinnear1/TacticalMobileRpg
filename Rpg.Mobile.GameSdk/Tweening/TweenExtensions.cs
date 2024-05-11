@@ -39,13 +39,4 @@ public static class TweenExtensions
         observer.AddOnComplete(handler);
         return observer;
     }
-
-    public static TimeTween TimeTween(this float start, float end, TimeSpan duration) =>
-        new(start, end, duration);
-
-    public static MultiTween<float> TimeTween(this TimeTween start, float end, TimeSpan duration) =>
-        new(new List<IMoveStartTween<float>>
-        {
-            start, new TimeTween(start.Start, end, duration)
-        });
 }
