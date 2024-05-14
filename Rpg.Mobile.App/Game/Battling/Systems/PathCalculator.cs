@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.Battling.System;
+namespace Rpg.Mobile.App.Game.Battling.Systems;
 
 public interface IPathCalculator
 {

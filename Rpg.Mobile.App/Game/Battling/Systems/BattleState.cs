@@ -1,9 +1,9 @@
-﻿using Rpg.Mobile.App.Game.Battling.System.Handlers;
+﻿using Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.Battling.System;
+namespace Rpg.Mobile.App.Game.Battling.Systems;
 
 public enum BattleStep
 {

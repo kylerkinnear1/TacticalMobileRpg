@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.App.Game.Battling.System.BattleStates;
+﻿namespace Rpg.Mobile.App.Game.Battling.Systems.BattleStates;
 
 public class PlacingUnitState
 {

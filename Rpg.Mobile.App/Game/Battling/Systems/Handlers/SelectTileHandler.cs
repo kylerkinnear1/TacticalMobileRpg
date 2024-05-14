@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.Battling.System.Handlers;
+namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class SelectTileHandler
 {

@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk.Core;
 
-namespace Rpg.Mobile.App.Game.Battling.System.Handlers;
+namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class ChangeBattleStateHandler
 {
