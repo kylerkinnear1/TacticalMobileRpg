@@ -1,5 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
-using Rpg.Mobile.GameSdk.Extensions;
+using Rpg.Mobile.GameSdk.Images;
 
 namespace Rpg.Mobile.GameSdk.Tweening;
 

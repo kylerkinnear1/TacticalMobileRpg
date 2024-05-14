@@ -1,5 +1,5 @@
-﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
-using Rpg.Mobile.GameSdk;
+﻿using Rpg.Mobile.App.Game.Battling.System;
+using Rpg.Mobile.GameSdk.Core;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 

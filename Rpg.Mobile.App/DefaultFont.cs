@@ -1,6 +1,4 @@
-﻿using Font = Microsoft.Maui.Graphics.Font;
-
-namespace Rpg.Mobile.App;
+﻿namespace Rpg.Mobile.App;
 
 public class DefaultFont
 {

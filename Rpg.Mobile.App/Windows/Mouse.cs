@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Inputs;
 
 namespace Rpg.Mobile.App.Windows;
 

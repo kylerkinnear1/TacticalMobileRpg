@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.GameSdk;
+﻿using Rpg.Mobile.GameSdk.Images;
 
 namespace Rpg.Mobile.App.Game;
 

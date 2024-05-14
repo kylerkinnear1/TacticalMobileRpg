@@ -1,5 +1,4 @@
-﻿using Rpg.Mobile.GameSdk;
-using Font = Microsoft.Maui.Graphics.Font;
+﻿using Rpg.Mobile.GameSdk.Core;
 
 namespace Rpg.Mobile.App.Game.Common;
 

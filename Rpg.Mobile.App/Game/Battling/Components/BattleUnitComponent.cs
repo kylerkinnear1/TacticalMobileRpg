@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
-using Rpg.Mobile.GameSdk;
-using Font = Microsoft.Maui.Graphics.Font;
+﻿using Rpg.Mobile.App.Game.Battling.System;
+using Rpg.Mobile.GameSdk.Core;
+
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 

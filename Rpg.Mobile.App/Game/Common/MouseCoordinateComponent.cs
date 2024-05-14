@@ -1,5 +1,5 @@
-﻿using Rpg.Mobile.GameSdk;
-using Rpg.Mobile.GameSdk.Extensions;
+﻿using Rpg.Mobile.GameSdk.Inputs;
+using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.Common;
 

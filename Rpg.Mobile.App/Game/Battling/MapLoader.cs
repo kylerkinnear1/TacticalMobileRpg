@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Rpg.Mobile.App.Game.Battling.Gamemaster;
+using Rpg.Mobile.App.Game.Battling.System;
 using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.Battling;
 

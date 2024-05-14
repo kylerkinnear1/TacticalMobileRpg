@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.Battling;
 using Rpg.Mobile.App.Windows;
-using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Core;
 
 namespace Rpg.Mobile.App;
 

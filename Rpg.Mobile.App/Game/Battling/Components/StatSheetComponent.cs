@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
+﻿using Rpg.Mobile.App.Game.Battling.System;
 using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Core;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 

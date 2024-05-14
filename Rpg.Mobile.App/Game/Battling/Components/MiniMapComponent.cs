@@ -1,5 +1,5 @@
-﻿using Rpg.Mobile.GameSdk;
-using Rpg.Mobile.GameSdk.Extensions;
+﻿using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.Images;
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
 

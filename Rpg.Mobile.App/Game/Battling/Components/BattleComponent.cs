@@ -1,8 +1,8 @@
-﻿using Rpg.Mobile.App.Game.Battling.Gamemaster;
-using Rpg.Mobile.App.Game.Battling.Gamemaster.Handlers;
+﻿using Rpg.Mobile.App.Game.Battling.System;
+using Rpg.Mobile.App.Game.Battling.System.Handlers;
 using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Infrastructure;
-using Rpg.Mobile.GameSdk;
+using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Tweening;
 using static Rpg.Mobile.App.Game.Sprites;
 
