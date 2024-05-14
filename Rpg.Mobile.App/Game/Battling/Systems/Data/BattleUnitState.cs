@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.App.Game.Battling.Systems;
+﻿namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
 
 public enum BattleUnitType
 {
@@ -8,7 +8,7 @@ public enum BattleUnitType
 public class BattleUnitState
 {
     public int PlayerId { get; set; } = 0;
-    
+
     public int RemainingHealth { get; set; } = 12;
     public int RemainingMp { get; set; } = 0;
     public BattleUnitStats Stats { get; set; } = new();

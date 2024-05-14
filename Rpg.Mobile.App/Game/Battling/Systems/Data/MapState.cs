@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.Battling.Systems;
+namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
 
 public enum TerrainType
 {
@@ -31,7 +31,7 @@ public class MapState
         List<BattleUnitType> team1,
         List<BattleUnitType> team2,
         List<Point> player1Origins,
-        List<Point> player2Origins, 
+        List<Point> player2Origins,
         List<BattleUnitStats> baseStats)
     {
         Tiles = tiles;

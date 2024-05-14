@@ -1,4 +1,6 @@
-﻿namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
+﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
+
+namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class TargetSpellHandler
 {

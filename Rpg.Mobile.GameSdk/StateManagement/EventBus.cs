@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Rpg.Mobile.GameSdk.Core;
+namespace Rpg.Mobile.GameSdk.StateManagement;
 
 public interface IEvent
 {

@@ -1,21 +1,6 @@
-﻿namespace Rpg.Mobile.App.Game.Battling.Systems;
+﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
 
-public enum SpellType
-{
-    Fire1, 
-    Fire2,
-    Cure1
-}
-
-public record SpellState(
-    SpellType Type,
-    string Name,
-    int MpCost,
-    int MinRange,
-    int MaxRange,
-    bool TargetsFriendlies,
-    bool TargetsEnemies,
-    int Aoe = 1);
+namespace Rpg.Mobile.App.Game.Battling.Systems;
 
 public static class SpellPresets
 {

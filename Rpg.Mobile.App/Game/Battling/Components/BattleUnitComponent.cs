@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.GameSdk.Core;
+﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
+using Rpg.Mobile.GameSdk.Core;
 
 
 namespace Rpg.Mobile.App.Game.Battling.Components;
