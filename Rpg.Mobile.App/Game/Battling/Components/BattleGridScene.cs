@@ -1,14 +1,14 @@
-﻿using Rpg.Mobile.App.Game.Battling.Components;
-using Rpg.Mobile.App.Game.Battling.Systems;
+﻿using Rpg.Mobile.App.Game.Battling.Systems;
 using Rpg.Mobile.App.Game.Battling.Systems.Calculators;
 using Rpg.Mobile.App.Game.Battling.Systems.Data;
 using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Inputs;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
 
-namespace Rpg.Mobile.App.Game.Battling;
+namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class BattleGridScene : SceneBase
 {
@@ -25,9 +25,10 @@ public class BattleGridScene : SceneBase
     public BattleGridScene(IMouse mouse)
     {
         var mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.json");
-        var mapLoader = new MapLoader();
-        var map = mapLoader.Load(mapPath);
-        var battleState = new BattleState(map);
+        var jsonLoader = new JsonFileReader();
+        var mapJson = jsonLoader.ReadFromFile<MapJson>(mapPath);
+        var mapState = mapJson.ToState();
+        var battleState = new BattleState(mapState);
         var battleService = new BattleStateService(battleState, new PathCalculator());
 
         Add(_battle = new(new(0f, 0f), battleState, battleService));
@@ -53,8 +54,6 @@ public class BattleGridScene : SceneBase
         Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
 
         ActiveCamera.Offset = new PointF(80f, 80f);
-
-        //battleService.StartBattle();
     }
 
     public override void Update(float deltaTime)

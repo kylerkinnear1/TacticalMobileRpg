@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.GameSdk.Utilities;
+﻿using Rpg.Mobile.GameSdk.StateManagement;
+using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
 
@@ -40,5 +41,39 @@ public class MapState
         Player1Origins = player1Origins;
         Player2Origins = player2Origins;
         BaseStats = baseStats;
+    }
+}
+
+
+public record Coordinate(int X, int Y);
+public record MapJson(
+    int RowCount,
+    int ColumnCount,
+    List<BattleUnitType> Player1Team,
+    List<BattleUnitType> Player2Team,
+    List<Coordinate> Player1Origins,
+    List<Coordinate> Player2Origins,
+    List<Coordinate> RockPositions,
+    List<BattleUnitStats> BaseStats);
+
+public static class MapStateMapper
+{
+    public static MapState ToState(this MapJson mapJson)
+    {
+        var tiles = new Array2d<TileState>(mapJson.RowCount, mapJson.ColumnCount);
+        for (var i = 0; i < tiles.Data.Length; i++)
+            tiles[i] = new();
+
+        mapJson.RockPositions.ForEach(x => tiles[x.X, x.Y].Type = TerrainType.Rock);
+
+        var state = new MapState(
+            tiles,
+            mapJson.Player1Team,
+            mapJson.Player2Team,
+            mapJson.Player1Origins.Select(x => new Point(x.X, x.Y)).ToList(),
+            mapJson.Player2Origins.Select(x => new Point(x.X, x.Y)).ToList(),
+            mapJson.BaseStats);
+
+        return state;
     }
 }

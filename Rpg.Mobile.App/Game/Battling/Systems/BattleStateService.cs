@@ -1,6 +1,7 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Systems.Calculators;
 using Rpg.Mobile.App.Game.Battling.Systems.Data;
 using Rpg.Mobile.App.Game.Battling.Systems.Handlers;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.Battling.Systems;
 
@@ -46,3 +47,6 @@ public class BattleStateService
     public bool IsValidMagicTargetTile(Point tile) => _validTargetCalculator.IsValidMagicTargetTile(tile);
     public bool IsValidAttackTargetTile(Point tile) => _validTargetCalculator.IsValidAttackTargetTile(tile);
 }
+
+public record LoadStateClickedEvent : IEvent;
+public record SaveStateClickedEvent : IEvent;
