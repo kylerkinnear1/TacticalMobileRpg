@@ -24,14 +24,14 @@ public class BattleStateService
         _state = state;
         _path = path;
 
+
+        _validTargetCalculator = new(_state);
         _changeStep = new(_state, _path);
         _advanceUnit = new(_state, _changeStep);
         _startBattle = new(_state, _advanceUnit);
         _placeUnit = new(_state, _startBattle);
-        _selectTile = new(_state, _path, _placeUnit, _advanceUnit);
+        _selectTile = new(_state, _path, _placeUnit, _advanceUnit, _validTargetCalculator);
         _targetSpell = new(_state, _changeStep);
-        
-        _validTargetCalculator = new ValidTargetCalculator(_state);
     }
 
     public void PlaceUnit(Point tile) => _placeUnit.Handle(tile);

@@ -75,7 +75,7 @@ public class BattleComponent : ComponentBase
         Bus.Global.Subscribe<ActiveUnitChangedEvent>(ActiveUnitChanged);
         Bus.Global.Subscribe<UnitMovedEvent>(UnitMoved);
         Bus.Global.Subscribe<UnitPlacedEvent>(UnitPlaced);
-        Bus.Global.Subscribe<NotEnoughMpEvent>(x => ShowMessage("Not enough MP."));
+        Bus.Global.Subscribe<NotEnoughMpEvent>(_ => ShowMessage("Not enough MP."));
     }
 
     public override void Update(float deltaTime)
@@ -228,6 +228,8 @@ public class BattleComponent : ComponentBase
         var previousComponent = _unitComponents[evnt.PreviousUnit];
         var coordinate = _state.UnitCoordinates[evnt.PreviousUnit];
         previousComponent.Position = GetPositionForTile(coordinate, previousComponent.Bounds.Size);
+
+        _attackTargetHighlight.Range = 1;
     }
 
     private void UnitMoved(UnitMovedEvent evnt)

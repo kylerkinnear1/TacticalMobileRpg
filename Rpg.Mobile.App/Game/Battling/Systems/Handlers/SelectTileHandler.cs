@@ -11,17 +11,20 @@ public class SelectTileHandler
     private readonly IPathCalculator _path;
     private readonly PlaceUnitHandler _placeUnit;
     private readonly AdvanceToNextUnitHandler _advanceUnit;
+    private readonly ValidTargetCalculator _targetCalculator;
 
     public SelectTileHandler(
         BattleState state,
         IPathCalculator path,
         PlaceUnitHandler placeUnit,
-        AdvanceToNextUnitHandler advanceUnit)
+        AdvanceToNextUnitHandler advanceUnit,
+        ValidTargetCalculator targetCalculator)
     {
         _state = state;
         _path = path;
         _placeUnit = placeUnit;
         _advanceUnit = advanceUnit;
+        _targetCalculator = targetCalculator;
     }
 
     public void Handle(Point tile)
@@ -39,7 +42,7 @@ public class SelectTileHandler
             return;
         }
 
-        if (_state.Step == BattleStep.SelectingAttackTarget)
+        if (_targetCalculator.IsValidAttackTargetTile(tile))
         {
             var enemy = _state.UnitsAt(tile).FirstOrDefault(x => x.PlayerId != _state.CurrentUnit.PlayerId);
             if (enemy is null)
@@ -50,10 +53,9 @@ public class SelectTileHandler
             return;
         }
 
-        if (_state.Step == BattleStep.SelectingMagicTarget && _state.CurrentSpell is not null)
+        if (_targetCalculator.IsValidMagicTargetTile(tile))
         {
             CastSpell(_state.CurrentSpell, tile);
-            return;
         }
     }
 

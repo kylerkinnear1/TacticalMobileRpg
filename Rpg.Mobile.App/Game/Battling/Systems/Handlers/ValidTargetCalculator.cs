@@ -10,6 +10,9 @@ public class ValidTargetCalculator
 
     public bool IsValidMagicTargetTile(Point tile)
     {
+        if (_state.CurrentSpell is null || !_state.SpellTargetTiles.Contains(tile))
+            return false;
+
         var hoveredUnit = _state.UnitsAt(tile).FirstOrDefault();
         return _state.Step == BattleStep.SelectingMagicTarget &&
                hoveredUnit != null &&
@@ -19,6 +22,9 @@ public class ValidTargetCalculator
 
     public bool IsValidAttackTargetTile(Point tile)
     {
+        if (!_state.AttackTargetTiles.Contains(tile))
+            return false;
+
         var hoveredUnit = _state.UnitsAt(tile).FirstOrDefault();
         return _state.Step == BattleStep.SelectingAttackTarget &&
                hoveredUnit != null &&
