@@ -1,12 +1,12 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
 
-namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
+namespace Rpg.Mobile.App.Game.Battling.Systems.Calculators;
 
 public class ValidTargetCalculator
 {
-    private readonly BattleState _state;
+    private readonly BattleData _state;
 
-    public ValidTargetCalculator(BattleState state) => _state = state;
+    public ValidTargetCalculator(BattleData state) => _state = state;
 
     public bool IsValidMagicTargetTile(Point tile)
     {

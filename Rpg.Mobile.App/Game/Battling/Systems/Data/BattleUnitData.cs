@@ -5,17 +5,17 @@ public enum BattleUnitType
     Warrior, Healer, Mage, Archer, Ninja
 }
 
-public class BattleUnitState
+public class BattleUnitData
 {
     public int PlayerId { get; set; } = 0;
 
     public int RemainingHealth { get; set; } = 12;
     public int RemainingMp { get; set; } = 0;
     public BattleUnitStats Stats { get; set; } = new();
-    public List<SpellState> Spells { get; set; } = new();
+    public List<SpellData> Spells { get; set; } = new();
 
-    public BattleUnitState() { }
-    public BattleUnitState(
+    public BattleUnitData() { }
+    public BattleUnitData(
         int playerId,
         BattleUnitStats stats)
     {

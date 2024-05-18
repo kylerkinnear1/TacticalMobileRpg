@@ -7,14 +7,14 @@ namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class SelectTileHandler
 {
-    private readonly BattleState _state;
+    private readonly BattleData _state;
     private readonly IPathCalculator _path;
     private readonly PlaceUnitHandler _placeUnit;
     private readonly AdvanceToNextUnitHandler _advanceUnit;
     private readonly ValidTargetCalculator _targetCalculator;
 
     public SelectTileHandler(
-        BattleState state,
+        BattleData state,
         IPathCalculator path,
         PlaceUnitHandler placeUnit,
         AdvanceToNextUnitHandler advanceUnit,
@@ -68,7 +68,7 @@ public class SelectTileHandler
         return Math.Max(1, damage);
     }
 
-    private void CastSpell(SpellState spell, Point target)
+    private void CastSpell(SpellData spell, Point target)
     {
         var hits = _path
             .CreateFanOutArea(target, _state.Map.Corner, spell.MinRange - 1, spell.MaxRange - 1)
@@ -84,7 +84,7 @@ public class SelectTileHandler
         CastSpell(spell, targets.Select(x => x.Key));
     }
 
-    private void CastSpell(SpellState spell, IEnumerable<BattleUnitState> targets)
+    private void CastSpell(SpellData spell, IEnumerable<BattleUnitData> targets)
     {
         if (_state.CurrentUnit.RemainingMp < spell.MpCost)
         {
@@ -97,7 +97,7 @@ public class SelectTileHandler
         DamageUnits(targets, damage);
     }
 
-    private int CalcSpellDamage(SpellState spell) =>
+    private int CalcSpellDamage(SpellData spell) =>
         spell.Type switch
         {
             SpellType.Fire1 => Rng.Instance.Int(6, 8),
@@ -106,10 +106,10 @@ public class SelectTileHandler
             _ => throw new ArgumentException()
         };
 
-    private void DamageUnits(IEnumerable<BattleUnitState> units, int damage)
+    private void DamageUnits(IEnumerable<BattleUnitData> units, int damage)
     {
-        var defeatedUnits = new List<BattleUnitState>();
-        var damagedUnits = new List<(BattleUnitState, int)>();
+        var defeatedUnits = new List<BattleUnitData>();
+        var damagedUnits = new List<(BattleUnitData, int)>();
         foreach (var unit in units)
         {
             unit.RemainingHealth = damage >= 0

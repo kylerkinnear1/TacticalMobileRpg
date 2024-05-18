@@ -7,7 +7,7 @@ namespace Rpg.Mobile.App.Game.Battling.Systems;
 
 public class BattleStateService
 {
-    private readonly BattleState _state;
+    private readonly BattleData _state;
     private readonly IPathCalculator _path;
     private readonly StartBattleHandler _startBattle;
     private readonly AdvanceToNextUnitHandler _advanceUnit;
@@ -17,9 +17,9 @@ public class BattleStateService
     private readonly ValidTargetCalculator _validTargetCalculator;
     private readonly PlaceUnitHandler _placeUnit;
 
-    private BattleUnitState CurrentUnit => _state.TurnOrder[_state.ActiveUnitIndex];
+    private BattleUnitData CurrentUnit => _state.TurnOrder[_state.ActiveUnitIndex];
 
-    public BattleStateService(BattleState state, IPathCalculator path)
+    public BattleStateService(BattleData state, IPathCalculator path)
     {
         _state = state;
         _path = path;
@@ -42,7 +42,7 @@ public class BattleStateService
 
     public void SelectTile(Point tile) => _selectTile.Handle(tile);
 
-    public void TargetSpell(SpellState spell) => _targetSpell.Handle(spell);
+    public void TargetSpell(SpellData spell) => _targetSpell.Handle(spell);
 
     public bool IsValidMagicTargetTile(Point tile) => _validTargetCalculator.IsValidMagicTargetTile(tile);
     public bool IsValidAttackTargetTile(Point tile) => _validTargetCalculator.IsValidAttackTargetTile(tile);

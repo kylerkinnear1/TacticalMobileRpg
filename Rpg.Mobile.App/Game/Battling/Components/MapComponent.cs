@@ -6,14 +6,14 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 public class MapComponent : ComponentBase
 {
     public const int TileSize = 64;
-    public MapState State { get; set; }
+    public MapData State { get; set; }
 
     public IImage GrassImage { get; set; } = Sprites.Images.Grass03;
     public IImage RockImage { get; set; } = Sprites.Images.Rock01;
 
     private readonly GridComponent _grid;
 
-    public MapComponent(MapState state) 
+    public MapComponent(MapData state) 
         : base(new(0, 0, state.Width * TileSize, state.Height * TileSize))
     {
         State = state;

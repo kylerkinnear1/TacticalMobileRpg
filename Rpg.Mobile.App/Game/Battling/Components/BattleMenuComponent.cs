@@ -8,9 +8,9 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 public class BattleMenuComponent : MenuComponent
 {
     private readonly BattleStateService _battleService;
-    private readonly BattleState _state;
+    private readonly BattleData _state;
 
-    public BattleMenuComponent(BattleStateService battleService, BattleState state, RectF bounds) : base(bounds)
+    public BattleMenuComponent(BattleStateService battleService, BattleData state, RectF bounds) : base(bounds)
     {
         _state = state;
         _battleService = battleService;

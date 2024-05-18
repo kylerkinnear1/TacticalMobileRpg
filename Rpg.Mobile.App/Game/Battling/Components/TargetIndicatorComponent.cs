@@ -17,9 +17,9 @@ public class TargetIndicatorComponent : ComponentBase
     public Color StrokeColor { get; set; } = Colors.White;
 
     private readonly List<RectF> _tiles = new();
-    private readonly MapState _map;
+    private readonly MapData _map;
 
-    public TargetIndicatorComponent(MapState map, int tileSize, RectF bounds, IPathCalculator path) : base(bounds)
+    public TargetIndicatorComponent(MapData map, int tileSize, RectF bounds, IPathCalculator path) : base(bounds)
     {
         _map = map;
         _path = path;

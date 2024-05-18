@@ -7,10 +7,10 @@ namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class ChangeBattleStateHandler
 {
-    private readonly BattleState _state;
+    private readonly BattleData _state;
     private readonly IPathCalculator _path;
 
-    public ChangeBattleStateHandler(BattleState state, IPathCalculator path)
+    public ChangeBattleStateHandler(BattleData state, IPathCalculator path)
     {
         _state = state;
         _path = path;

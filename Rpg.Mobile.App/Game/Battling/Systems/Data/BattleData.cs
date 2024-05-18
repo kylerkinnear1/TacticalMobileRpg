@@ -1,6 +1,4 @@
-﻿using Rpg.Mobile.App.Infrastructure;
-using Rpg.Mobile.GameSdk.StateManagement;
-using Rpg.Mobile.GameSdk.Utilities;
+﻿using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
 
@@ -13,39 +11,39 @@ public enum BattleStep
     SelectingMagicTarget
 }
 
-public class BattleState
+public class BattleData
 {
-    public MapState Map { get; set; }
+    public MapData Map { get; set; }
 
     public int CurrentPlaceOrder { get; set; } = 0;
-    public List<BattleUnitState> PlaceOrder { get; set; } = new();
-    public List<BattleUnitState> TurnOrder { get; set; } = new();
-    public Dictionary<BattleUnitState, Point> UnitCoordinates { get; set; } = new();
+    public List<BattleUnitData> PlaceOrder { get; set; } = new();
+    public List<BattleUnitData> TurnOrder { get; set; } = new();
+    public Dictionary<BattleUnitData, Point> UnitCoordinates { get; set; } = new();
     public int ActiveUnitIndex { get; set; } = -1;
     public Point ActiveUnitStartPosition { get; set; } = Point.Empty;
 
     public BattleStep Step { get; set; } = BattleStep.Setup;
-    public SpellState? CurrentSpell { get; set; }
+    public SpellData? CurrentSpell { get; set; }
 
-    public BattleUnitState? CurrentUnit => ActiveUnitIndex >= 0 ? TurnOrder[ActiveUnitIndex] : null;
+    public BattleUnitData? CurrentUnit => ActiveUnitIndex >= 0 ? TurnOrder[ActiveUnitIndex] : null;
     public List<Point> WalkableTiles { get; set; } = new();
     public List<Point> AttackTargetTiles { get; set; } = new();
     public List<Point> SpellTargetTiles { get; set; } = new();
     public HashSet<int> PlayerRerolls { get; set; } = new();
 
-    public IEnumerable<BattleUnitState> UnitsAt(Point tile) =>
+    public IEnumerable<BattleUnitData> UnitsAt(Point tile) =>
         UnitCoordinates.Where(x => x.Value == tile).Select(x => x.Key);
 
-    public BattleState(MapState map)
+    public BattleData(MapData map)
     {
         Map = map;
 
         var team1 = map.Team1
             .Select(x => map.BaseStats.Single(y => x == y.UnitType))
-            .Select(x => new BattleUnitState(0, x));
+            .Select(x => new BattleUnitData(0, x));
         var team2 = map.Team2
             .Select(x => map.BaseStats.Single(y => x == y.UnitType))
-            .Select(x => new BattleUnitState(1, x));
+            .Select(x => new BattleUnitData(1, x));
 
         PlaceOrder = team1.Zip(team2).SelectMany(x => new[] { x.First, x.Second }).ToList();
 
@@ -59,9 +57,9 @@ public class BattleState
 }
 
 public record BattleStartedEvent : IEvent;
-public record ActiveUnitChangedEvent(BattleUnitState? PreviousUnit, BattleUnitState NextUnit) : IEvent;
+public record ActiveUnitChangedEvent(BattleUnitData? PreviousUnit, BattleUnitData NextUnit) : IEvent;
 public record BattleStepChangedEvent(BattleStep Step) : IEvent;
-public record UnitsDefeatedEvent(IEnumerable<BattleUnitState> Defeated) : IEvent;
-public record NotEnoughMpEvent(SpellState Spell) : IEvent;
-public record UnitDamagedEvent(List<(BattleUnitState Unit, int Damage)> Hits) : IEvent;
-public record UnitMovedEvent(BattleUnitState Unit, Point Tile) : IEvent;
+public record UnitsDefeatedEvent(IEnumerable<BattleUnitData> Defeated) : IEvent;
+public record NotEnoughMpEvent(SpellData Spell) : IEvent;
+public record UnitDamagedEvent(List<(BattleUnitData Unit, int Damage)> Hits) : IEvent;
+public record UnitMovedEvent(BattleUnitData Unit, Point Tile) : IEvent;

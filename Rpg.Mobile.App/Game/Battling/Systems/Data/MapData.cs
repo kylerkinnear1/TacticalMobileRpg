@@ -14,7 +14,7 @@ public class TileState
     public TerrainType Type { get; set; } = TerrainType.Grass;
 }
 
-public class MapState
+public class MapData
 {
     public Array2d<TileState> Tiles { get; set; }
     public List<Point> Player1Origins { get; set; }
@@ -27,7 +27,7 @@ public class MapState
     public int Height => Tiles.Height;
     public Point Corner => new(Width, Height);
 
-    public MapState(
+    public MapData(
         Array2d<TileState> tiles,
         List<BattleUnitType> team1,
         List<BattleUnitType> team2,
@@ -58,7 +58,7 @@ public record MapJson(
 
 public static class MapStateMapper
 {
-    public static MapState ToState(this MapJson mapJson)
+    public static MapData ToState(this MapJson mapJson)
     {
         var tiles = new Array2d<TileState>(mapJson.RowCount, mapJson.ColumnCount);
         for (var i = 0; i < tiles.Data.Length; i++)
@@ -66,7 +66,7 @@ public static class MapStateMapper
 
         mapJson.RockPositions.ForEach(x => tiles[x.X, x.Y].Type = TerrainType.Rock);
 
-        var state = new MapState(
+        var state = new MapData(
             tiles,
             mapJson.Player1Team,
             mapJson.Player2Team,

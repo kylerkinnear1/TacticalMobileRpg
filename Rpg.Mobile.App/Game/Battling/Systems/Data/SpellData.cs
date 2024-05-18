@@ -7,7 +7,7 @@ public enum SpellType
     Cure1
 }
 
-public record SpellState(
+public record SpellData(
     SpellType Type,
     string Name,
     int MpCost,

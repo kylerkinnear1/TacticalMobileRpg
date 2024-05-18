@@ -25,10 +25,10 @@ public class BattleComponent : ComponentBase
     private readonly TargetIndicatorComponent _currentHighlightTarget;
     private readonly Sprite _placeUnitSprite;
 
-    private readonly BattleState _state;
+    private readonly BattleData _state;
     private readonly BattleStateService _battleService;
 
-    private Dictionary<BattleUnitState, BattleUnitComponent> _unitComponents = new();
+    private Dictionary<BattleUnitData, BattleUnitComponent> _unitComponents = new();
     private ITween<PointF>? _unitTween;
 
     private BattleUnitComponent? CurrentUnit => _state.CurrentUnit is not null ? _unitComponents[_state.CurrentUnit] : null;
@@ -36,7 +36,7 @@ public class BattleComponent : ComponentBase
     private static RectF CalcBounds(PointF position, int width, int height, float size) =>
         new(position.X, position.Y, width * size, height * size);
 
-    public BattleComponent(PointF location, BattleState battle, BattleStateService battleService) 
+    public BattleComponent(PointF location, BattleData battle, BattleStateService battleService) 
         : base(CalcBounds(location, battle.Map.Width, battle.Map.Height, TileSize))
     {
         _battleService = battleService;
@@ -116,7 +116,7 @@ public class BattleComponent : ComponentBase
 
     public override void Render(ICanvas canvas, RectF dirtyRect) { }
 
-    private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitState state) =>
+    private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitData state) =>
         (state.Stats.UnitType, state.PlayerId) switch
         {
             (BattleUnitType.Archer, 0) => new BattleUnitComponent(Images.ArcherIdle01, state),
@@ -239,4 +239,4 @@ public class BattleComponent : ComponentBase
     }
 }
 
-public record BattleTileHoveredEvent(BattleUnitState? Unit) : IEvent;
+public record BattleTileHoveredEvent(BattleUnitData? Unit) : IEvent;

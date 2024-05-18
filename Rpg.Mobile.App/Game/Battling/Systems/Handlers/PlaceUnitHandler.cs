@@ -5,10 +5,10 @@ namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class PlaceUnitHandler
 {
-    private readonly BattleState _state;
+    private readonly BattleData _state;
     private readonly StartBattleHandler _startBattle;
 
-    public PlaceUnitHandler(BattleState state, StartBattleHandler startBattle)
+    public PlaceUnitHandler(BattleData state, StartBattleHandler startBattle)
     {
         _state = state;
         _startBattle = startBattle;
@@ -37,4 +37,4 @@ public class PlaceUnitHandler
     }
 }
 
-public record UnitPlacedEvent(Point Tile, BattleUnitState Unit) : IEvent;
+public record UnitPlacedEvent(Point Tile, BattleUnitData Unit) : IEvent;

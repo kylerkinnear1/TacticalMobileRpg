@@ -6,10 +6,10 @@ namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class StartBattleHandler
 {
-    private readonly BattleState _state;
+    private readonly BattleData _state;
     private readonly AdvanceToNextUnitHandler _nextUnitHandler;
 
-    public StartBattleHandler(BattleState state, AdvanceToNextUnitHandler nextUnitHandler)
+    public StartBattleHandler(BattleData state, AdvanceToNextUnitHandler nextUnitHandler)
     {
         _state = state;
         _nextUnitHandler = nextUnitHandler;

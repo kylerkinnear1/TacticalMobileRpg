@@ -6,9 +6,9 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class StatSheetComponent : TextboxComponent
 {
-    public BattleUnitState? Unit { get; private set; }
+    public BattleUnitData? Unit { get; private set; }
 
-    public StatSheetComponent(RectF bounds, BattleUnitState? unit = null) : base(bounds, unit is not null ? Format(unit) : "")
+    public StatSheetComponent(RectF bounds, BattleUnitData? unit = null) : base(bounds, unit is not null ? Format(unit) : "")
     {
         Unit = unit;
         BackColor = Colors.Aqua;
@@ -18,7 +18,7 @@ public class StatSheetComponent : TextboxComponent
         Bus.Global.Subscribe<BattleTileHoveredEvent>(x => ChangeUnit(x.Unit));
     }
 
-    public void ChangeUnit(BattleUnitState? unit)
+    public void ChangeUnit(BattleUnitData? unit)
     {
         Unit = unit;
         Label = unit is not null ? Format(unit) : "";
@@ -26,7 +26,7 @@ public class StatSheetComponent : TextboxComponent
         Visible = unit is not null;
     }
 
-    private static string Format(BattleUnitState unit) =>
+    private static string Format(BattleUnitData unit) =>
         string.Join(Environment.NewLine,
             $"PlayerId: {unit.PlayerId}",
             $"Unit Type: {unit.Stats.UnitType}",

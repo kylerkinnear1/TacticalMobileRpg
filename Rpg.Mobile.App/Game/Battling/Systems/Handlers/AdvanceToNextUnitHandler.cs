@@ -7,10 +7,10 @@ namespace Rpg.Mobile.App.Game.Battling.Systems.Handlers;
 
 public class AdvanceToNextUnitHandler
 {
-    private readonly BattleState _state;
+    private readonly BattleData _state;
     private readonly ChangeBattleStateHandler _changeStateHandler;
 
-    public AdvanceToNextUnitHandler(BattleState state, ChangeBattleStateHandler changeStateHandler)
+    public AdvanceToNextUnitHandler(BattleData state, ChangeBattleStateHandler changeStateHandler)
     {
         _state = state;
         _changeStateHandler = changeStateHandler;

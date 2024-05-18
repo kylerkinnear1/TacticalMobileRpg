@@ -28,7 +28,7 @@ public class BattleGridScene : SceneBase
         var jsonLoader = new JsonFileReader();
         var mapJson = jsonLoader.ReadFromFile<MapJson>(mapPath);
         var mapState = mapJson.ToState();
-        var battleState = new BattleState(mapState);
+        var battleState = new BattleData(mapState);
         var battleService = new BattleStateService(battleState, new PathCalculator());
 
         Add(_battle = new(new(0f, 0f), battleState, battleService));

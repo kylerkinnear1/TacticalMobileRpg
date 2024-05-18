@@ -6,10 +6,10 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class BattleUnitComponent : SpriteComponentBase
 {
-    public BattleUnitState State { get; }
+    public BattleUnitData State { get; }
     public BattleUnitHealthBarComponent HealthBar { get; }
 
-    public BattleUnitComponent(IImage sprite, BattleUnitState state) : base(sprite)
+    public BattleUnitComponent(IImage sprite, BattleUnitData state) : base(sprite)
     {
         UpdateScale(1.5f);
         State = state;
@@ -21,11 +21,11 @@ public class BattleUnitComponent : SpriteComponentBase
 
 public class BattleUnitHealthBarComponent : ComponentBase
 {
-    public BattleUnitState State { get; }
+    public BattleUnitData State { get; }
     public Font Font { get; set; } = new("Arial", FontWeights.ExtraBold, FontStyleType.Italic);
     public bool HasGone { get; set; } = false;
 
-    public BattleUnitHealthBarComponent(BattleUnitState state) : base(new(0f, 0f, 30f, 25f))
+    public BattleUnitHealthBarComponent(BattleUnitData state) : base(new(0f, 0f, 30f, 25f))
     {
         State = state;
     }
