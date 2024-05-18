@@ -9,20 +9,20 @@ public interface IState
 
 public interface IStateMachine
 {
-    void ChangeState(IState newState);
-    void Update(float deltaTime);
+    void Change(IState newState);
+    void Execute(float deltaTime);
 }
 
 public class StateMachine : IStateMachine
 {
     private IState? _currentState;
 
-    public void ChangeState(IState newState)
+    public void Change(IState newState)
     {
         _currentState?.Leave();
         _currentState = newState;
         _currentState.Enter();
     }
 
-    public void Update(float deltaTime) => _currentState?.Execute(deltaTime);
+    public void Execute(float deltaTime) => _currentState?.Execute(deltaTime);
 }
