@@ -6,21 +6,24 @@ namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class StatSheetComponent : TextboxComponent
 {
-    public BattleUnitData? Unit { get; private set; }
+    private readonly BattleData _data;
 
-    public StatSheetComponent(RectF bounds, BattleUnitData? unit = null) : base(bounds, unit is not null ? Format(unit) : "")
+    public StatSheetComponent(BattleData data, RectF bounds) : base(bounds, "")
     {
-        Unit = unit;
+        _data = data;
         BackColor = Colors.Aqua;
         TextColor = Colors.Black;
         FontSize = 12f;
 
-        Bus.Global.Subscribe<BattleTileHoveredEvent>(x => ChangeUnit(x.Unit));
+        Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
     }
 
-    public void ChangeUnit(BattleUnitData? unit)
+    private void TileHovered(TileHoveredEvent evnt)
     {
-        Unit = unit;
+        var unit = _data.UnitCoordinates.ContainsValue(evnt.Tile)
+            ? _data.UnitCoordinates.First(x => x.Value == evnt.Tile).Key
+        : null;
+
         Label = unit is not null ? Format(unit) : "";
         BackColor = unit?.PlayerId == 0 ? Colors.Aqua : Colors.Orange;
         Visible = unit is not null;

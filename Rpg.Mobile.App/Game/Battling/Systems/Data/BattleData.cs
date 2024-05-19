@@ -2,15 +2,6 @@
 
 namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
 
-public enum BattleStep
-{
-    Setup,
-    Moving,
-    SelectingSpell,
-    SelectingAttackTarget,
-    SelectingMagicTarget
-}
-
 public class BattleData
 {
     public MapData Map { get; set; }
@@ -22,7 +13,6 @@ public class BattleData
     public int ActiveUnitIndex { get; set; } = -1;
     public Point ActiveUnitStartPosition { get; set; } = Point.Empty;
 
-    public BattleStep Step { get; set; } = BattleStep.Setup;
     public SpellData? CurrentSpell { get; set; }
 
     public BattleUnitData? CurrentUnit => ActiveUnitIndex >= 0 ? TurnOrder[ActiveUnitIndex] : null;
@@ -58,7 +48,6 @@ public class BattleData
 
 public record BattleStartedEvent : IEvent;
 public record ActiveUnitChangedEvent(BattleUnitData? PreviousUnit, BattleUnitData NextUnit) : IEvent;
-public record BattleStepChangedEvent(BattleStep Step) : IEvent;
 public record UnitsDefeatedEvent(IEnumerable<BattleUnitData> Defeated) : IEvent;
 public record NotEnoughMpEvent(SpellData Spell) : IEvent;
 public record UnitDamagedEvent(List<(BattleUnitData Unit, int Damage)> Hits) : IEvent;

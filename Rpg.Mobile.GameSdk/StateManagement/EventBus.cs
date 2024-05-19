@@ -14,19 +14,28 @@ public static class Bus
 
 public class EventBus
 {
-    private readonly ConcurrentDictionary<Type, List<Action<object>>> _notificationHandlers = new();
+    private readonly ConcurrentDictionary<Type, List<ActionHandlerWrapper>> _notificationHandlers = new();
 
     public void Publish<T>(T evnt) where T : IEvent
     {
         if (!_notificationHandlers.TryGetValue(evnt.GetType(), out var handlers))
             return;
 
-        handlers.ForEach(x => x(evnt));
+        handlers.ForEach(x => x.WrappedHandler(evnt));
     }
 
     public void Subscribe<T>(Action<T> handler) where T : IEvent
     {
         var handlers = _notificationHandlers.GetOrAdd(typeof(T), _ => new());
-        handlers.Add(x => handler((T)x));
+        handlers.Add(new ActionHandlerWrapper<T>(handler));
+    }
+
+    public void Unsubscribe<T>(Action<T> handler) where T : IEvent
+    {
+        var handlers = _notificationHandlers.GetOrAdd(typeof(T), _ => new());
+        handlers.RemoveAll(x => ((ActionHandlerWrapper<T>)x).OriginalHandler == handler);
     }
 }
+
+public record ActionHandlerWrapper(Action<object> WrappedHandler);
+public record ActionHandlerWrapper<T>(Action<T> OriginalHandler) : ActionHandlerWrapper(x => OriginalHandler((T)x));

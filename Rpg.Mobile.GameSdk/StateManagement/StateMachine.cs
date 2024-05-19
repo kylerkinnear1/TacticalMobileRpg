@@ -2,9 +2,9 @@
 
 public interface IState
 {
-    public void Enter() { }
+    public void Enter();
     public void Execute(float deltaTime);
-    public void Leave() { }
+    public void Leave();
 }
 
 public interface IStateMachine
