@@ -1,21 +1,50 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Systems.Calculators;
 using Rpg.Mobile.App.Game.Battling.Systems.Data;
+using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.Battling.Components.States;
+namespace Rpg.Mobile.App.Game.Battling.Components.MainBattle.States;
 
 // TODO: look at duplication with attack target state. Combine into 'SelectingTarget' state.
-public class SelectingMagicTargetState : IState
+public class SelectingMagicTargetState : IBattleState
 {
     private readonly BattleData _data;
-    private readonly BattleComponent _component;
+    private readonly MainBattleComponent _component;
     private readonly IPathCalculator _path;
+    private readonly BattleMenuComponent _menu;
 
     public void Enter()
     {
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
+
+        var gridToUnit = _data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
+        var allTargets = _path
+            .CreateFanOutArea(
+               _data.UnitCoordinates[_data.CurrentUnit],
+               _data.Map.Corner,
+               _data.CurrentSpell.MinRange,
+               _data.CurrentSpell.MaxRange)
+            .Where(x =>
+                !gridToUnit.Contains(x) ||
+                (_data.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != _data.CurrentUnit.PlayerId) ||
+                 (_data.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == _data.CurrentUnit.PlayerId))))
+            .ToList();
+
+        _data.SpellTargetTiles.Set(allTargets);
+
+
+        // TODO: Figure out place, this aint it.
+        _menu.SetButtons(_data.CurrentUnit.Spells
+            .Select(x => new ButtonData(x.Name, _ =>
+            {
+                _data.CurrentSpell = x;
+                _changeState.Handle(BattleStep.SelectingMagicTarget);
+            }))
+            .Append(new("Back", _ => _battleService.ChangeBattleState(BattleStep.Moving)))
+            .ToArray());
     }
 
     public void Execute(float deltaTime)
@@ -54,7 +83,7 @@ public class SelectingMagicTargetState : IState
 
         var damage = CalcSpellDamage(spell);
         _data.CurrentUnit.RemainingMp -= spell.MpCost;
-        DamageUnits(targets, damage);
+        Bus.Global.Publish<UnitDamageAssignedEvent>(new(targets, damage));
     }
 
     private int CalcSpellDamage(SpellData spell) =>
@@ -65,39 +94,6 @@ public class SelectingMagicTargetState : IState
             SpellType.Cure1 => -6,
             _ => throw new ArgumentException()
         };
-
-    private void DamageUnits(IEnumerable<BattleUnitData> units, int damage)
-    {
-        var defeatedUnits = new List<BattleUnitData>();
-        var damagedUnits = new List<(BattleUnitData, int)>();
-        foreach (var unit in units)
-        {
-            unit.RemainingHealth = damage >= 0
-                ? Math.Max(unit.RemainingHealth - damage, 0)
-                : Math.Min(unit.Stats.MaxHealth, unit.RemainingHealth - damage);
-
-            damagedUnits.Add((unit, damage));
-
-            if (unit.RemainingHealth <= 0)
-            {
-                defeatedUnits.Add(unit);
-                _data.TurnOrder.Remove(unit);
-                _data.UnitCoordinates.Remove(unit);
-            }
-        }
-
-        if (_data.ActiveUnitIndex >= _data.TurnOrder.Count)
-            _data.ActiveUnitIndex = 0;
-
-        var defeatedComponents = defeatedUnits.Select(x => _component.Units[x]).ToList();
-        foreach (var unit in defeatedComponents)
-        {
-            unit.Visible = false;
-        }
-
-        Bus.Global.Publish(new UnitDamagedEvent(damagedUnits));
-        Bus.Global.Publish(new UnitsDefeatedEvent(defeatedUnits));
-    }
 
     private void TileHovered(TileHoveredEvent evnt)
     {

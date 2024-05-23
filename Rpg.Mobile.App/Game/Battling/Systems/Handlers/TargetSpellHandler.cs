@@ -15,7 +15,6 @@ public class TargetSpellHandler
 
     public void Handle(SpellData spell)
     {
-        _state.CurrentSpell = spell;
-        _changeState.Handle(BattleStep.SelectingMagicTarget);
+        
     }
 }

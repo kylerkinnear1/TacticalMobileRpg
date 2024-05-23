@@ -7,17 +7,21 @@ public interface IState
     public void Leave();
 }
 
-public interface IStateMachine
+public interface IStateMachine : IStateMachine<IState>
 {
-    void Change(IState newState);
     void Execute(float deltaTime);
 }
 
-public class StateMachine : IStateMachine
+public interface IStateMachine<T> where T : class, IState
 {
-    private IState? _currentState;
+    void Change(T newState);
+}
 
-    public void Change(IState newState)
+public class StateMachine<T> : IStateMachine<T> where T : class, IState
+{
+    private T? _currentState;
+
+    public void Change(T newState)
     {
         _currentState?.Leave();
         _currentState = newState;

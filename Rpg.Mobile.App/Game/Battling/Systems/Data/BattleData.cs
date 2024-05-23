@@ -47,7 +47,6 @@ public class BattleData
 }
 
 public record BattleStartedEvent : IEvent;
-public record ActiveUnitChangedEvent(BattleUnitData? PreviousUnit, BattleUnitData NextUnit) : IEvent;
 public record UnitsDefeatedEvent(IEnumerable<BattleUnitData> Defeated) : IEvent;
 public record NotEnoughMpEvent(SpellData Spell) : IEvent;
 public record UnitDamagedEvent(List<(BattleUnitData Unit, int Damage)> Hits) : IEvent;

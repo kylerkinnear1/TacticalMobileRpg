@@ -1,7 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
 using Rpg.Mobile.GameSdk.Core;
 
-
 namespace Rpg.Mobile.App.Game.Battling.Components;
 
 public class BattleUnitComponent : SpriteComponentBase

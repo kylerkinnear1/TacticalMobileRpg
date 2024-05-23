@@ -46,7 +46,7 @@ public class MenuComponent : ComponentBase
         Buttons.Add(button);
     }
 
-    public void SetButtons(params ButtonState[] buttons)
+    public void SetButtons(params ButtonData[] buttons)
     {
         var currentButtons = Buttons.ToList();
         foreach (var button in currentButtons)
@@ -60,4 +60,4 @@ public class MenuComponent : ComponentBase
     }
 }
 
-public record ButtonState(string Label, Action<IEnumerable<PointF>> Handler);
+public record ButtonData(string Label, Action<IEnumerable<PointF>> Handler);

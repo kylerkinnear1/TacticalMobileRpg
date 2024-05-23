@@ -3,17 +3,17 @@ using Rpg.Mobile.App.Infrastructure;
 using Rpg.Mobile.GameSdk.StateManagement;
 using static Rpg.Mobile.App.Game.Sprites;
 
-namespace Rpg.Mobile.App.Game.Battling.Components.States;
+namespace Rpg.Mobile.App.Game.Battling.Components.MainBattle.States;
 
-public class SetupState : IState
+public class SetupState : IBattleState
 {
     private readonly BattleData _data;
-    private readonly BattleComponent _component;
+    private readonly MainBattleComponent _component;
 
     private Point? _lastHoveredTile;
-    private static int TileSize => BattleComponent.TileSize;
+    private static int TileSize => MainBattleComponent.TileSize;
 
-    public SetupState(BattleData data, BattleComponent component)
+    public SetupState(BattleData data, MainBattleComponent component)
     {
         _data = data;
         _component = component;
@@ -42,7 +42,11 @@ public class SetupState : IState
         _component.PlaceUnitSprite.Visible = _lastHoveredTile.HasValue && currentOrigins.Contains(_lastHoveredTile.Value);
     }
 
-    public void Leave() => Bus.Global.Unsubscribe<TileHoveredEvent>(TileHovered);
+    public void Leave()
+    {
+        Bus.Global.Unsubscribe<TileHoveredEvent>(TileHovered);
+        _component.AddChild(_component.DamageIndicator);
+    }
 
     private void TileHovered(TileHoveredEvent evnt) => _lastHoveredTile = evnt.Tile;
 
