@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 
-namespace Rpg.Mobile.App.Game.Battling.Components;
+namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class GridComponent : ComponentBase
 {

@@ -1,10 +1,9 @@
-﻿using Rpg.Mobile.App.Game.Battling.Systems;
-using Rpg.Mobile.App.Game.Battling.Systems.Calculators;
-using Rpg.Mobile.App.Game.Battling.Systems.Data;
-using Rpg.Mobile.App.Infrastructure;
+﻿using Rpg.Mobile.App.Game.MainBattle.Systems.Calculators;
+using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.Core;
 
-namespace Rpg.Mobile.App.Game.Battling.Components;
+namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class TargetIndicatorComponent : ComponentBase
 {

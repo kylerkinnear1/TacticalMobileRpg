@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk.Core;
 
-namespace Rpg.Mobile.App.Game.Battling.Components;
+namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class TileShadowComponent : ComponentBase
 {

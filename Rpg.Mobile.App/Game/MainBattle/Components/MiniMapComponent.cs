@@ -2,7 +2,7 @@
 using Rpg.Mobile.GameSdk.Images;
 using Rpg.Mobile.GameSdk.StateManagement;
 
-namespace Rpg.Mobile.App.Game.Battling.Components;
+namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class MiniMapComponent : ComponentBase
 {

@@ -1,8 +1,8 @@
-﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
-using Rpg.Mobile.App.Game.Common;
+﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 
-namespace Rpg.Mobile.App.Game.Battling.Components;
+namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class StatSheetComponent : TextboxComponent
 {

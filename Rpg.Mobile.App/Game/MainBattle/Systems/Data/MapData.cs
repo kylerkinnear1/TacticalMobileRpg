@@ -1,7 +1,6 @@
-﻿using Rpg.Mobile.GameSdk.StateManagement;
-using Rpg.Mobile.GameSdk.Utilities;
+﻿using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
+namespace Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 
 public enum TerrainType
 {

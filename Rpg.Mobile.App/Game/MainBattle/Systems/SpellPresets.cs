@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
+﻿using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 
-namespace Rpg.Mobile.App.Game.Battling.Systems;
+namespace Rpg.Mobile.App.Game.MainBattle.Systems;
 
 public static class SpellPresets
 {

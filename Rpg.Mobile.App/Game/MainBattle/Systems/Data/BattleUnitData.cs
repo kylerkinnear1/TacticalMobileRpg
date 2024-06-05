@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
+﻿namespace Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 
 public enum BattleUnitType
 {

@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.App.Infrastructure;
+﻿namespace Rpg.Mobile.App.Utils;
 
 public static class Extensions
 {

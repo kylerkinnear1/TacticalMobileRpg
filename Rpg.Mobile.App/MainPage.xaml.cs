@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Battling.Components;
+﻿using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Windows;
 using Rpg.Mobile.GameSdk.Core;
 

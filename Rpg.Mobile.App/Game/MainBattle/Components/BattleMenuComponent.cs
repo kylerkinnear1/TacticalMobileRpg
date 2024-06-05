@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.Common;
 
-namespace Rpg.Mobile.App.Game.Battling.Components;
+namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class BattleMenuComponent : MenuComponent
 {

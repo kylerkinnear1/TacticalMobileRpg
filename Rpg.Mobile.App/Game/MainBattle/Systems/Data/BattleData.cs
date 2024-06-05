@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk.StateManagement;
 
-namespace Rpg.Mobile.App.Game.Battling.Systems.Data;
+namespace Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 
 public class BattleData
 {
@@ -15,11 +15,13 @@ public class BattleData
 
     public SpellData? CurrentSpell { get; set; }
 
-    public BattleUnitData? CurrentUnit => ActiveUnitIndex >= 0 ? TurnOrder[ActiveUnitIndex] : null;
+    public BattleUnitData CurrentUnit => ActiveUnitIndex >= 0 
+        ? TurnOrder[ActiveUnitIndex] 
+        : throw new NotImplementedException("TODO: Split up battle data.");
+
     public List<Point> WalkableTiles { get; set; } = new();
     public List<Point> AttackTargetTiles { get; set; } = new();
     public List<Point> SpellTargetTiles { get; set; } = new();
-    public HashSet<int> PlayerRerolls { get; set; } = new();
 
     public IEnumerable<BattleUnitData> UnitsAt(Point tile) =>
         UnitCoordinates.Where(x => x.Value == tile).Select(x => x.Key);

@@ -1,14 +1,14 @@
-﻿using Rpg.Mobile.App.Game.Battling.Components.MainBattle.States;
-using Rpg.Mobile.App.Game.Battling.Systems.Calculators;
-using Rpg.Mobile.App.Game.Battling.Systems.Data;
-using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Infrastructure;
+﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.States;
+using Rpg.Mobile.App.Game.MainBattle.Systems.Calculators;
+using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.Core;
-using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
 using static Rpg.Mobile.App.Game.Sprites;
 
-namespace Rpg.Mobile.App.Game.Battling.Components.MainBattle;
+namespace Rpg.Mobile.App.Game.MainBattle;
 
 public class MainBattleComponent : ComponentBase
 {
@@ -25,8 +25,7 @@ public class MainBattleComponent : ComponentBase
     public readonly Sprite PlaceUnitSprite;
     public readonly Dictionary<BattleUnitData, BattleUnitComponent> Units = new();
 
-    public BattleUnitComponent? CurrentUnit => _data.CurrentUnit is not null
-        ? Units[_data.CurrentUnit] : null;
+    public BattleUnitComponent CurrentUnit => Units[_data.CurrentUnit];
 
     public ITween<PointF>? CurrentUnitTween;
 
@@ -36,7 +35,7 @@ public class MainBattleComponent : ComponentBase
     private static RectF CalcBounds(PointF position, int width, int height, float size) =>
         new(position.X, position.Y, width * size, height * size);
 
-    public MainBattleComponent(PointF location, BattleData data, MainBattleStateMachine state)
+    public MainBattleComponent(PointF location, MainBattleStateMachine state, BattleData data)
         : base(CalcBounds(location, data.Map.Width, data.Map.Height, TileSize))
     {
         _data = data;
@@ -73,6 +72,9 @@ public class MainBattleComponent : ComponentBase
     {
         _state.Execute(deltaTime);
 
+        if (_data.ActiveUnitIndex <= 0)
+            return;
+
         var currentUnitPosition = _data.UnitCoordinates[CurrentUnit.State];
         CurrentUnitShadow.Shadows.SetSingle(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
     }
@@ -88,6 +90,4 @@ public class MainBattleComponent : ComponentBase
         var marginY = (TileSize - componentSize.Height) / 2;
         return new(x * TileSize + marginX, y * TileSize + marginY);
     }
-
-    
 }

@@ -1,14 +1,13 @@
-﻿using Rpg.Mobile.App.Game.Battling.Components.MainBattle;
-using Rpg.Mobile.App.Game.Battling.Systems.Data;
-using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Infrastructure;
+﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.Systems.Calculators;
+using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Inputs;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
 
-namespace Rpg.Mobile.App.Game.Battling.Components;
+namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class BattleGridScene : SceneBase
 {
@@ -18,21 +17,24 @@ public class BattleGridScene : SceneBase
     private readonly StatSheetComponent _stats;
     private readonly MouseCoordinateComponent _mouseComponent;
     private readonly TextboxComponent _hoverComponent;
+    private readonly MainBattleStateMachine _stateMachine;
 
     private ITween<PointF>? _cameraTween;
-
+    
     public BattleGridScene(IMouse mouse)
     {
         var mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.json");
         var jsonLoader = new FileReader();
         var mapJson = jsonLoader.ReadJson<MapJson>(mapPath);
         var mapState = mapJson.ToState();
-        var battleState = new BattleData(mapState);
+        var battleData = new BattleData(mapState);
+        var context = new MainBattleStateMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
+        _stateMachine = new MainBattleStateMachine(context);
 
-        Add(_battle = new(new(0f, 0f), battleState));
+        Add(_battle = new(new(0f, 0f), _stateMachine, battleData));
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
         Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
-        Add(_stats = new(battleState, new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
+        Add(_stats = new(battleData, new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
 
         Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
         {

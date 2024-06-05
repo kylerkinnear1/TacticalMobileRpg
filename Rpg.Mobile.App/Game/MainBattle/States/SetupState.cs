@@ -1,9 +1,10 @@
-﻿using Rpg.Mobile.App.Game.Battling.Systems.Data;
-using Rpg.Mobile.App.Infrastructure;
+﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using static Rpg.Mobile.App.Game.Sprites;
 
-namespace Rpg.Mobile.App.Game.Battling.Components.MainBattle.States;
+namespace Rpg.Mobile.App.Game.MainBattle.States;
 
 public class SetupState : IBattleState
 {
