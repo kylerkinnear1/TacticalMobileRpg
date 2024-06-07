@@ -30,6 +30,7 @@ public class MainBattleStateMachine : StateMachine<IBattleState>
         Bus.Global.Subscribe<SpellSelectedEvent>(_ => Change(new SelectingMagicTargetState(_context)));
         Bus.Global.Subscribe<AttackClickedEvent>(_ => Change(new SelectingAttackTargetState(_context)));
         Bus.Global.Subscribe<MagicClickedEvent>(_ => Change(new SelectingMagicTargetState(_context)));
+        Bus.Global.Subscribe<UnitPlacementCompletedEvent>(_ => Change(new MovingState(_context)));
     }
 
     private void UnitTurnEnded(UnitTurnEndedEvent evnt)

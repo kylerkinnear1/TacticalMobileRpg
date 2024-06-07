@@ -30,16 +30,14 @@ public class MainBattleComponent : ComponentBase
     public ITween<PointF>? CurrentUnitTween;
 
     private readonly BattleData _data;
-    private readonly MainBattleStateMachine _state;
 
     private static RectF CalcBounds(PointF position, int width, int height, float size) =>
         new(position.X, position.Y, width * size, height * size);
 
-    public MainBattleComponent(PointF location, MainBattleStateMachine state, BattleData data)
+    public MainBattleComponent(PointF location, BattleData data)
         : base(CalcBounds(location, data.Map.Width, data.Map.Height, TileSize))
     {
         _data = data;
-        _state = state;
 
         var path = new PathCalculator();
         AddChild(Map = new(data.Map));
@@ -65,13 +63,10 @@ public class MainBattleComponent : ComponentBase
             Bounds = new(Map.Bounds.Left, Map.Bounds.Height - 10f, Map.Bounds.Width, 200f)
         });
         Message.Position = new(Map.Bounds.Left, Map.Bounds.Top - 10f);
-        _state.Change(new SetupState(_data, this));
     }
 
     public override void Update(float deltaTime)
     {
-        _state.Execute(deltaTime);
-
         if (_data.ActiveUnitIndex <= 0)
             return;
 

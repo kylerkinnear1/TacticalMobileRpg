@@ -2,23 +2,19 @@
 using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
+using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
 using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States;
 
 public class SetupState : IBattleState
 {
-    private readonly BattleData _data;
-    private readonly MainBattleComponent _component;
+    private readonly Context _context;
 
     private Point? _lastHoveredTile;
     private static int TileSize => MainBattleComponent.TileSize;
 
-    public SetupState(BattleData data, MainBattleComponent component)
-    {
-        _data = data;
-        _component = component;
-    }
+    public SetupState(Context context) => _context = context;
 
     public void Enter()
     {
@@ -28,58 +24,58 @@ public class SetupState : IBattleState
 
     public void Execute(float deltaTime)
     {
-        _component.PlaceUnitSprite.Visible = true;
-
-        var currentOrigins = _data.CurrentPlaceOrder % 2 == 0
-            ? _data.Map.Player1Origins
-            : _data.Map.Player2Origins;
+        var currentOrigins = _context.Data.CurrentPlaceOrder % 2 == 0
+            ? _context.Data.Map.Player1Origins
+            : _context.Data.Map.Player2Origins;
 
         var originTiles = currentOrigins
             .Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize))
             .ToList();
 
-        _component.MoveShadow.Shadows.Set(originTiles);
+        _context.Main.MoveShadow.Shadows.Set(originTiles);
 
-        _component.PlaceUnitSprite.Visible = _lastHoveredTile.HasValue && currentOrigins.Contains(_lastHoveredTile.Value);
+        _context.Main.PlaceUnitSprite.Visible = _lastHoveredTile.HasValue && currentOrigins.Contains(_lastHoveredTile.Value);
     }
 
     public void Leave()
     {
         Bus.Global.Unsubscribe<TileHoveredEvent>(TileHovered);
-        _component.AddChild(_component.DamageIndicator);
+        _context.Main.AddChild(_context.Main.DamageIndicator);
+        _context.Data.TurnOrder = _context.Data.PlaceOrder.OrderBy(_ => Guid.NewGuid()).ToList();
+        _context.Data.ActiveUnitIndex = 0;
     }
 
     private void TileHovered(TileHoveredEvent evnt) => _lastHoveredTile = evnt.Tile;
 
     private void TileClicked(TileClickedEvent evnt)
     {
-        if (_data.UnitCoordinates.ContainsValue(evnt.Tile))
-                return;
+        if (_context.Data.UnitCoordinates.ContainsValue(evnt.Tile))
+            return;
 
-        var currentOrigins = _data.CurrentPlaceOrder % 2 == 0
-            ? _data.Map.Player1Origins
-            : _data.Map.Player2Origins;
+        var currentOrigins = _context.Data.CurrentPlaceOrder % 2 == 0
+            ? _context.Data.Map.Player1Origins
+            : _context.Data.Map.Player2Origins;
 
         if (!currentOrigins.Contains(evnt.Tile))
             return;
 
         PlaceUnit(evnt.Tile);
-        if (_data.CurrentPlaceOrder >= _data.PlaceOrder.Count)
+        if (_context.Data.CurrentPlaceOrder >= _context.Data.PlaceOrder.Count)
             Bus.Global.Publish(new UnitPlacementCompletedEvent());
     }
 
     private void PlaceUnit(Point tile)
     {
-        var unit = _data.PlaceOrder[_data.CurrentPlaceOrder];
-        _data.UnitCoordinates[unit] = tile;
-        _data.CurrentPlaceOrder++;
+        var unit = _context.Data.PlaceOrder[_context.Data.CurrentPlaceOrder];
+        _context.Data.UnitCoordinates[unit] = tile;
+        _context.Data.CurrentPlaceOrder++;
 
         var component = CreateBattleUnitComponent(unit);
-        _component.Units[unit] = component;
-        _component.AddChild(component);
+        _context.Main.Units[unit] = component;
+        _context.Main.AddChild(component);
 
-        var point = _data.UnitCoordinates[component.State];
-        component.Position = _component.GetPositionForTile(point, component.Bounds.Size);
+        var point = _context.Data.UnitCoordinates[component.State];
+        component.Position = _context.Main.GetPositionForTile(point, component.Bounds.Size);
 
         Bus.Global.Publish(new UnitPlacedEvent(tile, unit));
     }

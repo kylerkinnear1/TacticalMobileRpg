@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.States;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Calculators;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
@@ -28,10 +29,8 @@ public class BattleGridScene : SceneBase
         var mapJson = jsonLoader.ReadJson<MapJson>(mapPath);
         var mapState = mapJson.ToState();
         var battleData = new BattleData(mapState);
-        var context = new MainBattleStateMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
-        _stateMachine = new MainBattleStateMachine(context);
-
-        Add(_battle = new(new(0f, 0f), _stateMachine, battleData));
+        
+        Add(_battle = new(new(0f, 0f), battleData));
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
         Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
         Add(_stats = new(battleData, new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
@@ -47,9 +46,13 @@ public class BattleGridScene : SceneBase
             BackColor = Colors.DeepSkyBlue
         });
 
+        var context = new MainBattleStateMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
+        _stateMachine = new MainBattleStateMachine(context);
+
         Bus.Global.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
         Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
 
+        _stateMachine.Change(new SetupState(context));
         ActiveCamera.Offset = new PointF(80f, 80f);
     }
 
@@ -57,6 +60,8 @@ public class BattleGridScene : SceneBase
     {
         if (_cameraTween is not null)
             ActiveCamera.Offset = _cameraTween.Advance(deltaTime);
+
+        _stateMachine.Execute(deltaTime);
     }
 
     private void MiniMapClicked(MiniMapClickedEvent touch)
