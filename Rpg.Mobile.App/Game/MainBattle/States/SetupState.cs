@@ -33,13 +33,19 @@ public class SetupState : IBattleState
             .ToList();
 
         _context.Main.MoveShadow.Shadows.Set(originTiles);
-
         _context.Main.PlaceUnitSprite.Visible = _lastHoveredTile.HasValue && currentOrigins.Contains(_lastHoveredTile.Value);
+        if (_context.Main.PlaceUnitSprite.Visible)
+        {
+            _context.Main.PlaceUnitSprite.Position = _context.Main.GetPositionForTile(_lastHoveredTile!.Value, _context.Main.PlaceUnitSprite.Bounds.Size);
+            _context.Main.PlaceUnitSprite.Sprite = CreateBattleUnitComponent(_context.Data.PlaceOrder[_context.Data.CurrentPlaceOrder]).Sprite;
+        }
     }
 
     public void Leave()
     {
         Bus.Global.Unsubscribe<TileHoveredEvent>(TileHovered);
+        Bus.Global.Unsubscribe<TileClickedEvent>(TileClicked);
+
         _context.Main.AddChild(_context.Main.DamageIndicator);
         _context.Data.TurnOrder = _context.Data.PlaceOrder.OrderBy(_ => Guid.NewGuid()).ToList();
         _context.Data.ActiveUnitIndex = 0;
