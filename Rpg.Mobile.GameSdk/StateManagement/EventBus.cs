@@ -21,7 +21,8 @@ public class EventBus
         if (!_notificationHandlers.TryGetValue(evnt.GetType(), out var handlers))
             return;
 
-        handlers.ForEach(x => x.WrappedHandler(evnt));
+        var copiedHandlers = handlers.ToList();
+        copiedHandlers.ForEach(x => x.WrappedHandler(evnt));
     }
 
     public void Subscribe<T>(Action<T> handler) where T : IEvent
