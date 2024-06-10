@@ -49,6 +49,7 @@ public class SetupState : IBattleState
         _context.Main.AddChild(_context.Main.DamageIndicator);
         _context.Data.TurnOrder = _context.Data.PlaceOrder.OrderBy(_ => Guid.NewGuid()).ToList();
         _context.Data.ActiveUnitIndex = 0;
+        _context.Main.PlaceUnitSprite.Visible = false;
     }
 
     private void TileHovered(TileHoveredEvent evnt) => _lastHoveredTile = evnt.Tile;

@@ -25,8 +25,6 @@ public class MovingState : IBattleState
                         !_context.Data.UnitCoordinates.ContainsValue(x) &&
                         _context.Data.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
             .ToList();
-
-        _context.Data.ActiveUnitStartPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
         _context.Data.WalkableTiles = walkableTiles;
 
         _context.Menu.SetButtons(
