@@ -27,21 +27,23 @@ public class MainBattleStateMachine : StateMachine<IBattleState>
         Bus.Global.Subscribe<NotEnoughMpEvent>(_ => ShowMessage("Not enough MP."));
 
         Bus.Global.Subscribe<BackClickedEvent>(_ => Change(new MovingState(_context)));
-        Bus.Global.Subscribe<SpellSelectedEvent>(_ => Change(new SelectingMagicTargetState(_context)));
         Bus.Global.Subscribe<AttackClickedEvent>(_ => Change(new SelectingAttackTargetState(_context)));
-        Bus.Global.Subscribe<MagicClickedEvent>(_ => Change(new SelectingMagicTargetState(_context)));
+        Bus.Global.Subscribe<MagicClickedEvent>(_ => Change(new SelectingSpellState(_context)));
         Bus.Global.Subscribe<UnitPlacementCompletedEvent>(_ => Change(new MovingState(_context)));
+        Bus.Global.Subscribe<SpellSelectedEvent>(SpellSelected);
     }
 
     private void UnitTurnEnded(UnitTurnEndedEvent evnt)
     {
         _context.Main.Units[_context.Data.CurrentUnit].HealthBar.HasGone = true;
-        _context.Data.ActiveUnitIndex += 1 % _context.Data.TurnOrder.Count;
+        _context.Data.ActiveUnitIndex = (_context.Data.ActiveUnitIndex + 1) % _context.Data.TurnOrder.Count;
 
         if (_context.Data.ActiveUnitIndex == 0)
         {
             StartNewTurn();
         }
+
+        Change(new MovingState(_context));
     }
 
     private void StartNewTurn()
@@ -88,6 +90,12 @@ public class MainBattleStateMachine : StateMachine<IBattleState>
         Bus.Global.Publish(new UnitDamagedEvent(damagedUnits));
         Bus.Global.Publish(new UnitsDefeatedEvent(defeatedUnits));
         Bus.Global.Publish(new UnitTurnEndedEvent(_context.Data.CurrentUnit));
+    }
+
+    private void SpellSelected(SpellSelectedEvent evnt)
+    {
+        _context.Data.CurrentSpell = evnt.Spell;
+        Change(new SelectingMagicTargetState(_context));
     }
 
     private void ShowMessage(string message)
