@@ -48,8 +48,3 @@ public class BattleData
     }
 }
 
-public record BattleStartedEvent : IEvent;
-public record UnitsDefeatedEvent(IEnumerable<BattleUnitData> Defeated) : IEvent;
-public record NotEnoughMpEvent(SpellData Spell) : IEvent;
-public record UnitDamagedEvent(List<(BattleUnitData Unit, int Damage)> Hits) : IEvent;
-public record UnitMovedEvent(BattleUnitData Unit, Point Tile) : IEvent;

@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -103,6 +104,3 @@ public class SetupState : IBattleState
             _ => throw new ArgumentException()
         };
 }
-
-public record UnitPlacedEvent(Point Tile, BattleUnitData Unit) : IEvent;
-public record UnitPlacementCompletedEvent : IEvent;

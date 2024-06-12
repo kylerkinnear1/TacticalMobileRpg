@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.GameSdk.Core;
+﻿using Rpg.Mobile.App.Game.MainBattle.Events;
+using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Images;
 using Rpg.Mobile.GameSdk.StateManagement;
 
@@ -22,5 +23,3 @@ public class MiniMapComponent : ComponentBase
     
     public override void OnTouchUp(IEnumerable<PointF> touches) => Bus.Global.Publish(new MiniMapClickedEvent(touches.First()));
 }
-
-public record MiniMapClickedEvent(PointF Position) : IEvent;

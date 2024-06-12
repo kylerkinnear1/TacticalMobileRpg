@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.GameSdk.Core;
+﻿using Rpg.Mobile.App.Game.MainBattle.Events;
+using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
@@ -63,5 +64,4 @@ public class GridComponent : ComponentBase
         new(position.X, position.Y, width * size, height * size);
 }
 
-public record TileHoveredEvent(Point Tile) : IEvent;
-public record TileClickedEvent(Point Tile) : IEvent;
+

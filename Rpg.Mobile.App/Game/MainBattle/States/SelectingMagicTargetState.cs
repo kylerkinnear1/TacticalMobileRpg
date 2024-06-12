@@ -1,5 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -116,5 +116,3 @@ public class SelectingMagicTargetState : IBattleState
                 (Data.CurrentSpell.TargetsFriendlies && hoveredUnit.PlayerId == Data.CurrentUnit.PlayerId));
     }
 }
-
-public record SpellSelectedEvent(SpellData Spell) : IEvent;

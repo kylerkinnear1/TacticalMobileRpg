@@ -1,5 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;

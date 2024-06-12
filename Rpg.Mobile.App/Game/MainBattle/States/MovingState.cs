@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -63,6 +64,5 @@ public class MovingState : IBattleState
         _context.Data.UnitCoordinates[_context.Data.CurrentUnit] = evnt.Tile;
         var finalTarget = _context.Main.GetPositionForTile(evnt.Tile, _context.Main.CurrentUnit.Bounds.Size);
         _context.Main.CurrentUnitTween = _context.Main.CurrentUnit.Position.SpeedTween(500f, finalTarget);
-        Bus.Global.Publish(new UnitMovedEvent(_context.Data.CurrentUnit, evnt.Tile));
     }
 }

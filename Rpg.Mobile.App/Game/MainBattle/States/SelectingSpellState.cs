@@ -1,5 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.GameSdk.StateManagement;
 using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
 
@@ -15,7 +15,9 @@ public class SelectingSpellState : IBattleState
     {
         var buttons = _context.Data.CurrentUnit.Spells
             .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelected(x))))
+            .Append(new("Back", _ => Bus.Global.Publish(new BackClickedEvent())))
             .ToArray();
+
         _context.Menu.SetButtons(buttons);
     }
 
@@ -28,4 +30,4 @@ public class SelectingSpellState : IBattleState
     }
 }
 
-public record SpellSelected(SpellData Spell) : IEvent;
+
