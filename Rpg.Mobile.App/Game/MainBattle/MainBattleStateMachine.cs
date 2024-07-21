@@ -26,11 +26,11 @@ public class MainBattleStateMachine : StateMachine<IBattleState>
         Bus.Global.Subscribe<UnitTurnEndedEvent>(UnitTurnEnded);
         Bus.Global.Subscribe<UnitDamageAssignedEvent>(UnitDamageCalculated);
         Bus.Global.Subscribe<NotEnoughMpEvent>(_ => ShowMessage("Not enough MP."));
-
+        
         Bus.Global.Subscribe<BackClickedEvent>(_ => Change(new MovingState(_context)));
         Bus.Global.Subscribe<AttackClickedEvent>(_ => Change(new SelectingAttackTargetState(_context)));
         Bus.Global.Subscribe<MagicClickedEvent>(_ => Change(new SelectingSpellState(_context)));
-        Bus.Global.Subscribe<UnitPlacementCompletedEvent>(_ => Change(new MovingState(_context)));
+        Bus.Global.Subscribe<UnitPlacementCompletedEvent>(_ => StartNewTurn());
         Bus.Global.Subscribe<SpellSelectedEvent>(SpellSelected);
     }
 
@@ -39,18 +39,19 @@ public class MainBattleStateMachine : StateMachine<IBattleState>
         _context.Main.Units[_context.Data.CurrentUnit].HealthBar.HasGone = true;
         _context.Data.ActiveUnitIndex = (_context.Data.ActiveUnitIndex + 1) % _context.Data.TurnOrder.Count;
 
-        if (_context.Data.ActiveUnitIndex == 0)
-        {
+        if (_context.Data.ActiveUnitIndex != 0)
+            Change(new MovingState(_context));
+        else
             StartNewTurn();
-        }
-
-        Change(new MovingState(_context));
     }
 
     private void StartNewTurn()
     {
         _context.Data.TurnOrder.Set(_context.Data.TurnOrder.Shuffle(Rng.Instance).ToList());
         _context.Main.Units.Values.ToList().ForEach(x => x.HealthBar.HasGone = false);
+        _context.Data.ActiveUnitIndex = 0;
+        _context.Data.ActiveUnitStartPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
+        Change(new MovingState(_context));
     }
 
     private void UnitDamageCalculated(UnitDamageAssignedEvent evnt)
@@ -87,9 +88,7 @@ public class MainBattleStateMachine : StateMachine<IBattleState>
         {
             unit.Visible = false;
         }
-
-        Bus.Global.Publish(new UnitDamagedEvent(damagedUnits));
-        Bus.Global.Publish(new UnitsDefeatedEvent(defeatedUnits));
+        
         Bus.Global.Publish(new UnitTurnEndedEvent(_context.Data.CurrentUnit));
     }
 

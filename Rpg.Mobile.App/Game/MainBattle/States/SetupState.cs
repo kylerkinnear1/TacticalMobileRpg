@@ -48,7 +48,6 @@ public class SetupState : IBattleState
         Bus.Global.Unsubscribe<TileClickedEvent>(TileClicked);
 
         _context.Main.AddChild(_context.Main.DamageIndicator);
-        _context.Data.TurnOrder = _context.Data.PlaceOrder.OrderBy(_ => Guid.NewGuid()).ToList();
         _context.Data.ActiveUnitIndex = 0;
         _context.Main.PlaceUnitSprite.Visible = false;
     }
@@ -69,7 +68,10 @@ public class SetupState : IBattleState
 
         PlaceUnit(evnt.Tile);
         if (_context.Data.CurrentPlaceOrder >= _context.Data.PlaceOrder.Count)
+        {
+            _context.Data.TurnOrder = _context.Data.PlaceOrder.OrderBy(_ => Guid.NewGuid()).ToList();
             Bus.Global.Publish(new UnitPlacementCompletedEvent());
+        }
     }
 
     private void PlaceUnit(Point tile)
@@ -84,8 +86,6 @@ public class SetupState : IBattleState
 
         var point = _context.Data.UnitCoordinates[component.State];
         component.Position = _context.Main.GetPositionForTile(point, component.Bounds.Size);
-
-        Bus.Global.Publish(new UnitPlacedEvent(tile, unit));
     }
 
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitData state) =>

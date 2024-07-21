@@ -12,9 +12,5 @@ public record UnitDamageAssignedEvent(IEnumerable<BattleUnitData> Units, int Dam
 public record BackClickedEvent : IEvent;
 public record AttackClickedEvent : IEvent;
 public record MagicClickedEvent : IEvent;
-public record SpellSelected(SpellData Spell) : IEvent;
-public record UnitPlacedEvent(Point Tile, BattleUnitData Unit) : IEvent;
 public record UnitPlacementCompletedEvent : IEvent;
-public record UnitsDefeatedEvent(IEnumerable<BattleUnitData> Defeated) : IEvent;
 public record NotEnoughMpEvent(SpellData Spell) : IEvent;
-public record UnitDamagedEvent(List<(BattleUnitData Unit, int Damage)> Hits) : IEvent;

@@ -14,7 +14,7 @@ public class SelectingSpellState : IBattleState
     public void Enter()
     {
         var buttons = _context.Data.CurrentUnit.Spells
-            .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelected(x))))
+            .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelectedEvent(x))))
             .Append(new("Back", _ => Bus.Global.Publish(new BackClickedEvent())))
             .ToArray();
 

@@ -19,7 +19,6 @@ public class MovingState : IBattleState
     {
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
 
-        _context.Data.ActiveUnitStartPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
         var walkableTiles = _context.Path
             .CreateFanOutArea(_context.Data.ActiveUnitStartPosition, _context.Data.Map.Corner, _context.Data.CurrentUnit.Stats.Movement)
             .Where(x => x == _context.Data.ActiveUnitStartPosition ||
