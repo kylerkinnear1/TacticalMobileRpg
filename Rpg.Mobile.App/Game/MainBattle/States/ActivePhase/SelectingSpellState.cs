@@ -3,7 +3,7 @@ using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.GameSdk.StateManagement;
 using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States;
+namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
 
 public class SelectingSpellState : IBattleState
 {

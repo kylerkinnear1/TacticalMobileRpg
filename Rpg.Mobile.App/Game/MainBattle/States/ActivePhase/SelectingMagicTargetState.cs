@@ -6,7 +6,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States;
+namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
 
 // TODO: look at duplication with attack target state. Combine into 'SelectingTarget' state.
 public class SelectingMagicTargetState : IBattleState
@@ -29,8 +29,8 @@ public class SelectingMagicTargetState : IBattleState
                 Data.CurrentSpell!.MinRange,
                 Data.CurrentSpell.MaxRange).Where(x =>
                 !gridToUnit.Contains(x) ||
-                (Data.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != Data.CurrentUnit.PlayerId) ||
-                 (Data.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == Data.CurrentUnit.PlayerId))))
+                Data.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != Data.CurrentUnit.PlayerId) ||
+                 Data.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == Data.CurrentUnit.PlayerId))
             .ToList();
 
         Data.SpellTargetTiles.Set(allTargets);
@@ -112,7 +112,7 @@ public class SelectingMagicTargetState : IBattleState
 
         var hoveredUnit = Data.UnitsAt(tile).FirstOrDefault();
         return hoveredUnit != null &&
-               ((Data.CurrentSpell.TargetsEnemies && hoveredUnit.PlayerId != Data.CurrentUnit.PlayerId) ||
-                (Data.CurrentSpell.TargetsFriendlies && hoveredUnit.PlayerId == Data.CurrentUnit.PlayerId));
+               (Data.CurrentSpell.TargetsEnemies && hoveredUnit.PlayerId != Data.CurrentUnit.PlayerId ||
+                Data.CurrentSpell.TargetsFriendlies && hoveredUnit.PlayerId == Data.CurrentUnit.PlayerId);
     }
 }

@@ -6,7 +6,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
 using static Rpg.Mobile.App.Game.Sprites;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States;
+namespace Rpg.Mobile.App.Game.MainBattle.States.SetupPhase;
 
 public class SetupState : IBattleState
 {

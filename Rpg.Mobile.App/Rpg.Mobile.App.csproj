@@ -107,4 +107,11 @@
 	  </None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Game\MainBattle\States\DamagePhase\" />
+	  <Folder Include="Game\MainBattle\States\CleanupPhase\" />
+	  <Folder Include="Game\MainBattle\States\SelectUnitPhase\" />
+	  <Folder Include="Game\MainBattle\States\NewRoundPhase\" />
+	</ItemGroup>
+
 </Project>

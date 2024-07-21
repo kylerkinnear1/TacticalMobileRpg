@@ -5,7 +5,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States;
+namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
 
 public class SelectingAttackTargetState : IBattleState
 {
@@ -60,7 +60,7 @@ public class SelectingAttackTargetState : IBattleState
 
         var enemy = _context.Data.UnitsAt(evnt.Tile).Single(x => x.PlayerId != _context.Data.CurrentUnit.PlayerId);
         var damage = CalcAttackDamage(_context.Data.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
-        Bus.Global.Publish<UnitDamageAssignedEvent>(new(new [] { enemy }, damage));
+        Bus.Global.Publish<UnitDamageAssignedEvent>(new(new[] { enemy }, damage));
     }
 
     private bool IsValidAttackTargetTile(Point tile)
