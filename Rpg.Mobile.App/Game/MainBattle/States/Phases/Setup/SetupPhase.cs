@@ -3,19 +3,19 @@ using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
 using static Rpg.Mobile.App.Game.Sprites;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.SetupPhase;
+namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
 
-public class SetupState : IBattleState
+public class SetupPhase : IBattlePhase
 {
     private readonly Context _context;
 
     private Point? _lastHoveredTile;
     private static int TileSize => MainBattleComponent.TileSize;
 
-    public SetupState(Context context) => _context = context;
+    public SetupPhase(Context context) => _context = context;
 
     public void Enter()
     {
@@ -34,11 +34,10 @@ public class SetupState : IBattleState
             .ToList();
 
         _context.Main.MoveShadow.Shadows.Set(originTiles);
-        _context.Main.PlaceUnitSprite.Visible = _lastHoveredTile.HasValue && currentOrigins.Contains(_lastHoveredTile.Value);
+        _context.Main.PlaceUnitSprite.Visible = IsPlaceableTile(_lastHoveredTile, currentOrigins);
         if (_context.Main.PlaceUnitSprite.Visible)
         {
             _context.Main.PlaceUnitSprite.Position = _context.Main.GetPositionForTile(_lastHoveredTile!.Value, _context.Main.PlaceUnitSprite.Bounds.Size);
-            _context.Main.PlaceUnitSprite.Sprite = CreateBattleUnitComponent(_context.Data.PlaceOrder[_context.Data.CurrentPlaceOrder]).Sprite;
         }
     }
 
@@ -46,10 +45,6 @@ public class SetupState : IBattleState
     {
         Bus.Global.Unsubscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Unsubscribe<TileClickedEvent>(TileClicked);
-
-        _context.Main.AddChild(_context.Main.DamageIndicator);
-        _context.Data.ActiveUnitIndex = 0;
-        _context.Main.PlaceUnitSprite.Visible = false;
     }
 
     private void TileHovered(TileHoveredEvent evnt) => _lastHoveredTile = evnt.Tile;
@@ -69,8 +64,7 @@ public class SetupState : IBattleState
         PlaceUnit(evnt.Tile);
         if (_context.Data.CurrentPlaceOrder >= _context.Data.PlaceOrder.Count)
         {
-            _context.Data.TurnOrder = _context.Data.PlaceOrder.OrderBy(_ => Guid.NewGuid()).ToList();
-            Bus.Global.Publish(new UnitPlacementCompletedEvent());
+            Bus.Global.Publish(new SetupEvent.UnitPlacementCompleted());
         }
     }
 
@@ -86,7 +80,11 @@ public class SetupState : IBattleState
 
         var point = _context.Data.UnitCoordinates[component.State];
         component.Position = _context.Main.GetPositionForTile(point, component.Bounds.Size);
+
+        Bus.Global.Publish(new SetupEvent.UnitPlaced(unit));
     }
+
+    private bool IsPlaceableTile(Point? hover, ICollection<Point> currentOrigins) => hover.HasValue && currentOrigins.Contains(hover.Value);
 
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitData state) =>
         (state.Stats.UnitType, state.PlayerId) switch
@@ -103,4 +101,11 @@ public class SetupState : IBattleState
             (BattleUnitType.Ninja, 1) => new BattleUnitComponent(Images.NinjaIdle02, state),
             _ => throw new ArgumentException()
         };
+}
+
+public static class SetupEvent
+{
+    public record UnitPlaced(BattleUnitData Unit) : IEvent;
+    public record UnitPlacementCompleted : IEvent;
+    public record SetupCompleted : IEvent;
 }

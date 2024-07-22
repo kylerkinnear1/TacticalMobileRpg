@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.States.SetupPhase;
+using Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Calculators;
 using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
@@ -19,7 +19,7 @@ public class BattleGridScene : SceneBase
     private readonly StatSheetComponent _stats;
     private readonly MouseCoordinateComponent _mouseComponent;
     private readonly TextboxComponent _hoverComponent;
-    private readonly MainBattleStateMachine _stateMachine;
+    private readonly BattlePhaseStateMachine _stateMachine;
 
     private ITween<PointF>? _cameraTween;
     
@@ -47,13 +47,13 @@ public class BattleGridScene : SceneBase
             BackColor = Colors.DeepSkyBlue
         });
 
-        var context = new MainBattleStateMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
-        _stateMachine = new MainBattleStateMachine(context);
+        var context = new BattlePhaseStateMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
+        _stateMachine = new BattlePhaseStateMachine(context);
 
         Bus.Global.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
         Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
 
-        _stateMachine.Change(new SetupState(context));
+        _stateMachine.Change(new SetupPhase(context));
         ActiveCamera.Offset = new PointF(80f, 80f);
     }
 

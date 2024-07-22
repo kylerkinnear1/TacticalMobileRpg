@@ -1,15 +1,15 @@
 ﻿using Rpg.Mobile.App.Game.Common;
 using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
 
-public class SelectingSpellState : IBattleState
+public class SelectingSpellPhase : IBattlePhase
 {
     private readonly Context _context;
 
-    public SelectingSpellState(Context context) => _context = context;
+    public SelectingSpellPhase(Context context) => _context = context;
 
     public void Enter()
     {

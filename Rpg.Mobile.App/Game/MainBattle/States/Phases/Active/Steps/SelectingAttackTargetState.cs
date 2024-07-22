@@ -3,15 +3,15 @@ using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
 
-public class SelectingAttackTargetState : IBattleState
+public class SelectingAttackTargetPhase : IBattlePhase
 {
     private readonly Context _context;
 
-    public SelectingAttackTargetState(Context context) => _context = context;
+    public SelectingAttackTargetPhase(Context context) => _context = context;
 
     public void Enter()
     {

@@ -5,15 +5,15 @@ using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
 using static Rpg.Mobile.App.Game.MainBattle.MainBattleComponent;
-using static Rpg.Mobile.App.Game.MainBattle.MainBattleStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States;
 
-public class MovingState : IBattleState
+public class MovingStep : IBattlePhase
 {
     private readonly Context _context;
 
-    public MovingState(Context context) => _context = context;
+    public MovingStep(Context context) => _context = context;
 
     public void Enter()
     {

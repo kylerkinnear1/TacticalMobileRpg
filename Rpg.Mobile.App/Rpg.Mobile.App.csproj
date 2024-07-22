@@ -108,10 +108,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Game\MainBattle\States\DamagePhase\" />
-	  <Folder Include="Game\MainBattle\States\CleanupPhase\" />
+	  <Folder Include="Game\MainBattle\States\Phases\Combat\" />
+	  <Folder Include="Game\MainBattle\States\Phases\Cleanup\" />
 	  <Folder Include="Game\MainBattle\States\SelectUnitPhase\" />
-	  <Folder Include="Game\MainBattle\States\NewRoundPhase\" />
+	  <Folder Include="Game\MainBattle\States\Phases\NewRound\" />
 	</ItemGroup>
 
 </Project>
