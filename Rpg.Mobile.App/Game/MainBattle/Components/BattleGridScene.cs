@@ -20,7 +20,7 @@ public class BattleGridScene : SceneBase
     private readonly StatSheetComponent _stats;
     private readonly MouseCoordinateComponent _mouseComponent;
     private readonly TextboxComponent _hoverComponent;
-    private readonly BattlePhaseStateMachine _stateMachine;
+    private readonly BattlePhaseMachine _stateMachine;
 
     private ITween<PointF>? _cameraTween;
     
@@ -48,8 +48,8 @@ public class BattleGridScene : SceneBase
             BackColor = Colors.DeepSkyBlue
         });
 
-        var context = new BattlePhaseStateMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
-        _stateMachine = new BattlePhaseStateMachine(context);
+        var context = new BattlePhaseMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
+        _stateMachine = new BattlePhaseMachine(context);
 
         Bus.Global.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
         Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);

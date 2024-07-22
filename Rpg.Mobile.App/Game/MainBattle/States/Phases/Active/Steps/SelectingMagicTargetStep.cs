@@ -4,7 +4,7 @@ using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 

@@ -2,13 +2,15 @@
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
+using Rpg.Mobile.App.Game.MainBattle.States.Phases.Active;
 using Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
+using Rpg.Mobile.App.Game.MainBattle.States.Phases.Cleanup;
 using Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
 using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States;
 
-public class BattlePhaseStateMachine : StateMachine<IBattlePhase>
+public class BattlePhaseMachine : StateMachine<IBattlePhase>
 {
     public record Context(
         BattleData Data,
@@ -18,16 +20,16 @@ public class BattlePhaseStateMachine : StateMachine<IBattlePhase>
 
     private readonly Context _context;
 
-    public BattlePhaseStateMachine(Context context)
+    public BattlePhaseMachine(Context context)
     {
         _context = context;
 
-        Bus.Global.Subscribe<SetupEvent.UnitPlacementCompleted>(_ => StartNewTurn());
+        Bus.Global.Subscribe<SetupPhase.UnitPlacementCompletedEvent>(_ => StartNewTurn());
+        Bus.Global.Subscribe<CleanupPhase.RoundEnded>(_ => StartNewTurn());
 
         Bus.Global.Subscribe<UnitTurnEndedEvent>(UnitTurnEnded);
         Bus.Global.Subscribe<UnitDamageAssignedEvent>(UnitDamageCalculated);
         Bus.Global.Subscribe<NotEnoughMpEvent>(_ => ShowMessage("Not enough MP."));
-        Bus.Global.Subscribe<BackClickedEvent>(_ => Change(new MovingStep(_context)));
         Bus.Global.Subscribe<AttackClickedEvent>(_ => Change(new SelectingAttackTargetPhase(_context)));
         Bus.Global.Subscribe<MagicClickedEvent>(_ => Change(new SelectingSpellPhase(_context)));
         Bus.Global.Subscribe<SpellSelectedEvent>(SpellSelected);
@@ -38,17 +40,14 @@ public class BattlePhaseStateMachine : StateMachine<IBattlePhase>
         _context.Main.Units[_context.Data.CurrentUnit].HealthBar.HasGone = true;
         _context.Data.ActiveUnitIndex = (_context.Data.ActiveUnitIndex + 1) % _context.Data.TurnOrder.Count;
 
-        if (_context.Data.ActiveUnitIndex != 0)
-            Change(new MovingStep(_context));
-        else
-            StartNewTurn();
+        StartNewTurn();
     }
 
     private void StartNewTurn()
     {
         // TODO: Force other player if last 2 were for player 1.
 
-        Change(new MovingStep(_context));
+        Change(new ActivePhase(new()));
     }
 
     private void UnitDamageCalculated(UnitDamageAssignedEvent evnt)

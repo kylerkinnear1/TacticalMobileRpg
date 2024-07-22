@@ -3,13 +3,17 @@ using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
 using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
 
 public class SetupPhase : IBattlePhase
 {
+    public record UnitPlacedEvent(BattleUnitData Unit) : IEvent;
+    public record UnitPlacementCompletedEvent : IEvent;
+    public record CompletedEvent : IEvent;
+
     private readonly Context _context;
 
     private Point? _lastHoveredTile;
@@ -64,7 +68,7 @@ public class SetupPhase : IBattlePhase
         PlaceUnit(evnt.Tile);
         if (_context.Data.CurrentPlaceOrder >= _context.Data.PlaceOrder.Count)
         {
-            Bus.Global.Publish(new SetupEvent.UnitPlacementCompleted());
+            Bus.Global.Publish(new UnitPlacementCompletedEvent());
         }
     }
 
@@ -81,7 +85,7 @@ public class SetupPhase : IBattlePhase
         var point = _context.Data.UnitCoordinates[component.State];
         component.Position = _context.Main.GetPositionForTile(point, component.Bounds.Size);
 
-        Bus.Global.Publish(new SetupEvent.UnitPlaced(unit));
+        Bus.Global.Publish(new UnitPlacedEvent(unit));
     }
 
     private bool IsPlaceableTile(Point? hover, ICollection<Point> currentOrigins) => hover.HasValue && currentOrigins.Contains(hover.Value);
@@ -101,11 +105,4 @@ public class SetupPhase : IBattlePhase
             (BattleUnitType.Ninja, 1) => new BattleUnitComponent(Images.NinjaIdle02, state),
             _ => throw new ArgumentException()
         };
-}
-
-public static class SetupEvent
-{
-    public record UnitPlaced(BattleUnitData Unit) : IEvent;
-    public record UnitPlacementCompleted : IEvent;
-    public record SetupCompleted : IEvent;
 }
