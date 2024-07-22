@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;

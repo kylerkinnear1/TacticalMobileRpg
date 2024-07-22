@@ -1,11 +1,12 @@
 ﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseStateMachine;
+using Extensions = Rpg.Mobile.App.Utils.Extensions;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
+namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
 public class SelectingAttackTargetPhase : IBattlePhase
 {
@@ -18,18 +19,17 @@ public class SelectingAttackTargetPhase : IBattlePhase
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
 
-        var gridToUnit = _context.Data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
+        var gridToUnit = Enumerable.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(_context.Data.UnitCoordinates, x => x.Value, x => x.Key);
 
-        var legalTargets = _context.Path
-            .CreateFanOutArea(
-                _context.Data.UnitCoordinates[_context.Data.CurrentUnit],
-                _context.Data.Map.Corner,
-                _context.Data.CurrentUnit.Stats.AttackMinRange,
-                _context.Data.CurrentUnit.Stats.AttackMaxRange)
-            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != _context.Data.CurrentUnit.PlayerId))
+        var legalTargets = Enumerable.Where<Point>(_context.Path
+                .CreateFanOutArea(
+                    _context.Data.UnitCoordinates[_context.Data.CurrentUnit],
+                    _context.Data.Map.Corner,
+                    _context.Data.CurrentUnit.Stats.AttackMinRange,
+                    _context.Data.CurrentUnit.Stats.AttackMaxRange), x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != _context.Data.CurrentUnit.PlayerId))
             .ToList();
 
-        _context.Data.AttackTargetTiles.Set(legalTargets);
+        Extensions.Set(_context.Data.AttackTargetTiles, legalTargets);
 
         _context.Main.AttackTargetHighlight.Range = 1;
         _context.Menu.SetButtons(new ButtonData("Back", _ => Bus.Global.Publish(new BackClickedEvent())));
@@ -58,7 +58,7 @@ public class SelectingAttackTargetPhase : IBattlePhase
     {
         if (!IsValidAttackTargetTile(evnt.Tile)) return;
 
-        var enemy = _context.Data.UnitsAt(evnt.Tile).Single(x => x.PlayerId != _context.Data.CurrentUnit.PlayerId);
+        var enemy = Enumerable.Single<BattleUnitData>(_context.Data.UnitsAt(evnt.Tile), x => x.PlayerId != _context.Data.CurrentUnit.PlayerId);
         var damage = CalcAttackDamage(_context.Data.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
         Bus.Global.Publish<UnitDamageAssignedEvent>(new(new[] { enemy }, damage));
     }
@@ -68,7 +68,7 @@ public class SelectingAttackTargetPhase : IBattlePhase
         if (!_context.Data.AttackTargetTiles.Contains(tile))
             return false;
 
-        var hoveredUnit = _context.Data.UnitsAt(tile).FirstOrDefault();
+        var hoveredUnit = Enumerable.FirstOrDefault<BattleUnitData>(_context.Data.UnitsAt(tile));
         return hoveredUnit != null &&
                hoveredUnit.PlayerId != _context.Data.CurrentUnit.PlayerId;
     }

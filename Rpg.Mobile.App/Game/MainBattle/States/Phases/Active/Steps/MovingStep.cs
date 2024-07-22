@@ -1,13 +1,12 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+﻿using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
-using static Rpg.Mobile.App.Game.MainBattle.MainBattleComponent;
-using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.Components.MainBattleComponent;
+using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseStateMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States;
+namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
 public class MovingStep : IBattlePhase
 {
@@ -19,11 +18,10 @@ public class MovingStep : IBattlePhase
     {
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
 
-        var walkableTiles = _context.Path
-            .CreateFanOutArea(_context.Data.ActiveUnitStartPosition, _context.Data.Map.Corner, _context.Data.CurrentUnit.Stats.Movement)
-            .Where(x => x == _context.Data.ActiveUnitStartPosition ||
-                        !_context.Data.UnitCoordinates.ContainsValue(x) &&
-                        _context.Data.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
+        var walkableTiles = Enumerable.Where<Point>(_context.Path
+                .CreateFanOutArea(_context.Data.ActiveUnitStartPosition, _context.Data.Map.Corner, _context.Data.CurrentUnit.Stats.Movement), x => x == _context.Data.ActiveUnitStartPosition ||
+                                                                                                                                                   !_context.Data.UnitCoordinates.ContainsValue(x) &&
+                                                                                                                                                   _context.Data.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
             .ToList();
         _context.Data.WalkableTiles = walkableTiles;
 
@@ -41,7 +39,7 @@ public class MovingStep : IBattlePhase
             _context.Main.CurrentUnitTween = _context.Main.CurrentUnitTween.IsComplete ? null : _context.Main.CurrentUnitTween;
         }
 
-        var walkShadows = _context.Data.WalkableTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
+        var walkShadows = Enumerable.Select<Point, RectF>(_context.Data.WalkableTiles, x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
         _context.Main.MoveShadow.Shadows.Set(walkShadows);
     }
 

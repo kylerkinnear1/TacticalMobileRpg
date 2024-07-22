@@ -110,8 +110,6 @@
 	<ItemGroup>
 	  <Folder Include="Game\MainBattle\States\Phases\Combat\" />
 	  <Folder Include="Game\MainBattle\States\Phases\Cleanup\" />
-	  <Folder Include="Game\MainBattle\States\SelectUnitPhase\" />
-	  <Folder Include="Game\MainBattle\States\Phases\NewRound\" />
 	</ItemGroup>
 
 </Project>

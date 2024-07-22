@@ -1,6 +1,4 @@
-﻿using Rpg.Mobile.GameSdk.StateManagement;
-
-namespace Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+﻿namespace Rpg.Mobile.App.Game.MainBattle.Data;
 
 public class BattleData
 {

@@ -1,12 +1,12 @@
 ﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseStateMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
+namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
 // TODO: look at duplication with attack target state. Combine into 'SelectingTarget' state.
 public class SelectingMagicTargetPhase : IBattlePhase
@@ -21,13 +21,13 @@ public class SelectingMagicTargetPhase : IBattlePhase
         Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
         Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
 
-        var gridToUnit = _context.Data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
-        var allTargets = _context.Path
-            .CreateFanOutArea(
-                Data.UnitCoordinates[_context.Data.CurrentUnit],
-                Data.Map.Corner,
-                Data.CurrentSpell!.MinRange,
-                Data.CurrentSpell.MaxRange).Where(x =>
+        var gridToUnit = Enumerable.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(_context.Data.UnitCoordinates, x => x.Value, x => x.Key);
+        var allTargets = Enumerable.Where<Point>(_context.Path
+                .CreateFanOutArea(
+                    Data.UnitCoordinates[_context.Data.CurrentUnit],
+                    Data.Map.Corner,
+                    Data.CurrentSpell!.MinRange,
+                    Data.CurrentSpell.MaxRange), x =>
                 !gridToUnit.Contains(x) ||
                 Data.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != Data.CurrentUnit.PlayerId) ||
                  Data.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == Data.CurrentUnit.PlayerId))
@@ -53,9 +53,8 @@ public class SelectingMagicTargetPhase : IBattlePhase
 
     private void CastSpell(SpellData spell, Point target)
     {
-        var hits = _context.Path
-            .CreateFanOutArea(target, Data.Map.Corner, spell.MinRange - 1, spell.MaxRange - 1)
-            .ToHashSet();
+        var hits = Enumerable.ToHashSet<Point>(_context.Path
+                .CreateFanOutArea(target, Data.Map.Corner, spell.MinRange - 1, spell.MaxRange - 1));
 
         var units = Data.UnitCoordinates.Where(x => hits.Contains(x.Value));
         var targets = units
@@ -77,7 +76,7 @@ public class SelectingMagicTargetPhase : IBattlePhase
 
         var damage = CalcSpellDamage(spell);
         Data.CurrentUnit.RemainingMp -= spell.MpCost;
-        Bus.Global.Publish<UnitDamageAssignedEvent>(new(targets, damage));
+        Bus.Global.Publish(new UnitDamageAssignedEvent(targets, damage));
     }
 
     private int CalcSpellDamage(SpellData spell) =>

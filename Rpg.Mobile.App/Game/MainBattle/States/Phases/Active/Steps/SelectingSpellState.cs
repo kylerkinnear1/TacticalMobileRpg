@@ -1,9 +1,10 @@
 ﻿using Rpg.Mobile.App.Game.Common;
+using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.App.Game.MainBattle.BattlePhaseStateMachine;
+using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseStateMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
+namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
 public class SelectingSpellPhase : IBattlePhase
 {
@@ -13,8 +14,7 @@ public class SelectingSpellPhase : IBattlePhase
 
     public void Enter()
     {
-        var buttons = _context.Data.CurrentUnit.Spells
-            .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelectedEvent(x))))
+        var buttons = Enumerable.Select<SpellData, ButtonData>(_context.Data.CurrentUnit.Spells, x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelectedEvent(x))))
             .Append(new("Back", _ => Bus.Global.Publish(new BackClickedEvent())))
             .ToArray();
 

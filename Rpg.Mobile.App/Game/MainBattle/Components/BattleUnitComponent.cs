@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+﻿using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.GameSdk.Core;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;

@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+namespace Rpg.Mobile.App.Game.MainBattle.Data;
 
 public enum TerrainType
 {

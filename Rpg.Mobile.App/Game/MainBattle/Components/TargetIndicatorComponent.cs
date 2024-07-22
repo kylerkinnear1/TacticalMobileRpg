@@ -1,5 +1,5 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Systems.Calculators;
-using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
+﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
+using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.Core;
 

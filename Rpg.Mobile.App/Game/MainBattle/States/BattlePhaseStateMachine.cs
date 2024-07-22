@@ -1,15 +1,12 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
+using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.States;
-using Rpg.Mobile.App.Game.MainBattle.States.ActivePhase;
+using Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 using Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
-using Rpg.Mobile.App.Game.MainBattle.Systems.Calculators;
-using Rpg.Mobile.App.Game.MainBattle.Systems.Data;
-using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
-using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.MainBattle;
+namespace Rpg.Mobile.App.Game.MainBattle.States;
 
 public class BattlePhaseStateMachine : StateMachine<IBattlePhase>
 {
@@ -50,10 +47,7 @@ public class BattlePhaseStateMachine : StateMachine<IBattlePhase>
     private void StartNewTurn()
     {
         // TODO: Force other player if last 2 were for player 1.
-        _context.Data.TurnOrder.Set(_context.Data.TurnOrder.Shuffle(Rng.Instance).ToList());
-        _context.Main.Units.Values.ToList().ForEach(x => x.HealthBar.HasGone = false);
-        _context.Data.ActiveUnitIndex = 0;
-        _context.Data.ActiveUnitStartPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
+
         Change(new MovingStep(_context));
     }
 
@@ -91,7 +85,7 @@ public class BattlePhaseStateMachine : StateMachine<IBattlePhase>
         {
             unit.Visible = false;
         }
-        
+
         Bus.Global.Publish(new UnitTurnEndedEvent(_context.Data.CurrentUnit));
     }
 

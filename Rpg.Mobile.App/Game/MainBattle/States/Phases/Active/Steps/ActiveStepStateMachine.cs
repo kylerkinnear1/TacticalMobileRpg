@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk.StateManagement;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active;
+namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
 public class ActiveStepStateMachine : StateMachine<IActivePhaseStepEvent>
 {
