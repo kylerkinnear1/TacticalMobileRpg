@@ -9,25 +9,27 @@ using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
 namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
 // TODO: look at duplication with attack target state. Combine into 'SelectingTarget' state.
-public class SelectingMagicTargetPhase : IBattlePhase
+public class SelectingMagicTargetPhase(Context _context) : IBattlePhase
 {
-    private readonly Context _context;
     private BattleData Data => _context.Data;
 
-    public SelectingMagicTargetPhase(Context context) => _context = context;
+    private ISubscription[] _subscriptions = [];
 
     public void Enter()
     {
-        Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
-        Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
+        _subscriptions = 
+        [
+            Bus.Global.Subscribe<TileHoveredEvent>(TileHovered),
+            Bus.Global.Subscribe<TileClickedEvent>(TileClicked)
+        ];
 
-        var gridToUnit = Enumerable.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(_context.Data.UnitCoordinates, x => x.Value, x => x.Key);
-        var allTargets = Enumerable.Where<Point>(_context.Path
-                .CreateFanOutArea(
-                    Data.UnitCoordinates[_context.Data.CurrentUnit],
-                    Data.Map.Corner,
-                    Data.CurrentSpell!.MinRange,
-                    Data.CurrentSpell.MaxRange), x =>
+        var gridToUnit = _context.Data.UnitCoordinates.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(x => x.Value, x => x.Key);
+        var allTargets = _context.Path
+            .CreateFanOutArea(
+                Data.UnitCoordinates[_context.Data.CurrentUnit],
+                Data.Map.Corner,
+                Data.CurrentSpell!.MinRange,
+                Data.CurrentSpell.MaxRange).Where(x =>
                 !gridToUnit.Contains(x) ||
                 Data.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != Data.CurrentUnit.PlayerId) ||
                  Data.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == Data.CurrentUnit.PlayerId))
@@ -45,16 +47,12 @@ public class SelectingMagicTargetPhase : IBattlePhase
     {
     }
 
-    public void Leave()
-    {
-        Bus.Global.Unsubscribe<TileHoveredEvent>(TileHovered);
-        Bus.Global.Unsubscribe<TileClickedEvent>(TileClicked);
-    }
+    public void Leave() => _subscriptions.DisposeAll();
 
     private void CastSpell(SpellData spell, Point target)
     {
-        var hits = Enumerable.ToHashSet<Point>(_context.Path
-                .CreateFanOutArea(target, Data.Map.Corner, spell.MinRange - 1, spell.MaxRange - 1));
+        var hits = _context.Path
+            .CreateFanOutArea(target, Data.Map.Corner, spell.MinRange - 1, spell.MaxRange - 1).ToHashSet();
 
         var units = Data.UnitCoordinates.Where(x => hits.Contains(x.Value));
         var targets = units
@@ -101,10 +99,13 @@ public class SelectingMagicTargetPhase : IBattlePhase
     {
         if (!IsValidMagicTargetTile(evnt.Tile)) return;
 
+        if (Data.CurrentSpell is null)
+            throw new NotImplementedException();
+        
         CastSpell(Data.CurrentSpell, evnt.Tile);
     }
 
-    public bool IsValidMagicTargetTile(Point tile)
+    private bool IsValidMagicTargetTile(Point tile)
     {
         if (Data.CurrentSpell is null || !Data.SpellTargetTiles.Contains(tile))
             return false;

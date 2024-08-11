@@ -8,15 +8,13 @@ using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
-public class IdleStep : ActivePhase.IStep
+public class IdleStep(Context _context) : ActivePhase.IStep
 {
-    private readonly Context _context;
-
-    public IdleStep(Context context) => _context = context;
+    private ISubscription[] _subscriptions = [];
 
     public void Enter()
     {
-        Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
+        _subscriptions = [Bus.Global.Subscribe<TileClickedEvent>(TileClicked)];
 
         var walkableTiles = _context.Path
             .CreateFanOutArea(_context.Data.ActiveUnitStartPosition, _context.Data.Map.Corner, _context.Data.CurrentUnit.Stats.Movement)
@@ -30,7 +28,7 @@ public class IdleStep : ActivePhase.IStep
         _context.Menu.SetButtons(
             new("Attack", _ => Bus.Global.Publish(new AttackClickedEvent())),
             new("Magic", _ => Bus.Global.Publish(new MagicClickedEvent())),
-            new("Wait", _ => Bus.Global.Publish(new UnitTurnEndedEvent(_context.Data.CurrentUnit))));
+            new("Wait", _ => Bus.Global.Publish(new UnitActivePhaseCompletedEvent(_context.Data.CurrentUnit))));
     }
 
     public void Execute(float deltaTime)
@@ -50,7 +48,7 @@ public class IdleStep : ActivePhase.IStep
         _context.Data.WalkableTiles.Clear();
         _context.Main.MoveShadow.Shadows.Clear();
 
-        Bus.Global.Unsubscribe<TileClickedEvent>(TileClicked);
+        _subscriptions.DisposeAll();
     }
 
     private void TileClicked(TileClickedEvent evnt)
@@ -65,3 +63,7 @@ public class IdleStep : ActivePhase.IStep
         _context.Main.CurrentUnitTween = _context.Main.CurrentUnit.Position.SpeedTween(500f, finalTarget);
     }
 }
+
+public record MagicClickedEvent : IEvent;
+public record AttackClickedEvent : IEvent;
+public record UnitActivePhaseCompletedEvent(BattleUnitData CurrentUnit) : IEvent;

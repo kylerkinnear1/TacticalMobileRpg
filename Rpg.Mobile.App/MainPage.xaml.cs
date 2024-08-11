@@ -17,6 +17,7 @@ public partial class MainPage : ContentPage
         var mouse = new MouseWindowsUser32();
 
         // TODO: Inject mouse into scene
+        // TODO: figure out how to dispose from this form (probably DI?)
         var scene = new BattleGridScene(mouse);
         var game = gameLoopFactory.Create(GameView, scene, mouse);
         game.Start();

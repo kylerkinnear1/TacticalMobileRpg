@@ -1,7 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.MainBattle.Data;
-using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Game.MainBattle.States.Phases.Active;
 using Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 using Rpg.Mobile.App.Game.MainBattle.States.Phases.Cleanup;
@@ -10,7 +9,8 @@ using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States;
 
-public class BattlePhaseMachine : StateMachine<IBattlePhase>
+public interface IBattlePhase : IState { }
+public class BattlePhaseMachine: StateMachine<IBattlePhase>, IDisposable
 {
     public record Context(
         BattleData Data,
@@ -18,21 +18,21 @@ public class BattlePhaseMachine : StateMachine<IBattlePhase>
         BattleMenuComponent Menu,
         IPathCalculator Path);
 
+    private readonly ISubscription[] _subscriptions;
     private readonly Context _context;
 
     public BattlePhaseMachine(Context context)
     {
         _context = context;
-
-        Bus.Global.Subscribe<SetupPhase.UnitPlacementCompletedEvent>(_ => StartNewTurn());
-        Bus.Global.Subscribe<CleanupPhase.RoundEnded>(_ => StartNewTurn());
-
-        Bus.Global.Subscribe<UnitTurnEndedEvent>(UnitTurnEnded);
-        Bus.Global.Subscribe<UnitDamageAssignedEvent>(UnitDamageCalculated);
-        Bus.Global.Subscribe<NotEnoughMpEvent>(_ => ShowMessage("Not enough MP."));
-        Bus.Global.Subscribe<AttackClickedEvent>(_ => Change(new SelectingAttackTargetPhase(_context)));
-        Bus.Global.Subscribe<MagicClickedEvent>(_ => Change(new SelectingSpellPhase(_context)));
-        Bus.Global.Subscribe<SpellSelectedEvent>(SpellSelected);
+        _subscriptions =
+        [
+            Bus.Global.Subscribe<SetupPhase.UnitPlacementCompletedEvent>(_ => StartNewTurn()),
+            Bus.Global.Subscribe<CleanupPhase.RoundEnded>(_ => StartNewTurn()),
+            Bus.Global.Subscribe<UnitActivePhaseCompletedEvent>(_ => throw new NotImplementedException()),
+            Bus.Global.Subscribe<UnitTurnEndedEvent>(UnitTurnEnded),
+            Bus.Global.Subscribe<UnitDamageAssignedEvent>(UnitDamageCalculated),
+            Bus.Global.Subscribe<NotEnoughMpEvent>(_ => ShowMessage("Not enough MP.")),
+        ];
     }
 
     private void UnitTurnEnded(UnitTurnEndedEvent evnt)
@@ -47,7 +47,7 @@ public class BattlePhaseMachine : StateMachine<IBattlePhase>
     {
         // TODO: Force other player if last 2 were for player 1.
 
-        Change(new ActivePhase(new()));
+        Change(new ActivePhase(_context));
     }
 
     private void UnitDamageCalculated(UnitDamageAssignedEvent evnt)
@@ -99,6 +99,10 @@ public class BattlePhaseMachine : StateMachine<IBattlePhase>
         _context.Main.Message.Position = new(_context.Main.Map.Bounds.Left, _context.Main.Map.Bounds.Top - 10f);
         _context.Main.Message.Play(message);
     }
+
+    public void Dispose() => _subscriptions.DisposeAll();
 }
 
-public interface IBattlePhase : IState { }
+public record UnitDamageAssignedEvent(IEnumerable<BattleUnitData> Units, int Damage) : IEvent;
+public record NotEnoughMpEvent(SpellData Spell) : IEvent;
+public record SpellSelectedEvent(SpellData Spell) : IEvent;

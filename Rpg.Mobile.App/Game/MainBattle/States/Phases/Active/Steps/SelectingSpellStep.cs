@@ -6,15 +6,15 @@ using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
 
-public class SelectingSpellPhase : IBattlePhase
+public class SelectingSpellStep : ActivePhase.IStep
 {
     private readonly Context _context;
 
-    public SelectingSpellPhase(Context context) => _context = context;
+    public SelectingSpellStep(Context context) => _context = context;
 
     public void Enter()
     {
-        var buttons = Enumerable.Select<SpellData, ButtonData>(_context.Data.CurrentUnit.Spells, x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelectedEvent(x))))
+        var buttons = _context.Data.CurrentUnit.Spells.Select<SpellData, ButtonData>(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelectedEvent(x))))
             .Append(new("Back", _ => Bus.Global.Publish(new BackClickedEvent())))
             .ToArray();
 

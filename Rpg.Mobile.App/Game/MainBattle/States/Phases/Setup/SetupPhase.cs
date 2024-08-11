@@ -8,23 +8,24 @@ using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
 
-public class SetupPhase : IBattlePhase
+public class SetupPhase(Context _context) : IBattlePhase
 {
     public record UnitPlacedEvent(BattleUnitData Unit) : IEvent;
     public record UnitPlacementCompletedEvent : IEvent;
     public record CompletedEvent : IEvent;
 
-    private readonly Context _context;
-
     private Point? _lastHoveredTile;
     private static int TileSize => MainBattleComponent.TileSize;
 
-    public SetupPhase(Context context) => _context = context;
+    private ISubscription[] _subscriptions = [];
 
     public void Enter()
     {
-        Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
-        Bus.Global.Subscribe<TileClickedEvent>(TileClicked);
+        _subscriptions = 
+        [
+            Bus.Global.Subscribe<TileHoveredEvent>(TileHovered),
+            Bus.Global.Subscribe<TileClickedEvent>(TileClicked)
+        ];       
     }
 
     public void Execute(float deltaTime)
@@ -45,11 +46,7 @@ public class SetupPhase : IBattlePhase
         }
     }
 
-    public void Leave()
-    {
-        Bus.Global.Unsubscribe<TileHoveredEvent>(TileHovered);
-        Bus.Global.Unsubscribe<TileClickedEvent>(TileClicked);
-    }
+    public void Leave() => _subscriptions?.DisposeAll();
 
     private void TileHovered(TileHoveredEvent evnt) => _lastHoveredTile = evnt.Tile;
 

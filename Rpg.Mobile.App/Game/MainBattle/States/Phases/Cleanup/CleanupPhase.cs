@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.GameSdk.StateManagement;
+﻿using Rpg.Mobile.App.Game.MainBattle.Data;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Cleanup;
 
@@ -18,3 +19,5 @@ public class CleanupPhase : IBattlePhase
     {
     }
 }
+
+public record UnitTurnEndedEvent(BattleUnitData Unit) : IEvent;
