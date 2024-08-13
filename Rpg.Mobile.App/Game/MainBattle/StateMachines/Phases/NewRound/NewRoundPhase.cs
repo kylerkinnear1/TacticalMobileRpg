@@ -1,18 +1,11 @@
 ﻿using Rpg.Mobile.App.Utils;
-using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.NewRound;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.NewRound;
 
-public class NewRoundPhase : IBattlePhase
+public class NewRoundPhase(Context _context) : IBattlePhase
 {
-    public record StartedEvent : IEvent;
-
-    private readonly Context _context;
-
-    public NewRoundPhase(Context context) => _context = context;
-
     public void Enter()
     {
         _context.Data.TurnOrder.Set(_context.Data.TurnOrder.Shuffle(Rng.Instance).ToList());
@@ -23,8 +16,6 @@ public class NewRoundPhase : IBattlePhase
 
     public void Execute(float deltaTime)
     {
-        // TODO: Maybe something better
-        Bus.Global.Publish(new StartedEvent());
     }
 
     public void Leave()

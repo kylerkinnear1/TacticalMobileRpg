@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Game.MainBattle.Calculators;
+﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
 using Rpg.Mobile.App.Game.MainBattle.Data;
+using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Tweening;
@@ -20,7 +20,7 @@ public class MainBattleComponent : ComponentBase
     public readonly TextIndicatorComponent Message;
     public readonly TargetIndicatorComponent AttackTargetHighlight;
     public readonly TargetIndicatorComponent CurrentTileHighlight;
-    public readonly Sprite PlaceUnitSprite;
+    public readonly SpriteComponent PlaceUnitSpriteComponent;
     public readonly Dictionary<BattleUnitData, BattleUnitComponent> Units = new();
 
     public BattleUnitComponent CurrentUnit => Units[_data.CurrentUnit];
@@ -53,8 +53,8 @@ public class MainBattleComponent : ComponentBase
             StrokeColor = Colors.White.WithAlpha(.7f),
             Visible = false
         });
-        AddChild(PlaceUnitSprite = new(Images.WarriorIdle01) { Visible = false });
-        PlaceUnitSprite.UpdateScale(1.5f);
+        AddChild(PlaceUnitSpriteComponent = new(Images.WarriorIdle01) { Visible = false });
+        PlaceUnitSpriteComponent.UpdateScale(1.5f);
         DamageIndicator = new(Map.Bounds);
         AddChild(Message = new()
         {

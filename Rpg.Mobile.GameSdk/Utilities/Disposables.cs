@@ -1,3 +1,5 @@
+namespace Rpg.Mobile.GameSdk.Utilities;
+
 public static class DisposableEnumerableExtensions
 {
     public static void DisposeAll(this IEnumerable<IDisposable> disposables)

@@ -11,21 +11,9 @@ public interface IGameLoop
     void Start();
 }
 
-public class GameLoop : IGameLoop
+public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispatcher, IMouse _mouse)
+    : IGameLoop
 {
-    private readonly SceneBase _scene;
-    private readonly IGraphicsView _view;
-    private readonly IDispatcher _dispatcher;
-    private readonly IMouse _mouse;
-
-    public GameLoop(SceneBase scene, IGraphicsView view, IDispatcher dispatcher, IMouse mouse)
-    {
-        _scene = scene;
-        _view = view;
-        _dispatcher = dispatcher;
-        _mouse = mouse;
-    }
-
     private DateTime _lastUpdate = DateTime.UtcNow;
 
     private const int LoopTimeLimitMs = 16;

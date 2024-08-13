@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.GameSdk.Core;
 
-namespace Rpg.Mobile.App.Game.Common;
+namespace Rpg.Mobile.App.Game.UserInterface;
 
 public class TextboxComponent : ComponentBase
 {

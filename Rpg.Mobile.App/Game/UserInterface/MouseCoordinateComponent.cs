@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.GameSdk.Inputs;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.Common;
+namespace Rpg.Mobile.App.Game.UserInterface;
 
 public class MouseCoordinateComponent : TextboxComponent
 {

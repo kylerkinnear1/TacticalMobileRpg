@@ -3,13 +3,16 @@ using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
+using Rpg.Mobile.GameSdk.Utilities;
 using static Rpg.Mobile.App.Game.MainBattle.Components.MainBattleComponent;
-using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
 public class IdleStep(Context _context) : ActivePhase.IStep
 {
+    public record CompletedEvent(BattleUnitData CurrentUnit) : IEvent;
+    
     private ISubscription[] _subscriptions = [];
 
     public void Enter()
@@ -26,9 +29,9 @@ public class IdleStep(Context _context) : ActivePhase.IStep
         _context.Data.WalkableTiles = walkableTiles;
 
         _context.Menu.SetButtons(
-            new("Attack", _ => Bus.Global.Publish(new AttackClickedEvent())),
-            new("Magic", _ => Bus.Global.Publish(new MagicClickedEvent())),
-            new("Wait", _ => Bus.Global.Publish(new UnitActivePhaseCompletedEvent(_context.Data.CurrentUnit))));
+            new("Attack", _ => Bus.Global.Publish(new ActivePhase.AttackClickedEvent())),
+            new("Magic", _ => Bus.Global.Publish(new ActivePhase.MagicClickedEvent())),
+            new("Wait", _ => Bus.Global.Publish(new CompletedEvent(_context.Data.CurrentUnit))));
     }
 
     public void Execute(float deltaTime)
@@ -63,7 +66,3 @@ public class IdleStep(Context _context) : ActivePhase.IStep
         _context.Main.CurrentUnitTween = _context.Main.CurrentUnit.Position.SpeedTween(500f, finalTarget);
     }
 }
-
-public record MagicClickedEvent : IEvent;
-public record AttackClickedEvent : IEvent;
-public record UnitActivePhaseCompletedEvent(BattleUnitData CurrentUnit) : IEvent;

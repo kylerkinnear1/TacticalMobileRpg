@@ -14,18 +14,18 @@ public interface IStateMachine : IStateMachine<IState>
 
 public interface IStateMachine<T> where T : class, IState
 {
-    void Change(T newState);
+    void Change(T? newState);
 }
 
 public class StateMachine<T> : IStateMachine<T> where T : class, IState
 {
     private T? _currentState;
 
-    public void Change(T newState)
+    public void Change(T? newState)
     {
         _currentState?.Leave();
         _currentState = newState;
-        _currentState.Enter();
+        _currentState?.Enter();
     }
 
     public void Execute(float deltaTime) => _currentState?.Execute(deltaTime);

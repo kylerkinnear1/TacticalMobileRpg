@@ -1,14 +1,14 @@
-﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Game.MainBattle.Data;
+﻿using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
+using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
 using Extensions = Rpg.Mobile.App.Utils.Extensions;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
-public class SelectingAttackTargetPhase(Context _context) : IBattlePhase
+public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
 {
     private ISubscription[] _subscriptions = [];
 
@@ -33,7 +33,7 @@ public class SelectingAttackTargetPhase(Context _context) : IBattlePhase
         Extensions.Set(_context.Data.AttackTargetTiles, legalTargets);
 
         _context.Main.AttackTargetHighlight.Range = 1;
-        _context.Menu.SetButtons(new ButtonData("Back", _ => Bus.Global.Publish(new BackClickedEvent())));
+        _context.Menu.SetButtons(new ButtonData("Back", _ => Bus.Global.Publish(new ActivePhase.BackClickedEvent())));
     }
 
     public void Execute(float deltaTime) { }
@@ -59,7 +59,7 @@ public class SelectingAttackTargetPhase(Context _context) : IBattlePhase
 
         var enemy = _context.Data.UnitsAt(evnt.Tile).Single(x => x.PlayerId != _context.Data.CurrentUnit.PlayerId);
         var damage = CalcAttackDamage(_context.Data.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
-        Bus.Global.Publish(new UnitDamageAssignedEvent(new[] { enemy }, damage));
+        Bus.Global.Publish(new ActivePhase.UnitDamageAssignedEvent(new[] { enemy }, damage));
     }
 
     private bool IsValidAttackTargetTile(Point tile)

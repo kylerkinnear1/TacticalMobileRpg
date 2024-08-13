@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.Common;
+﻿using Rpg.Mobile.App.Game.UserInterface;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
 

@@ -1,15 +1,15 @@
-﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Game.MainBattle.Data;
+﻿using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
+using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Active.Steps;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
 // TODO: look at duplication with attack target state. Combine into 'SelectingTarget' state.
-public class SelectingMagicTargetPhase(Context _context) : IBattlePhase
+public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
 {
     private BattleData Data => _context.Data;
 
@@ -38,8 +38,8 @@ public class SelectingMagicTargetPhase(Context _context) : IBattlePhase
         Data.SpellTargetTiles.Set(allTargets);
 
         _context.Menu.SetButtons(Data.CurrentUnit.Spells
-            .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new SpellSelectedEvent(x))))
-            .Append(new("Back", _ => Bus.Global.Publish(new BackClickedEvent())))
+            .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new ActivePhase.SpellSelectedEvent(x))))
+            .Append(new("Back", _ => Bus.Global.Publish(new ActivePhase.BackClickedEvent())))
             .ToArray());
     }
 
@@ -66,15 +66,9 @@ public class SelectingMagicTargetPhase(Context _context) : IBattlePhase
 
     private void CastSpell(SpellData spell, IEnumerable<BattleUnitData> targets)
     {
-        if (Data.CurrentUnit.RemainingMp < spell.MpCost)
-        {
-            Bus.Global.Publish(new NotEnoughMpEvent(spell));
-            return;
-        }
-
         var damage = CalcSpellDamage(spell);
         Data.CurrentUnit.RemainingMp -= spell.MpCost;
-        Bus.Global.Publish(new UnitDamageAssignedEvent(targets, damage));
+        Bus.Global.Publish(new ActivePhase.UnitDamageAssignedEvent(targets, damage));
     }
 
     private int CalcSpellDamage(SpellData spell) =>

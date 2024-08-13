@@ -3,20 +3,12 @@ using Rpg.Mobile.GameSdk.Images;
 
 namespace Rpg.Mobile.GameSdk.Core;
 
-public class Sprite : SpriteComponentBase
-{
-    public Sprite(IImage sprite) : base(sprite) { }
-}
+public class SpriteComponent(IImage sprite) : SpriteComponentBase(sprite);
 
-public abstract class SpriteComponentBase : ComponentBase
+public abstract class SpriteComponentBase(IImage sprite) : ComponentBase(new(0, 0, sprite.Width, sprite.Height))
 {
-    public IImage Sprite { get; set; }
+    public IImage Sprite { get; set; } = sprite;
     public float Scale { get; private set; } = 1f;
-
-    protected SpriteComponentBase(IImage sprite) : base(new(0, 0, sprite.Width, sprite.Height))
-    {
-        Sprite = sprite;
-    }
 
     public override void Update(float deltaTime) => Bounds = Sprite.GetBounds(Bounds.Location, Scale);
 

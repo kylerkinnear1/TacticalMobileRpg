@@ -1,9 +1,9 @@
-﻿using Rpg.Mobile.App.Game.Common;
-using Rpg.Mobile.App.Game.MainBattle.Calculators;
+﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
 using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.States;
-using Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
+using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Inputs;

@@ -3,10 +3,11 @@ using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.App.Game.MainBattle.States.BattlePhaseMachine;
+using Rpg.Mobile.GameSdk.Utilities;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
 using static Rpg.Mobile.App.Game.Sprites;
 
-namespace Rpg.Mobile.App.Game.MainBattle.States.Phases.Setup;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
 
 public class SetupPhase(Context _context) : IBattlePhase
 {
@@ -39,10 +40,11 @@ public class SetupPhase(Context _context) : IBattlePhase
             .ToList();
 
         _context.Main.MoveShadow.Shadows.Set(originTiles);
-        _context.Main.PlaceUnitSprite.Visible = IsPlaceableTile(_lastHoveredTile, currentOrigins);
-        if (_context.Main.PlaceUnitSprite.Visible)
+        _context.Main.PlaceUnitSpriteComponent.Visible = IsPlaceableTile(_lastHoveredTile, currentOrigins);
+        if (_context.Main.PlaceUnitSpriteComponent.Visible)
         {
-            _context.Main.PlaceUnitSprite.Position = _context.Main.GetPositionForTile(_lastHoveredTile!.Value, _context.Main.PlaceUnitSprite.Bounds.Size);
+            _context.Main.PlaceUnitSpriteComponent.Position = _context.Main
+                .GetPositionForTile(_lastHoveredTile!.Value, _context.Main.PlaceUnitSpriteComponent.Bounds.Size);
         }
     }
 
@@ -85,7 +87,8 @@ public class SetupPhase(Context _context) : IBattlePhase
         Bus.Global.Publish(new UnitPlacedEvent(unit));
     }
 
-    private bool IsPlaceableTile(Point? hover, ICollection<Point> currentOrigins) => hover.HasValue && currentOrigins.Contains(hover.Value);
+    private bool IsPlaceableTile(Point? hover, ICollection<Point> currentOrigins) => 
+        hover.HasValue && currentOrigins.Contains(hover.Value);
 
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitData state) =>
         (state.Stats.UnitType, state.PlayerId) switch
