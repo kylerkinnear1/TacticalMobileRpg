@@ -3,7 +3,7 @@ using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
 using Extensions = Rpg.Mobile.App.Utils.Extensions;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
@@ -59,7 +59,7 @@ public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
 
         var enemy = _context.Data.UnitsAt(evnt.Tile).Single(x => x.PlayerId != _context.Data.CurrentUnit.PlayerId);
         var damage = CalcAttackDamage(_context.Data.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
-        Bus.Global.Publish(new ActivePhase.UnitDamageAssignedEvent(new[] { enemy }, damage));
+        Bus.Global.Publish(new ActivePhase.UnitsDamagedEvent(new[] { enemy }, damage));
     }
 
     private bool IsValidAttackTargetTile(Point tile)

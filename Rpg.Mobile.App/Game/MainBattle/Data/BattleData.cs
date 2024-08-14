@@ -11,7 +11,13 @@ public class BattleData
     public int ActiveUnitIndex { get; set; } = -1;
     public Point ActiveUnitStartPosition { get; set; } = Point.Empty;
 
-    public SpellData? CurrentSpell { get; set; }
+    // TODO: Split data by phases and steps.
+    private SpellData? _currentSpell;
+    public SpellData CurrentSpell
+    {
+        get => _currentSpell ?? throw new NotImplementedException();
+        set => _currentSpell = value;
+    }
 
     public BattleUnitData CurrentUnit => ActiveUnitIndex >= 0 
         ? TurnOrder[ActiveUnitIndex] 

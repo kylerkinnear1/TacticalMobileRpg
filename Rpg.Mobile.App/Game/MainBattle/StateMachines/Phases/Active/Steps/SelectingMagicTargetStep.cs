@@ -4,7 +4,7 @@ using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
@@ -68,7 +68,7 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
     {
         var damage = CalcSpellDamage(spell);
         Data.CurrentUnit.RemainingMp -= spell.MpCost;
-        Bus.Global.Publish(new ActivePhase.UnitDamageAssignedEvent(targets, damage));
+        Bus.Global.Publish(new ActivePhase.UnitsDamagedEvent(targets, damage));
     }
 
     private int CalcSpellDamage(SpellData spell) =>
@@ -92,16 +92,12 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
     private void TileClicked(TileClickedEvent evnt)
     {
         if (!IsValidMagicTargetTile(evnt.Tile)) return;
-
-        if (Data.CurrentSpell is null)
-            throw new NotImplementedException();
-        
         CastSpell(Data.CurrentSpell, evnt.Tile);
     }
 
     private bool IsValidMagicTargetTile(Point tile)
     {
-        if (Data.CurrentSpell is null || !Data.SpellTargetTiles.Contains(tile))
+        if (!Data.SpellTargetTiles.Contains(tile))
             return false;
 
         var hoveredUnit = Data.UnitsAt(tile).FirstOrDefault();

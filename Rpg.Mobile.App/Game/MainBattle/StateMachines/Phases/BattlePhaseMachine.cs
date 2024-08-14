@@ -7,7 +7,7 @@ using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.MainBattle.StateMachines;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
 
 public interface IBattlePhase : IState { }
 public class BattlePhaseMachine: StateMachine<IBattlePhase>, IDisposable
@@ -40,6 +40,7 @@ public class BattlePhaseMachine: StateMachine<IBattlePhase>, IDisposable
 
     private void UnitTurnEnded()
     {
+        // TODO: Make Select Unit Phase and Steps
         _context.Main.Units[_context.Data.CurrentUnit].HealthBar.HasGone = true;
         _context.Data.ActiveUnitIndex = (_context.Data.ActiveUnitIndex + 1) % _context.Data.TurnOrder.Count;
 

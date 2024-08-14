@@ -1,7 +1,7 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 

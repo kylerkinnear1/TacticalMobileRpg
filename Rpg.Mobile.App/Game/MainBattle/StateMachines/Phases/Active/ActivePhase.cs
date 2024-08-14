@@ -16,7 +16,7 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
     public record AttackClickedEvent : IEvent;
     public record BackClickedEvent : IEvent;
     public record CompletedEvent(BattleUnitData Unit) : IEvent;
-    public record UnitDamageAssignedEvent(IEnumerable<BattleUnitData> Units, int Damage) : IEvent;
+    public record UnitsDamagedEvent(IEnumerable<BattleUnitData> Units, int Damage) : IEvent;
     public record NotEnoughMpEvent(SpellData Spell) : IEvent;
     public record SpellSelectedEvent(SpellData Spell) : IEvent;
 
@@ -29,7 +29,7 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
             Bus.Global.Subscribe<BackClickedEvent>(BackClicked),
             Bus.Global.Subscribe<SpellSelectedEvent>(_ => _step.Change(new SelectingMagicTargetStep(_context))),
             Bus.Global.Subscribe<IdleStep.CompletedEvent>(evnt => Bus.Global.Publish(new CompletedEvent(evnt.CurrentUnit))),
-            Bus.Global.Subscribe<UnitDamageAssignedEvent>(UnitDamageCalculated)
+            Bus.Global.Subscribe<UnitsDamagedEvent>(UnitDamaged)
         ];
         
         _step.Change(new IdleStep(_context));
@@ -47,11 +47,13 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
 
     private void BackClicked(BackClickedEvent evnt)
     {
-        // TODO: Reset position
+        // TODO: Reset position - State machine on Unit Component to move it
+        // to isolate the moving code? Sounds good to me.
         _step.Change(new IdleStep(_context));
+        throw new NotImplementedException();
     }
     
-    private void UnitDamageCalculated(UnitDamageAssignedEvent evnt)
+    private void UnitDamaged(UnitsDamagedEvent evnt)
     {
         var defeatedUnits = new List<BattleUnitData>();
         var damagedUnits = new List<(BattleUnitData Unit, int Damage)>();

@@ -5,7 +5,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
 using Rpg.Mobile.GameSdk.Utilities;
 using static Rpg.Mobile.App.Game.MainBattle.Components.MainBattleComponent;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
