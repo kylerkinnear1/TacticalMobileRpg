@@ -41,7 +41,7 @@ public class BattlePhaseMachine: StateMachine<IBattlePhase>, IDisposable
     private void UnitTurnEnded()
     {
         // TODO: Make Select Unit Phase and Steps
-        _context.Main.Units[_context.Data.CurrentUnit].HealthBar.HasGone = true;
+        _context.Main.Units[_context.Data.CurrentUnit].Unit.HealthBar.HasGone = true;
         _context.Data.ActiveUnitIndex = (_context.Data.ActiveUnitIndex + 1) % _context.Data.TurnOrder.Count;
 
         if (_context.Data.ActiveUnitIndex == 0)

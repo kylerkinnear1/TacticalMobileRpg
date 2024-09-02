@@ -17,9 +17,16 @@ public interface IStateMachine<T> where T : class, IState
     void Change(T? newState);
 }
 
-public class StateMachine<T> : IStateMachine<T> where T : class, IState
+public class StateMachine : StateMachine<IState>
 {
-    private T? _currentState;
+    public StateMachine(IState? state) : base(state) { }
+    public StateMachine() : base() { }
+}
+
+public class StateMachine<T>(T? _currentState) : IStateMachine<T> 
+    where T : class, IState
+{
+    public StateMachine() : this(null) { }
 
     public void Change(T? newState)
     {

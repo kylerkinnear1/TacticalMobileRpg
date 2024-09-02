@@ -36,9 +36,10 @@ public class IdleStep(Context _context) : ActivePhase.IStep
 
     public void Execute(float deltaTime)
     {
+        // TODO: Remove and use state machine.
         if (_context.Main.CurrentUnitTween is not null)
         {
-            _context.Main.CurrentUnit.Position = _context.Main.CurrentUnitTween.Advance(deltaTime);
+            _context.Main.CurrentUnit.Unit.Position = _context.Main.CurrentUnitTween.Advance(deltaTime);
             _context.Main.CurrentUnitTween = _context.Main.CurrentUnitTween.IsComplete ? null : _context.Main.CurrentUnitTween;
         }
 
@@ -62,7 +63,7 @@ public class IdleStep(Context _context) : ActivePhase.IStep
         }
 
         _context.Data.UnitCoordinates[_context.Data.CurrentUnit] = evnt.Tile;
-        var finalTarget = _context.Main.GetPositionForTile(evnt.Tile, _context.Main.CurrentUnit.Bounds.Size);
-        _context.Main.CurrentUnitTween = _context.Main.CurrentUnit.Position.SpeedTween(500f, finalTarget);
+        var finalTarget = _context.Main.GetPositionForTile(evnt.Tile, _context.Main.CurrentUnit.Unit.Bounds.Size);
+        _context.Main.CurrentUnitTween = _context.Main.CurrentUnit.Unit.Position.SpeedTween(500f, finalTarget);
     }
 }

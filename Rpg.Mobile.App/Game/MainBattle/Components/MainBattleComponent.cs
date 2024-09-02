@@ -1,7 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
 using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.UserInterface;
-using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Tweening;
 using static Rpg.Mobile.App.Game.Sprites;
@@ -21,9 +20,9 @@ public class MainBattleComponent : ComponentBase
     public readonly TargetIndicatorComponent AttackTargetHighlight;
     public readonly TargetIndicatorComponent CurrentTileHighlight;
     public readonly SpriteComponent PlaceUnitSpriteComponent;
-    public readonly Dictionary<BattleUnitData, BattleUnitComponent> Units = new();
+    public readonly Dictionary<BattleUnitData, BattleUnitComponentStateMachine> Units = new();
 
-    public BattleUnitComponent CurrentUnit => Units[_data.CurrentUnit];
+    public BattleUnitComponentStateMachine CurrentUnit => Units[_data.CurrentUnit];
 
     public ITween<PointF>? CurrentUnitTween;
 
@@ -40,11 +39,11 @@ public class MainBattleComponent : ComponentBase
         var path = new PathCalculator();
         AddChild(Map = new(data.Map));
         AddChild(MoveShadow = new(Map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
-        AddChild(AttackShadow = new(Map.Bounds) { BackColor = Colors.Crimson.WithAlpha(.4f) });
-        AddChild(CurrentUnitShadow = new(Map.Bounds) { BackColor = Colors.WhiteSmoke.WithAlpha(.5f) });
+        AddChild(AttackShadow = new(Map.Bounds) { BackColor = Colors.Maroon.WithAlpha(.4f) });
+        AddChild(CurrentUnitShadow = new(Map.Bounds) { BackColor = Colors.Gainsboro.WithAlpha(.5f) });
         AddChild(AttackTargetHighlight = new(data.Map, MapComponent.TileSize, Map.Bounds, path)
         {
-            StrokeColor = Colors.Crimson.WithAlpha(.8f),
+            StrokeColor = Colors.Maroon.WithAlpha(.8f),
             StrokeWidth = 10f,
             Visible = false
         });
@@ -63,14 +62,7 @@ public class MainBattleComponent : ComponentBase
         Message.Position = new(Map.Bounds.Left, Map.Bounds.Top - 10f);
     }
 
-    public override void Update(float deltaTime)
-    {
-        if (_data.ActiveUnitIndex <= 0)
-            return;
-
-        var currentUnitPosition = _data.UnitCoordinates[CurrentUnit.State];
-        CurrentUnitShadow.Shadows.SetSingle(new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
-    }
+    public override void Update(float deltaTime) { }
 
     public override void Render(ICanvas canvas, RectF dirtyRect) { }
 

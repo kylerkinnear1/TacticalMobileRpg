@@ -1,7 +1,6 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
 using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
 using Rpg.Mobile.App.Game.UserInterface;

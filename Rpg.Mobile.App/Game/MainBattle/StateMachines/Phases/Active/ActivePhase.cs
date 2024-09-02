@@ -1,5 +1,7 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Data;
+﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
+using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 
@@ -7,6 +9,8 @@ namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
 
 public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
 {
+    private int TileSize => MapComponent.TileSize;
+    
     public interface IStep : IState { }
 
     private ISubscription[] _subscriptions = [];
@@ -37,6 +41,9 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
 
     public void Execute(float deltaTime)
     {
+        var currentUnitPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
+        _context.Main.CurrentUnitShadow.Shadows.SetSingle(
+            new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
     }
 
     public void Leave()
@@ -47,10 +54,13 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
 
     private void BackClicked(BackClickedEvent evnt)
     {
-        // TODO: Reset position - State machine on Unit Component to move it
-        // to isolate the moving code? Sounds good to me.
-        _step.Change(new IdleStep(_context));
-        throw new NotImplementedException();
+        var position = _context.Main.GetPositionForTile(
+            _context.Data.ActiveUnitStartPosition, 
+            _context.Main.CurrentUnit.Unit.Bounds.Size);
+        
+        _context.Main.CurrentUnit.MoveTo(
+            position, 
+            () => _step.Change(new IdleStep(_context)));
     }
     
     private void UnitDamaged(UnitsDamagedEvent evnt)
@@ -77,7 +87,7 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
             _context.Data.ActiveUnitIndex = 0;
 
         var positions = damagedUnits
-            .Select(x => (_context.Main.Units[x.Unit].Position, Data: x.Damage))
+            .Select(x => (_context.Main.Units[x.Unit].Unit.Position, Data: x.Damage))
             .ToList();
 
         _context.Main.DamageIndicator.SetDamage(positions);
@@ -85,7 +95,7 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
         var defeatedComponents = defeatedUnits.Select(x => _context.Main.Units[x]).ToList();
         foreach (var unit in defeatedComponents)
         {
-            unit.Visible = false;
+            unit.Unit.Visible = false;
         }
 
         Bus.Global.Publish(new CompletedEvent(_context.Data.CurrentUnit));

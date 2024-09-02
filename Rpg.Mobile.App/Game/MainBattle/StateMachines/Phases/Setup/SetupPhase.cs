@@ -78,10 +78,11 @@ public class SetupPhase(Context _context) : IBattlePhase
         _context.Data.CurrentPlaceOrder++;
 
         var component = CreateBattleUnitComponent(unit);
-        _context.Main.Units[unit] = component;
+        var state = new BattleUnitComponentStateMachine(component);
+        _context.Main.Units[unit] = state;
         _context.Main.AddChild(component);
 
-        var point = _context.Data.UnitCoordinates[component.State];
+        var point = _context.Data.UnitCoordinates[unit];
         component.Position = _context.Main.GetPositionForTile(point, component.Bounds.Size);
 
         Bus.Global.Publish(new UnitPlacedEvent(unit));
@@ -93,16 +94,16 @@ public class SetupPhase(Context _context) : IBattlePhase
     private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitData state) =>
         (state.Stats.UnitType, state.PlayerId) switch
         {
-            (BattleUnitType.Archer, 0) => new BattleUnitComponent(Images.ArcherIdle01, state),
-            (BattleUnitType.Healer, 0) => new BattleUnitComponent(Images.HealerIdle01, state),
-            (BattleUnitType.Mage, 0) => new BattleUnitComponent(Images.MageIdle01, state),
-            (BattleUnitType.Warrior, 0) => new BattleUnitComponent(Images.WarriorIdle01, state),
-            (BattleUnitType.Ninja, 0) => new BattleUnitComponent(Images.NinjaIdle01, state),
-            (BattleUnitType.Archer, 1) => new BattleUnitComponent(Images.ArcherIdle02, state),
-            (BattleUnitType.Healer, 1) => new BattleUnitComponent(Images.HealerIdle02, state),
-            (BattleUnitType.Mage, 1) => new BattleUnitComponent(Images.MageIdle02, state),
-            (BattleUnitType.Warrior, 1) => new BattleUnitComponent(Images.WarriorIdle02, state),
-            (BattleUnitType.Ninja, 1) => new BattleUnitComponent(Images.NinjaIdle02, state),
+            (BattleUnitType.Archer, 0) => new BattleUnitComponent(Images.ArcherIdle01),
+            (BattleUnitType.Healer, 0) => new BattleUnitComponent(Images.HealerIdle01),
+            (BattleUnitType.Mage, 0) => new BattleUnitComponent(Images.MageIdle01),
+            (BattleUnitType.Warrior, 0) => new BattleUnitComponent(Images.WarriorIdle01),
+            (BattleUnitType.Ninja, 0) => new BattleUnitComponent(Images.NinjaIdle01),
+            (BattleUnitType.Archer, 1) => new BattleUnitComponent(Images.ArcherIdle02),
+            (BattleUnitType.Healer, 1) => new BattleUnitComponent(Images.HealerIdle02),
+            (BattleUnitType.Mage, 1) => new BattleUnitComponent(Images.MageIdle02),
+            (BattleUnitType.Warrior, 1) => new BattleUnitComponent(Images.WarriorIdle02),
+            (BattleUnitType.Ninja, 1) => new BattleUnitComponent(Images.NinjaIdle02),
             _ => throw new ArgumentException()
         };
 }

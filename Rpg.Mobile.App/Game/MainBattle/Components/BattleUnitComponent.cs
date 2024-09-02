@@ -1,59 +1,68 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Data;
-using Rpg.Mobile.GameSdk.Core;
+﻿using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.StateManagement;
+using Rpg.Mobile.GameSdk.Tweening;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class BattleUnitComponent : SpriteComponentBase
 {
-    public BattleUnitData State { get; }
     public BattleUnitHealthBarComponent HealthBar { get; }
 
-    public BattleUnitComponent(IImage sprite, BattleUnitData state) : base(sprite)
+    public BattleUnitComponent(IImage sprite) : base(sprite)
     {
         UpdateScale(1.5f);
-        State = state;
-
-        HealthBar = AddChild(new BattleUnitHealthBarComponent(State));
+        HealthBar = AddChild(new BattleUnitHealthBarComponent());
         HealthBar.Position = new(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
     }
 }
 
-public class BattleUnitHealthBarComponent : ComponentBase
+public class BattleUnitComponentStateMachine
 {
-    public BattleUnitData State { get; }
-    public Font Font { get; set; } = new("Arial", FontWeights.ExtraBold, FontStyleType.Italic);
-    public bool HasGone { get; set; } = false;
+    public record MovementCompleted(BattleUnitComponent Component) : IEvent;
 
-    public BattleUnitHealthBarComponent(BattleUnitData state) : base(new(0f, 0f, 30f, 25f))
+    public BattleUnitComponent Unit { get; }
+
+    public BattleUnitComponentStateMachine(BattleUnitComponent unit) => Unit = unit;
+
+    private readonly StateMachine _state = new(new Idle());
+
+    public void MoveTo(PointF target, Action? onComplete = null, float speed = 500f)
     {
-        State = state;
-    }
-
-    public override void Update(float deltaTime)
-    {
-        Visible = State.RemainingHealth > 0;
-    }
-
-    public override void Render(ICanvas canvas, RectF dirtyRect)
-    {
-        canvas.Font = Font;
-        canvas.FontSize = HasGone ? 19f : 22f;
-
-        canvas.FillColor = HasGone ? Colors.SlateGray.WithAlpha(.8f) : Colors.Black.WithAlpha(.4f);
-        canvas.FontColor = State.PlayerId switch
+        var tween = Unit.Position.SpeedTween(target, speed);
+        var moving = new Moving(Unit, tween, () =>
         {
-            0 when !HasGone => Colors.Aqua,
-            1 when !HasGone => Colors.Orange,
-            0 when HasGone => Colors.DarkBlue,
-            1 when HasGone => Colors.Brown,
-            _ => throw new ArgumentException()
-        };
+            _state.Change(new Idle());
+            Bus.Global.Publish(new MovementCompleted(Unit));
+            onComplete?.Invoke();
+        });
+        _state.Change(moving);
+    }
+        
+    public class Moving(
+        BattleUnitComponent _component, 
+        ITween<PointF> _tween,
+        Action? _onComplete = null) : IState
+    {
+        public void Enter() { }
 
-        canvas.StrokeColor = State.PlayerId == 0 ? Colors.Aqua : Colors.Orange;
-        canvas.StrokeSize = 1f;
+        public void Execute(float deltaTime)
+        {
+            if (!_tween.IsComplete)
+                _component.Position = _tween.Advance(deltaTime);
 
-        var bounds = new RectF(PointF.Zero, Bounds.Size);
-        canvas.FillRoundedRectangle(bounds, 2f);
-        canvas.DrawString($"{State.RemainingHealth}", bounds, HorizontalAlignment.Center, VerticalAlignment.Center);
+            if (_tween.IsComplete)
+                _onComplete?.Invoke();
+        }
+
+        public void Leave() { }
+    }
+
+    public class Idle : IState
+    {
+        public void Enter() { }
+        public void Execute(float deltaTime) { }
+        public void Leave() { }
     }
 }
+
+

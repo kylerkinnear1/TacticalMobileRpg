@@ -15,9 +15,7 @@ public static class TweenExtensions
 
         return multi;
     }
-
-    public static SpeedTween SpeedTween(this PointF end, float speed) => new(PointF.Zero, end, speed);
-
+    
     public static SpeedTween SpeedTween(this PointF start, PointF end, float speed) => new(start, end, speed);
 
     public static MultiTween SpeedTween(this SpeedTween speedTween, PointF end, float speed)
@@ -31,12 +29,5 @@ public static class TweenExtensions
     {
         multi.Steps.Add(new SpeedTween(end, speed));
         return multi;
-    }
-
-    public static TweenObserver<T> OnComplete<T>(this ITween<T> tween, Action<float, T> handler)
-    {
-        var observer = new TweenObserver<T>(tween);
-        observer.AddOnComplete(handler);
-        return observer;
     }
 }

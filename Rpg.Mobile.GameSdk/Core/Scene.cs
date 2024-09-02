@@ -10,7 +10,11 @@ public abstract class SceneBase
 
     private IEnumerable<IComponent> ComponentUpdates => ComponentTree;
     public IEnumerable<IUpdateComponent> Updates =>
-        ComponentUpdates.SelectMany(x => x.All).Cast<IUpdateComponent>().Append(ActiveCamera);
+        ComponentUpdates
+            .SelectMany(x => x.All
+                .Cast<IUpdateComponent>()
+                .Concat(x.PreUpdateBehaviors))
+            .Append(ActiveCamera);
 
     protected SceneBase(Camera? camera = null)
     {
