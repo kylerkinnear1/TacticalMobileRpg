@@ -87,6 +87,8 @@ public class SetupPhase(Context _context) : IBattlePhase
 
         var point = _context.Data.UnitCoordinates[unit];
         component.Position = _context.Main.GetPositionForTile(point, component.Bounds.Size);
+        component.HealthBar.RemainingHealth = unit.Stats.MaxHealth;
+        component.HealthBar.PlayerId = unit.PlayerId;
 
         Bus.Global.Publish(new UnitPlacedEvent(unit));
 
