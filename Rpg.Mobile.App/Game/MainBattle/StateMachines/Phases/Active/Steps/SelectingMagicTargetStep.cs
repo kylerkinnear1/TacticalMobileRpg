@@ -38,7 +38,7 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
             .ToList();
 
         _context.Data.SpellTargetTiles.Set(legalTargets);
-        _context.Main.AttackTargetHighlight.Range = Data.CurrentSpell.MaxRange;
+        _context.Main.AttackTargetHighlight.Range = Data.CurrentSpell.Aoe;
         
         var attackTiles = legalTargets
             .Select(x => 
@@ -101,7 +101,6 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
         }
 
         _context.Main.AttackTargetHighlight.Center = evnt.Tile;
-        _context.Main.AttackTargetHighlight.Range = 1;
         _context.Main.AttackTargetHighlight.Visible = true;
     }
 
