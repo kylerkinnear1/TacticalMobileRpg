@@ -5,6 +5,7 @@ using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
+using static Rpg.Mobile.App.Game.MainBattle.Components.MainBattleComponent;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
@@ -23,33 +24,42 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
             Bus.Global.Subscribe<TileClickedEvent>(TileClicked)
         ];
 
-        var gridToUnit = _context.Data.UnitCoordinates.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(x => x.Value, x => x.Key);
-        var allTargets = _context.Path
+        var gridToUnit = _context.Data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
+        var legalTargets = _context.Path
             .CreateFanOutArea(
                 Data.UnitCoordinates[_context.Data.CurrentUnit],
                 Data.Map.Corner,
                 Data.CurrentSpell!.MinRange,
-                Data.CurrentSpell.MaxRange).Where(x =>
+                Data.CurrentSpell.MaxRange)
+            .Where(x =>
                 !gridToUnit.Contains(x) ||
                 Data.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != Data.CurrentUnit.PlayerId) ||
                  Data.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == Data.CurrentUnit.PlayerId))
             .ToList();
 
-        Data.SpellTargetTiles.Set(allTargets);
-        _context.Data.AttackTargetTiles.Set(allTargets);
+        _context.Data.SpellTargetTiles.Set(legalTargets);
         _context.Main.AttackTargetHighlight.Range = Data.CurrentSpell.MaxRange;
+        
+        var attackTiles = legalTargets
+            .Select(x => 
+                new RectF(_context.Main.GetPositionForTile(x, TileSize), TileSize));
+        
+        _context.Main.AttackShadow.Shadows.Set(attackTiles);
 
-        _context.Menu.SetButtons(Data.CurrentUnit.Spells
-            .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new ActivePhase.SpellSelectedEvent(x))))
-            .Append(new("Back", _ => Bus.Global.Publish(new ActivePhase.BackClickedEvent())))
-            .ToArray());
+        _context.Menu.SetButton(new("Back", _ => Bus.Global.Publish(new ActivePhase.BackClickedEvent())));
     }
 
     public void Execute(float deltaTime)
     {
     }
 
-    public void Leave() => _subscriptions.DisposeAll();
+    public void Leave()
+    {
+        _subscriptions.DisposeAll();
+        _context.Data.SpellTargetTiles.Clear();
+        _context.Main.AttackTargetHighlight.Visible = false;
+        _context.Main.AttackShadow.Shadows.Clear();
+    }
 
     private void CastSpell(SpellData spell, Point target)
     {
@@ -84,7 +94,11 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
 
     private void TileHovered(TileHoveredEvent evnt)
     {
-        if (!IsValidMagicTargetTile(evnt.Tile)) return;
+        if (!IsValidMagicTargetTile(evnt.Tile))
+        {
+            _context.Main.AttackTargetHighlight.Visible = false;
+            return;
+        }
 
         _context.Main.AttackTargetHighlight.Center = evnt.Tile;
         _context.Main.AttackTargetHighlight.Range = 1;

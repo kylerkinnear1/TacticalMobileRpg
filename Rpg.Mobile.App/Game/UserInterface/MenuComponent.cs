@@ -46,6 +46,7 @@ public class MenuComponent : ComponentBase
         Buttons.Add(button);
     }
 
+    public void SetButton(ButtonData button) => SetButtons(button);
     public void SetButtons(params ButtonData[] buttons)
     {
         var currentButtons = Buttons.ToList();
