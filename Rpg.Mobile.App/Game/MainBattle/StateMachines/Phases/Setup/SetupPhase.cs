@@ -50,7 +50,11 @@ public class SetupPhase(Context _context) : IBattlePhase
         }
     }
 
-    public void Leave() => _subscriptions?.DisposeAll();
+    public void Leave()
+    {
+        _subscriptions?.DisposeAll();
+        _context.Main.PlaceUnitSpriteComponent.Visible = false;
+    }
 
     private void TileHovered(TileHoveredEvent evnt) => _lastHoveredTile = evnt.Tile;
 
