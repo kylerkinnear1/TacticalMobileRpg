@@ -38,6 +38,7 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
         
         _context.Data.ActiveUnitStartPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
         _step.Change(new IdleStep(_context));
+        _context.Main.DamageIndicator.Visible = true;
     }
 
     public void Execute(float deltaTime)
@@ -52,6 +53,7 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
     {
         _step.Change(null);
         _subscriptions.DisposeAll();
+        _context.Main.DamageIndicator.Visible = false;
     }
 
     private void BackClicked(BackClickedEvent evnt)

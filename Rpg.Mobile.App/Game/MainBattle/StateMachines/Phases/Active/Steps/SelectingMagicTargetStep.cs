@@ -36,6 +36,8 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
             .ToList();
 
         Data.SpellTargetTiles.Set(allTargets);
+        _context.Data.AttackTargetTiles.Set(allTargets);
+        _context.Main.AttackTargetHighlight.Range = Data.CurrentSpell.MaxRange;
 
         _context.Menu.SetButtons(Data.CurrentUnit.Spells
             .Select(x => new ButtonData(x.Name, _ => Bus.Global.Publish(new ActivePhase.SpellSelectedEvent(x))))

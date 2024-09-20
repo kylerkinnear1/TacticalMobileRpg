@@ -32,7 +32,8 @@ public class SelectingSpellStep(Context _context) : ActivePhase.IStep
             Bus.Global.Publish(new ActivePhase.NotEnoughMpEvent(spell));
             return;
         }
-        
+
+        _context.Data.CurrentSpell = spell;
         Bus.Global.Publish(new ActivePhase.SpellSelectedEvent(spell));
     }
 }
