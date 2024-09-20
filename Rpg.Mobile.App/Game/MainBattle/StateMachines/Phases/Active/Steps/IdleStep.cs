@@ -2,7 +2,6 @@
 using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
-using Rpg.Mobile.GameSdk.Tweening;
 using Rpg.Mobile.GameSdk.Utilities;
 using static Rpg.Mobile.App.Game.MainBattle.Components.MainBattleComponent;
 using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
@@ -36,14 +35,7 @@ public class IdleStep(Context _context) : ActivePhase.IStep
 
     public void Execute(float deltaTime)
     {
-        // TODO: Remove and use state machine.
-        if (_context.Main.CurrentUnitTween is not null)
-        {
-            _context.Main.CurrentUnit.Unit.Position = _context.Main.CurrentUnitTween.Advance(deltaTime);
-            _context.Main.CurrentUnitTween = _context.Main.CurrentUnitTween.IsComplete ? null : _context.Main.CurrentUnitTween;
-        }
-
-        var walkShadows = _context.Data.WalkableTiles.Select(x => new RectF(x.X * TileSize, x.Y * TileSize, TileSize, TileSize));
+        var walkShadows = _context.Data.WalkableTiles.Select(x => new RectF(x.X * TileWidth, x.Y * TileWidth, TileWidth, TileWidth));
         _context.Main.MoveShadow.Shadows.Set(walkShadows);
     }
 
@@ -61,9 +53,9 @@ public class IdleStep(Context _context) : ActivePhase.IStep
         {
             return;
         }
-
+        
         _context.Data.UnitCoordinates[_context.Data.CurrentUnit] = evnt.Tile;
         var finalTarget = _context.Main.GetPositionForTile(evnt.Tile, _context.Main.CurrentUnit.Unit.Bounds.Size);
-        _context.Main.CurrentUnitTween = _context.Main.CurrentUnit.Unit.Position.SpeedTween(500f, finalTarget);
+        _context.Main.Units[_context.Data.CurrentUnit].MoveTo(finalTarget, speed: 500f);
     }
 }

@@ -26,6 +26,8 @@ public class BattleUnitComponentStateMachine
 
     private readonly StateMachine _state = new(new Idle());
 
+    public void Execute(float deltaTime) => _state.Execute(deltaTime);
+
     public void MoveTo(PointF target, Action? onComplete = null, float speed = 500f)
     {
         var tween = Unit.Position.SpeedTween(target, speed);

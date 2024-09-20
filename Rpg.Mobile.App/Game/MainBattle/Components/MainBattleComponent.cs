@@ -9,7 +9,8 @@ namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class MainBattleComponent : ComponentBase
 {
-    public static int TileSize => MapComponent.TileSize;
+    public static int TileWidth => MapComponent.TileWidth;
+    public static SizeF TileSize => new(TileWidth, TileWidth);
 
     public readonly MapComponent Map;
     public readonly TileShadowComponent MoveShadow;
@@ -24,15 +25,13 @@ public class MainBattleComponent : ComponentBase
 
     public BattleUnitComponentStateMachine CurrentUnit => Units[_data.CurrentUnit];
 
-    public ITween<PointF>? CurrentUnitTween;
-
     private readonly BattleData _data;
 
     private static RectF CalcBounds(PointF position, int width, int height, float size) =>
         new(position.X, position.Y, width * size, height * size);
 
     public MainBattleComponent(PointF location, BattleData data)
-        : base(CalcBounds(location, data.Map.Width, data.Map.Height, TileSize))
+        : base(CalcBounds(location, data.Map.Width, data.Map.Height, TileWidth))
     {
         _data = data;
 
@@ -41,13 +40,13 @@ public class MainBattleComponent : ComponentBase
         AddChild(MoveShadow = new(Map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(AttackShadow = new(Map.Bounds) { BackColor = Colors.Maroon.WithAlpha(.4f) });
         AddChild(CurrentUnitShadow = new(Map.Bounds) { BackColor = Colors.Gainsboro.WithAlpha(.5f) });
-        AddChild(AttackTargetHighlight = new(data.Map, MapComponent.TileSize, Map.Bounds, path)
+        AddChild(AttackTargetHighlight = new(data.Map, MapComponent.TileWidth, Map.Bounds, path)
         {
             StrokeColor = Colors.Maroon.WithAlpha(.8f),
             StrokeWidth = 10f,
             Visible = false
         });
-        AddChild(CurrentTileHighlight = new(data.Map, MapComponent.TileSize, Map.Bounds, path)
+        AddChild(CurrentTileHighlight = new(data.Map, MapComponent.TileWidth, Map.Bounds, path)
         {
             StrokeColor = Colors.White.WithAlpha(.7f),
             Visible = false
@@ -62,7 +61,11 @@ public class MainBattleComponent : ComponentBase
         Message.Position = new(Map.Bounds.Left, Map.Bounds.Top - 10f);
     }
 
-    public override void Update(float deltaTime) { }
+    public override void Update(float deltaTime)
+    {
+        foreach (var unit in Units)
+            unit.Value.Execute(deltaTime);
+    }
 
     public override void Render(ICanvas canvas, RectF dirtyRect) { }
 
@@ -71,8 +74,8 @@ public class MainBattleComponent : ComponentBase
 
     public PointF GetPositionForTile(int x, int y, SizeF componentSize)
     {
-        var marginX = (TileSize - componentSize.Width) / 2;
-        var marginY = (TileSize - componentSize.Height) / 2;
-        return new(x * TileSize + marginX, y * TileSize + marginY);
+        var marginX = (TileWidth - componentSize.Width) / 2;
+        var marginY = (TileWidth - componentSize.Height) / 2;
+        return new(x * TileWidth + marginX, y * TileWidth + marginY);
     }
 }

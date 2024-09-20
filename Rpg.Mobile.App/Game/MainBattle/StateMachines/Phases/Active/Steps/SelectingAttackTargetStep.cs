@@ -1,10 +1,11 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
 using Rpg.Mobile.App.Game.UserInterface;
+using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
+using static Rpg.Mobile.App.Game.MainBattle.Components.MainBattleComponent;
 using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
-using Extensions = Rpg.Mobile.App.Utils.Extensions;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
@@ -27,12 +28,18 @@ public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
                 _context.Data.UnitCoordinates[_context.Data.CurrentUnit],
                 _context.Data.Map.Corner,
                 _context.Data.CurrentUnit.Stats.AttackMinRange,
-                _context.Data.CurrentUnit.Stats.AttackMaxRange).Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != _context.Data.CurrentUnit.PlayerId))
+                _context.Data.CurrentUnit.Stats.AttackMaxRange)
+            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != _context.Data.CurrentUnit.PlayerId))
             .ToList();
 
-        Extensions.Set(_context.Data.AttackTargetTiles, legalTargets);
-
+        _context.Data.AttackTargetTiles.Set(legalTargets);
         _context.Main.AttackTargetHighlight.Range = 1;
+
+        var attackTiles = legalTargets
+            .Select(x => 
+                new RectF(_context.Main.GetPositionForTile(x, TileSize), TileSize));
+        
+        _context.Main.AttackShadow.Shadows.Set(attackTiles);
         _context.Menu.SetButtons(new ButtonData("Back", _ => Bus.Global.Publish(new ActivePhase.BackClickedEvent())));
     }
 
@@ -42,6 +49,8 @@ public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
     {
         _subscriptions.DisposeAll();
         _context.Main.AttackTargetHighlight.Visible = false;
+        _context.Data.AttackTargetTiles.Clear();
+        _context.Main.AttackShadow.Shadows.Clear();
     }
 
     private void TileHovered(TileHoveredEvent evnt)

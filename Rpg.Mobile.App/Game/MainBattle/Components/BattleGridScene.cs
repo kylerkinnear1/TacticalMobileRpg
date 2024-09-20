@@ -50,11 +50,11 @@ public class BattleGridScene : SceneBase
 
         var context = new BattlePhaseMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
         _stateMachine = new BattlePhaseMachine(context);
+        _stateMachine.Change(new SetupPhase(context));
 
         Bus.Global.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
         Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
-
-        _stateMachine.Change(new SetupPhase(context));
+        
         ActiveCamera.Offset = new PointF(80f, 80f);
     }
 

@@ -9,7 +9,7 @@ namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
 
 public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
 {
-    private int TileSize => MapComponent.TileSize;
+    private int TileWidth => MapComponent.TileWidth;
     
     public interface IStep : IState { }
 
@@ -36,6 +36,7 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
             Bus.Global.Subscribe<UnitsDamagedEvent>(UnitDamaged)
         ];
         
+        _context.Data.ActiveUnitStartPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
         _step.Change(new IdleStep(_context));
     }
 
@@ -43,7 +44,8 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
     {
         var currentUnitPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
         _context.Main.CurrentUnitShadow.Shadows.SetSingle(
-            new(currentUnitPosition.X * TileSize, currentUnitPosition.Y * TileSize, TileSize, TileSize));
+            new(currentUnitPosition.X * TileWidth, currentUnitPosition.Y * TileWidth, TileWidth, TileWidth));
+        _step.Execute(deltaTime);
     }
 
     public void Leave()
@@ -57,7 +59,9 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
         var position = _context.Main.GetPositionForTile(
             _context.Data.ActiveUnitStartPosition, 
             _context.Main.CurrentUnit.Unit.Bounds.Size);
-        
+
+        _context.Data.UnitCoordinates[_context.Data.CurrentUnit] = _context.Data.ActiveUnitStartPosition;
+            
         _context.Main.CurrentUnit.MoveTo(
             position, 
             () => _step.Change(new IdleStep(_context)));

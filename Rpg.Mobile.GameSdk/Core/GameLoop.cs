@@ -20,12 +20,11 @@ public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispat
 
     public void Start()
     {
-        HandleInput();
-
         var startTime = DateTime.UtcNow;
         var delta = startTime - _lastUpdate;
-
         var deltaTime = (float)delta.TotalSeconds;
+        
+        HandleInput();
         foreach (var node in _scene.Updates)
             node.Update(deltaTime);
 

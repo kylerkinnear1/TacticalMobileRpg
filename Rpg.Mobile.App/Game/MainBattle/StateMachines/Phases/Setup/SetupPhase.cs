@@ -12,11 +12,10 @@ namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
 public class SetupPhase(Context _context) : IBattlePhase
 {
     public record UnitPlacedEvent(BattleUnitData Unit) : IEvent;
-    public record UnitPlacementCompletedEvent : IEvent;
     public record CompletedEvent : IEvent;
 
     private Point? _lastHoveredTile;
-    private static int TileSize => MainBattleComponent.TileSize;
+    private static int TileSize => MainBattleComponent.TileWidth;
 
     private ISubscription[] _subscriptions = [];
 
@@ -70,7 +69,7 @@ public class SetupPhase(Context _context) : IBattlePhase
         PlaceUnit(evnt.Tile);
         if (_context.Data.CurrentPlaceOrder >= _context.Data.PlaceOrder.Count)
         {
-            Bus.Global.Publish(new UnitPlacementCompletedEvent());
+            Bus.Global.Publish(new CompletedEvent());
         }
     }
 

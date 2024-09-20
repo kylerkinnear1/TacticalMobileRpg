@@ -15,7 +15,6 @@ public class NewRoundPhase(Context _context) : IBattlePhase
         _context.Data.TurnOrder.Set(availableUnits.Shuffle(Rng.Instance).ToList());
         _context.Main.Units.Values.ToList().ForEach(x => x.Unit.HealthBar.HasGone = false);
         _context.Data.ActiveUnitIndex = 0;
-        _context.Data.ActiveUnitStartPosition = _context.Data.UnitCoordinates[_context.Data.CurrentUnit];
     }
 
     public void Execute(float deltaTime)

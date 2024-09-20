@@ -14,5 +14,5 @@ public struct PointI
     public int X;
     public int Y;
 
-    public static readonly PointI Zero;
+    public static readonly PointI Zero = new() { X = 0, Y = 0 };
 }

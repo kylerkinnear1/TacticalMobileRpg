@@ -2,20 +2,10 @@
   "RowCount": 10,
   "ColumnCount": 12,
   "Player1Team": [
-    "Archer",
-    "Warrior",
-    "Mage",
-    "Ninja",
-    "Healer",
-    "Warrior"
+    "Mage"
   ],
   "Player2Team": [
-    "Archer",
-    "Warrior",
-    "Mage",
-    "Ninja",
-    "Healer",
-    "Warrior"
+    "Healer"
   ],
   "Player1Origins": [
     {

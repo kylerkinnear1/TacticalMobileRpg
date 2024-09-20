@@ -10,7 +10,7 @@ using Rpg.Mobile.GameSdk.Utilities;
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
 
 public interface IBattlePhase : IState { }
-public class BattlePhaseMachine: StateMachine<IBattlePhase>, IDisposable
+public class BattlePhaseMachine : IDisposable
 {
     public record Context(
         BattleData Data,
@@ -20,34 +20,37 @@ public class BattlePhaseMachine: StateMachine<IBattlePhase>, IDisposable
 
     private readonly ISubscription[] _subscriptions;
     private readonly Context _context;
+    private readonly StateMachine<IBattlePhase> _state = new();
 
     public BattlePhaseMachine(Context context)
     {
         _context = context;
         _subscriptions =
         [
-            Bus.Global.Subscribe<SetupPhase.UnitPlacementCompletedEvent>(_ => StartFirstRound()),
+            Bus.Global.Subscribe<SetupPhase.CompletedEvent>(_ => StartFirstRound()),
             Bus.Global.Subscribe<ActivePhase.NotEnoughMpEvent>(_ => ShowMessage("Not enough MP.")),
             Bus.Global.Subscribe<ActivePhase.CompletedEvent>(_ => UnitTurnEnded())
         ];
     }
 
+    public void Change(IBattlePhase phase) => _state.Change(phase);
+    public void Execute(float deltaTime) => _state.Execute(deltaTime);
+    
     private void StartFirstRound()
     {
-        Change(new NewRoundPhase(_context));
-        Change(new ActivePhase(_context));
+        _state.Change(new NewRoundPhase(_context));
+        _state.Change(new ActivePhase(_context));
     }
 
     private void UnitTurnEnded()
     {
-        // TODO: Make Select Unit Phase and Steps
         _context.Main.Units[_context.Data.CurrentUnit].Unit.HealthBar.HasGone = true;
         _context.Data.ActiveUnitIndex = (_context.Data.ActiveUnitIndex + 1) % _context.Data.TurnOrder.Count;
 
         if (_context.Data.ActiveUnitIndex == 0)
-            Change(new NewRoundPhase(_context));
+            _state.Change(new NewRoundPhase(_context));
 
-        Change(new ActivePhase(_context));
+        _state.Change(new ActivePhase(_context));
     }
     
     private void ShowMessage(string message)

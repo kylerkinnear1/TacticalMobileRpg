@@ -2,11 +2,11 @@
 
 public class ButtonComponent : TextboxComponent
 {
-    private Action<IEnumerable<PointF>>[] _handlers;
+    private readonly Action<IEnumerable<PointF>>[] _handlers;
 
     public ButtonComponent(RectF bounds, string label, params Action<IEnumerable<PointF>>[] handlers) : base(bounds, label)
     {
-        Label = label;;
+        Label = label;
         _handlers = handlers;
 
         BackColor = Colors.WhiteSmoke;
