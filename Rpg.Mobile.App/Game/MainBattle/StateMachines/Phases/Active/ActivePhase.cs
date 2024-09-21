@@ -77,13 +77,15 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
         {
             unit.RemainingHealth = evnt.Damage >= 0
                 ? Math.Max(unit.RemainingHealth - evnt.Damage, 0)
-                : Math.Min(unit.Stats.MaxHealth, unit.RemainingHealth - evnt.Damage);
+                : Math.Min(unit.RemainingHealth - evnt.Damage, unit.Stats.MaxHealth);
 
             damagedUnits.Add((unit, evnt.Damage));
 
             if (unit.RemainingHealth <= 0)
             {
                 defeatedUnits.Add(unit);
+                
+                // TODO: Don't remove. Just mark as dead.
                 _context.Data.TurnOrder.Remove(unit);
                 _context.Data.UnitCoordinates.Remove(unit);
             }
@@ -93,10 +95,11 @@ public class ActivePhase(BattlePhaseMachine.Context _context) : IBattlePhase
             _context.Data.ActiveUnitIndex = 0;
 
         var positions = damagedUnits
-            .Select(x => (_context.Main.Units[x.Unit].Unit.Position, Data: x.Damage))
+            .Select(x => (_context.Main.Units[x.Unit].Unit.Position, x.Damage))
             .ToList();
 
         _context.Main.DamageIndicator.SetDamage(positions);
+        _context.Main.DamageIndicator.Visible = true;
 
         var defeatedComponents = defeatedUnits.Select(x => _context.Main.Units[x]).ToList();
         foreach (var unit in defeatedComponents)
