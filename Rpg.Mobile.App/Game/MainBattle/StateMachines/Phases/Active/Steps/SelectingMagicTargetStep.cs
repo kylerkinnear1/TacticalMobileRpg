@@ -1,6 +1,5 @@
 ﻿using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.App.Utils;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
@@ -12,6 +11,8 @@ namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 // TODO: look at duplication with attack target state. Combine into 'SelectingTarget' state.
 public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
 {
+    public record MagicTargetSelectedEvent(Point Target) : IEvent;
+    
     private BattleData Data => _context.Data;
 
     private ISubscription[] _subscriptions = [];
@@ -60,38 +61,7 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
         _context.Main.AttackTargetHighlight.Visible = false;
         _context.Main.AttackShadow.Shadows.Clear();
     }
-
-    private void CastSpell(SpellData spell, Point target)
-    {
-        var hits = _context.Path
-            .CreateFanOutArea(target, Data.Map.Corner, spell.MinRange - 1, spell.MaxRange - 1).ToHashSet();
-
-        var units = Data.UnitCoordinates.Where(x => hits.Contains(x.Value));
-        var targets = units
-            .Where(x =>
-                x.Key.PlayerId == Data.CurrentUnit.PlayerId && spell.TargetsFriendlies ||
-                x.Key.PlayerId != Data.CurrentUnit.PlayerId && spell.TargetsEnemies)
-            .ToList();
-
-        CastSpell(spell, targets.Select(x => x.Key));
-    }
-
-    private void CastSpell(SpellData spell, IEnumerable<BattleUnitData> targets)
-    {
-        var damage = CalcSpellDamage(spell);
-        Data.CurrentUnit.RemainingMp -= spell.MpCost;
-        Bus.Global.Publish(new ActivePhase.UnitsDamagedEvent(targets, damage));
-    }
-
-    private int CalcSpellDamage(SpellData spell) =>
-        spell.Type switch
-        {
-            SpellType.Fire1 => Rng.Instance.Int(6, 8),
-            SpellType.Fire2 => Rng.Instance.Int(7, 9),
-            SpellType.Cure1 => -6,
-            _ => throw new ArgumentException()
-        };
-
+    
     private void TileHovered(TileHoveredEvent evnt)
     {
         if (!IsValidMagicTargetTile(evnt.Tile))
@@ -106,8 +76,10 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
 
     private void TileClicked(TileClickedEvent evnt)
     {
-        if (!IsValidMagicTargetTile(evnt.Tile)) return;
-        CastSpell(Data.CurrentSpell, evnt.Tile);
+        if (!IsValidMagicTargetTile(evnt.Tile)) 
+            return;
+        
+        Bus.Global.Publish(new MagicTargetSelectedEvent(evnt.Tile));
     }
 
     private bool IsValidMagicTargetTile(Point tile)

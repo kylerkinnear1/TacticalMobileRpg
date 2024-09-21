@@ -2,6 +2,8 @@
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.MainBattle.Data;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Damage;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.NewRound;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -16,7 +18,9 @@ public class BattlePhaseMachine : IDisposable
         BattleData Data,
         MainBattleComponent Main,
         BattleMenuComponent Menu,
-        IPathCalculator Path);
+        IPathCalculator Path,
+        IMagicDamageCalculator MagicDamageCalc,
+        IAttackDamageCalculator AttackDamageCalc);
 
     private readonly ISubscription[] _subscriptions;
     private readonly Context _context;
@@ -29,7 +33,10 @@ public class BattlePhaseMachine : IDisposable
         [
             Bus.Global.Subscribe<SetupPhase.CompletedEvent>(_ => StartFirstRound()),
             Bus.Global.Subscribe<ActivePhase.NotEnoughMpEvent>(_ => ShowMessage("Not enough MP.")),
-            Bus.Global.Subscribe<ActivePhase.CompletedEvent>(_ => UnitTurnEnded())
+            Bus.Global.Subscribe<ActivePhase.CompletedEvent>(_ => UnitTurnEnded()),
+            Bus.Global.Subscribe<SelectingAttackTargetStep.AttackTargetSelectedEvent>(ApplyDamage),
+            Bus.Global.Subscribe<SelectingMagicTargetStep.MagicTargetSelectedEvent>(ApplyDamage),
+            Bus.Global.Subscribe<DamagePhase.CompletedEvent>(_ => UnitTurnEnded())
         ];
     }
 
@@ -57,6 +64,20 @@ public class BattlePhaseMachine : IDisposable
     {
         _context.Main.Message.Position = new(_context.Main.Map.Bounds.Left, _context.Main.Map.Bounds.Top - 10f);
         _context.Main.Message.Play(message);
+    }
+
+    private void ApplyDamage(SelectingAttackTargetStep.AttackTargetSelectedEvent evnt)
+    {
+        var phase = new DamagePhase(_context);
+        _state.Change(phase);
+        phase.PerformAttack(evnt);
+    }
+
+    private void ApplyDamage(SelectingMagicTargetStep.MagicTargetSelectedEvent evnt)
+    {
+        var phase = new DamagePhase(_context);
+        _state.Change(phase);
+        phase.CastSpell(evnt);
     }
 
     public void Dispose() => _subscriptions.DisposeAll();

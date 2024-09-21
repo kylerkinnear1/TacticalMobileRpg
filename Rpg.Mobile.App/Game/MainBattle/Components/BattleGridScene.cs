@@ -48,7 +48,14 @@ public class BattleGridScene : SceneBase
             BackColor = Colors.DeepSkyBlue
         });
 
-        var context = new BattlePhaseMachine.Context(battleData, _battle, _battleMenu, new PathCalculator());
+        var context = new BattlePhaseMachine.Context(
+            battleData,
+            _battle,
+            _battleMenu,
+            new PathCalculator(),
+            new MagicDamageCalculator(),
+            new AttackDamageCalculator());
+        
         _stateMachine = new BattlePhaseMachine(context);
         _stateMachine.Change(new SetupPhase(context));
 

@@ -11,6 +11,8 @@ namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
 public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
 {
+    public record AttackTargetSelectedEvent(BattleUnitData Target) : IEvent;
+    
     private ISubscription[] _subscriptions = [];
 
     public void Enter()
@@ -67,8 +69,7 @@ public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
         if (!IsValidAttackTargetTile(evnt.Tile)) return;
 
         var enemy = _context.Data.UnitsAt(evnt.Tile).Single(x => x.PlayerId != _context.Data.CurrentUnit.PlayerId);
-        var damage = CalcAttackDamage(_context.Data.CurrentUnit.Stats.Attack, enemy.Stats.Defense);
-        Bus.Global.Publish(new ActivePhase.UnitsDamagedEvent(new[] { enemy }, damage));
+        Bus.Global.Publish(new AttackTargetSelectedEvent(enemy));
     }
 
     private bool IsValidAttackTargetTile(Point tile)
@@ -79,14 +80,5 @@ public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
         var hoveredUnit = _context.Data.UnitsAt(tile).FirstOrDefault();
         return hoveredUnit != null &&
                hoveredUnit.PlayerId != _context.Data.CurrentUnit.PlayerId;
-    }
-
-    private int CalcAttackDamage(int attack, int defense)
-    {
-        var deterministicDamage = Math.Max(1, attack - defense);
-        var damageRangeModifier = Rng.Instance.Double(0.25) * deterministicDamage;
-
-        var damage = deterministicDamage + (int)Math.Round(damageRangeModifier);
-        return Math.Max(1, damage);
     }
 }

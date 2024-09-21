@@ -5,6 +5,8 @@ namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class MultiDamageIndicatorComponent : ComponentBase
 {
+    public bool IsPlaying => _labels.Any(x => x.IsPlaying);
+    
     private readonly List<DamageIndicatorComponent> _labels =
         // TODO: Just do 5 since that's the max for now.
         Enumerable.Range(0, 5).Select(_ => new DamageIndicatorComponent()).ToList();
@@ -29,6 +31,8 @@ public class MultiDamageIndicatorComponent : ComponentBase
 public class DamageIndicatorComponent : ComponentBase
 {
     private readonly TextIndicatorComponent _text;
+    
+    public bool IsPlaying => _text.IsPlaying;
 
     public DamageIndicatorComponent(TextIndicatorComponent text) : base(text.Bounds) => AddChild(_text = text);
     public DamageIndicatorComponent() : this(new()) { }
