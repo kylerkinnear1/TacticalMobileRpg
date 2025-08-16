@@ -25,6 +25,7 @@ public interface IComponent : IUpdateComponent, IRenderComponent
     IEnumerable<IComponent> All { get; }
     IReadOnlyCollection<IComponent> Children { get; }
     IEnumerable<IComponent> Descendents { get; }
+    IEnumerable<IBehavior> PreUpdateBehaviors { get; }
 
     bool IgnoreCamera { get; }
     RectF AbsoluteBounds { get; }
@@ -72,7 +73,12 @@ public abstract class ComponentBase : IComponent
         }
     }
 
-    protected List<IComponent> ChildList = new();
+    protected readonly List<IComponent> ChildList = new();
+    protected readonly List<IBehavior> PreBehaviorsList = new();
+    protected readonly List<IBehavior> PostBehaviorsList = new();
+
+    public IEnumerable<IBehavior> PreUpdateBehaviors => PreBehaviorsList;
+    public IEnumerable<IBehavior> PostUpdateBehaviors => PostBehaviorsList;
 
     public IReadOnlyCollection<IComponent> Children => ChildList;
 
@@ -139,4 +145,8 @@ public abstract class ComponentBase : IComponent
         parent?.RemoveChild(this);
         Parent = parent;
     }
+
+    public void AddPreBehavior(IBehavior behavior) => PreBehaviorsList.Add(behavior);
+
+    public void RemovePreBehavior(IBehavior behavior) => PreBehaviorsList.RemoveAll(x => x == behavior);
 }

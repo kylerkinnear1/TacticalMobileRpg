@@ -2,12 +2,8 @@
 
 namespace Rpg.Mobile.GameSdk.Core;
 
-public class Camera : IUpdateComponent, IDrawable
+public class Camera(List<IComponent> _components) : IUpdateComponent, IDrawable
 {
-    private readonly List<IComponent> _components;
-
-    public Camera(List<IComponent> components) => _components = components;
-
     public PointF Offset { get; set; }
     public ComponentBase? Target { get; set; }
     public SizeF Size { get; private set; } = SizeF.Zero; // TODO: This is a HACK SUPREME!

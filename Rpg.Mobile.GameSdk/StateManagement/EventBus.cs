@@ -2,11 +2,8 @@
 
 namespace Rpg.Mobile.GameSdk.StateManagement;
 
-public interface IEvent
-{
-}
+public interface IEvent { }
 
-// TODO: Something less embarrassing.
 public static class Bus
 {
     public static readonly EventBus Global = new();
@@ -14,19 +11,36 @@ public static class Bus
 
 public class EventBus
 {
-    private readonly ConcurrentDictionary<Type, List<Action<object>>> _notificationHandlers = new();
+    private readonly ConcurrentDictionary<Type, List<ActionHandlerWrapper>> _notificationHandlers = new();
 
     public void Publish<T>(T evnt) where T : IEvent
     {
         if (!_notificationHandlers.TryGetValue(evnt.GetType(), out var handlers))
             return;
 
-        handlers.ForEach(x => x(evnt));
+        var copiedHandlers = handlers.ToList();
+        copiedHandlers.ForEach(x => x.WrappedHandler(evnt));
     }
 
-    public void Subscribe<T>(Action<T> handler) where T : IEvent
+    public ISubscription Subscribe<T>(Action<T> handler) where T : IEvent
     {
         var handlers = _notificationHandlers.GetOrAdd(typeof(T), _ => new());
-        handlers.Add(x => handler((T)x));
+        handlers.Add(new ActionHandlerWrapper<T>(handler));
+        return new Subscription(() => Unsubscribe(handler));
+    }
+
+    public void Unsubscribe<T>(Action<T> handler) where T : IEvent
+    {
+        var handlers = _notificationHandlers.GetOrAdd(typeof(T), _ => new());
+        handlers.RemoveAll(x => ((ActionHandlerWrapper<T>)x).OriginalHandler == handler);
     }
 }
+
+public interface ISubscription : IDisposable;
+public class Subscription(Action _unsubscribe) : ISubscription
+{
+    public void Dispose() => _unsubscribe();
+}
+
+public record ActionHandlerWrapper(Action<object> WrappedHandler);
+public record ActionHandlerWrapper<T>(Action<T> OriginalHandler) : ActionHandlerWrapper(x => OriginalHandler((T)x));
