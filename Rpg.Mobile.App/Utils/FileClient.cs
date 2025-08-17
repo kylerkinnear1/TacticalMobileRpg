@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Rpg.Mobile.App.Utils;
 
-public class FileReader
+public class FileClient
 {
     public T ReadJson<T>(string path)
     {
