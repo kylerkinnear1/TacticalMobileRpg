@@ -27,7 +27,7 @@ public class BattleGridScene : SceneBase
     public BattleGridScene(IMouse mouse)
     {
         var mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.json");
-        var jsonLoader = new FileReader();
+        var jsonLoader = new FileClient();
         var mapJson = jsonLoader.ReadJson<MapJson>(mapPath);
         var mapState = mapJson.ToState();
         var battleData = new BattleData(mapState);
