@@ -51,7 +51,6 @@ public class BattlePhaseMachine : IDisposable
 
     private void UnitTurnEnded()
     {
-        _context.Main.Units[_context.Data.CurrentUnit].Unit.HealthBar.HasGone = true;
         _context.Data.ActiveUnitIndex = (_context.Data.ActiveUnitIndex + 1) % _context.Data.TurnOrder.Count;
 
         if (_context.Data.ActiveUnitIndex == 0)

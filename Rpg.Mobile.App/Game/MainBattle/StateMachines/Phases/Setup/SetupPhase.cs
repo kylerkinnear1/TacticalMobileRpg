@@ -90,8 +90,6 @@ public class SetupPhase(Context _context) : IBattlePhase
 
         var point = _context.Data.UnitCoordinates[unit];
         component.Position = _context.Main.GetPositionForTile(point, component.Bounds.Size);
-        component.HealthBar.RemainingHealth = unit.Stats.MaxHealth;
-        component.HealthBar.PlayerId = unit.PlayerId;
 
         Bus.Global.Publish(new UnitPlacedEvent(unit));
 
@@ -105,8 +103,8 @@ public class SetupPhase(Context _context) : IBattlePhase
     private bool IsPlaceableTile(Point? hover, ICollection<Point> currentOrigins) => 
         hover.HasValue && currentOrigins.Contains(hover.Value);
 
-    private static BattleUnitComponent CreateBattleUnitComponent(BattleUnitData state) =>
-        new(GetUnitSprite(state.Stats.UnitType, state.PlayerId));
+    private BattleUnitComponent CreateBattleUnitComponent(BattleUnitData state) =>
+        new(new(state, _context.Data), GetUnitSprite(state.Stats.UnitType, state.PlayerId));
 
     private static IImage GetUnitSprite(BattleUnitType type, int playerId) =>
         (type, playerId) switch

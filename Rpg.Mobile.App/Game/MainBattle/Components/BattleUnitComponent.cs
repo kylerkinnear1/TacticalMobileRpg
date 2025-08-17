@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.GameSdk.Core;
+﻿using Rpg.Mobile.App.Game.MainBattle.Data;
+using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
 
@@ -6,12 +7,16 @@ namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class BattleUnitComponent : SpriteComponentBase
 {
+    public record Data(
+        BattleUnitData BattleUnit,
+        BattleData BattleData);
+    
     public BattleUnitHealthBarComponent HealthBar { get; }
 
-    public BattleUnitComponent(IImage sprite) : base(sprite)
+    public BattleUnitComponent(Data data, IImage sprite) : base(sprite)
     {
         UpdateScale(1.5f);
-        HealthBar = AddChild(new BattleUnitHealthBarComponent());
+        HealthBar = AddChild(new BattleUnitHealthBarComponent(data));
         HealthBar.Position = new(-10f, Sprite.Height - HealthBar.Bounds.Height + 10f);
     }
 }

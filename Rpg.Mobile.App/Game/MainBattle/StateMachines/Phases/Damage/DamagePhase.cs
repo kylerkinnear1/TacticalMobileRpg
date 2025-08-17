@@ -64,8 +64,6 @@ public class DamagePhase(BattlePhaseMachine.Context _context) : IBattlePhase
                 ? Math.Max(target.RemainingHealth - damage, 0)
                 : Math.Min(target.RemainingHealth - damage, target.Stats.MaxHealth);
             
-            _context.Main.Units[target].Unit.HealthBar.RemainingHealth = target.RemainingHealth;
-            
             damagedUnits.Add((target, damage));
 
             if (target.RemainingHealth <= 0)

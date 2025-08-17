@@ -13,7 +13,6 @@ public class NewRoundPhase(Context _context) : IBattlePhase
             : _context.Data.TurnOrder;
         
         _context.Data.TurnOrder.Set(availableUnits.Shuffle(Rng.Instance).ToList());
-        _context.Main.Units.Values.ToList().ForEach(x => x.Unit.HealthBar.HasGone = false);
         _context.Data.ActiveUnitIndex = 0;
     }
 
