@@ -4,7 +4,7 @@ namespace Rpg.Mobile.App.Game.UserInterface;
 
 public class TextIndicatorComponent : TextboxComponent
 {
-    public bool IsPlaying => _movement?.IsComplete ?? true;
+    public bool IsPlaying => !_movement?.IsComplete ?? false;
     
     private Color _baseColor = Colors.Red;
     private PointF? _start;

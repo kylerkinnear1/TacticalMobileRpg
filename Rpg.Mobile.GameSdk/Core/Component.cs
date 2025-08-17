@@ -43,7 +43,12 @@ public interface IComponent : IUpdateComponent, IRenderComponent
 
 public abstract class ComponentBase : IComponent
 {
-    public bool Visible { get; set; } = true;
+    private bool _visible = true;
+    public bool Visible
+    {
+        get => _visible && Parents.All(x => x.Visible);
+        set => _visible = value;
+    }
 
     public IComponent? Parent { get; set; }
     public RectF Bounds { get; set; }
