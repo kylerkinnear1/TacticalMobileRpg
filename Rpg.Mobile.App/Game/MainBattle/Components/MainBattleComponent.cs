@@ -53,7 +53,7 @@ public class MainBattleComponent : ComponentBase
         });
         AddChild(PlaceUnitSpriteComponent = new(Images.WarriorIdle01) { Visible = false });
         PlaceUnitSpriteComponent.UpdateScale(1.5f);
-        DamageIndicator = new(Map.Bounds);
+        AddChild(DamageIndicator = new(Map.Bounds));
         AddChild(Message = new()
         {
             Bounds = new(Map.Bounds.Left, Map.Bounds.Height - 10f, Map.Bounds.Width, 200f)
