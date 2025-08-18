@@ -1,4 +1,4 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Data;
+﻿using Rpg.Mobile.Api;
 using Rpg.Mobile.GameSdk.Core;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
@@ -14,10 +14,10 @@ public class MapComponent : ComponentBase
     private readonly GridComponent _grid;
 
     public MapComponent(MapData state) 
-        : base(new(0, 0, state.Width * TileWidth, state.Height * TileWidth))
+        : base(new(0, 0, state.Width() * TileWidth, state.Height() * TileWidth))
     {
         State = state;
-        AddChild(_grid = new(state.Width, state.Height, TileWidth));
+        AddChild(_grid = new(state.Width(), state.Height(), TileWidth));
     }
 
     public override void Update(float deltaTime) { }

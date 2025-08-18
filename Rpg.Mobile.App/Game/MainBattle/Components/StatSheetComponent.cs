@@ -1,7 +1,5 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Data;
-using Rpg.Mobile.App.Game.MainBattle.Events;
+﻿using Rpg.Mobile.Api;
 using Rpg.Mobile.App.Game.UserInterface;
-using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
 

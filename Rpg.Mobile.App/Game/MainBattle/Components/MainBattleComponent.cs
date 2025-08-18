@@ -1,8 +1,6 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
-using Rpg.Mobile.App.Game.MainBattle.Data;
+﻿using Rpg.Mobile.Api;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
-using Rpg.Mobile.GameSdk.Tweening;
 using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
@@ -23,7 +21,7 @@ public class MainBattleComponent : ComponentBase
     public readonly SpriteComponent PlaceUnitSpriteComponent;
     public readonly Dictionary<BattleUnitData, BattleUnitComponentStateMachine> Units = new();
 
-    public BattleUnitComponentStateMachine CurrentUnit => Units[_data.CurrentUnit];
+    public BattleUnitComponentStateMachine CurrentUnit => Units[_data.CurrentUnit()];
 
     private readonly BattleData _data;
 
@@ -31,11 +29,10 @@ public class MainBattleComponent : ComponentBase
         new(position.X, position.Y, width * size, height * size);
 
     public MainBattleComponent(PointF location, BattleData data)
-        : base(CalcBounds(location, data.Map.Width, data.Map.Height, TileWidth))
+        : base(CalcBounds(location, data.Map.Tiles.Width, data.Map.Tiles.Height, TileWidth))
     {
         _data = data;
 
-        var path = new PathCalculator();
         AddChild(Map = new(data.Map));
         AddChild(MoveShadow = new(Map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(AttackShadow = new(Map.Bounds) { BackColor = Colors.Maroon.WithAlpha(.4f) });

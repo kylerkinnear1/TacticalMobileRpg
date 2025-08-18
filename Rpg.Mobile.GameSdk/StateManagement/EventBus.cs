@@ -4,12 +4,14 @@ namespace Rpg.Mobile.GameSdk.StateManagement;
 
 public interface IEvent { }
 
-public static class Bus
+public interface IEventBus
 {
-    public static readonly EventBus Global = new();
+    void Publish<T>(T evnt) where T : IEvent;
+    ISubscription Subscribe<T>(Action<T> handler) where T : IEvent;
+    void Unsubscribe<T>(Action<T> handler) where T : IEvent;
 }
 
-public class EventBus
+public class EventBus : IEventBus
 {
     private readonly ConcurrentDictionary<Type, List<ActionHandlerWrapper>> _notificationHandlers = new();
 

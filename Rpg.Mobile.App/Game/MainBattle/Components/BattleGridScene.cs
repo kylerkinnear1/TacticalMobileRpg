@@ -1,13 +1,6 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Calculators;
-using Rpg.Mobile.App.Game.MainBattle.Data;
-using Rpg.Mobile.App.Game.MainBattle.Events;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
-using Rpg.Mobile.App.Game.UserInterface;
-using Rpg.Mobile.App.Utils;
+﻿using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Inputs;
-using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
@@ -26,12 +19,6 @@ public class BattleGridScene : SceneBase
     
     public BattleGridScene(IMouse mouse)
     {
-        var mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.json");
-        var jsonLoader = new FileClient();
-        var mapJson = jsonLoader.ReadJson<MapJson>(mapPath);
-        var mapState = mapJson.ToState();
-        var battleData = new BattleData(mapState);
-        
         Add(_battle = new(new(0f, 0f), battleData));
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
         Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
@@ -47,14 +34,6 @@ public class BattleGridScene : SceneBase
             IgnoreCamera = true,
             BackColor = Colors.DeepSkyBlue
         });
-
-        var context = new BattlePhaseMachine.Context(
-            battleData,
-            _battle,
-            _battleMenu,
-            new PathCalculator(),
-            new MagicDamageCalculator(),
-            new AttackDamageCalculator());
         
         _stateMachine = new BattlePhaseMachine(context);
         _stateMachine.Change(new SetupPhase(context));

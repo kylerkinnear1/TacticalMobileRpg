@@ -11,8 +11,8 @@ public class BattleUnitHealthBarComponent(BattleUnitComponent.Data _data)
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
-        var thisIndex = _data.BattleData.TurnOrder.IndexOf(_data.BattleUnit);
-        var currentIndex = _data.BattleData.ActiveUnitIndex;
+        var thisIndex = _data.BattleData.Active.TurnOrder.IndexOf(_data.BattleUnit);
+        var currentIndex = _data.BattleData.Active.ActiveUnitIndex;
         var hasGone = thisIndex < currentIndex;
         canvas.Font = Font;
         canvas.FontSize = hasGone ? 19f : 22f;

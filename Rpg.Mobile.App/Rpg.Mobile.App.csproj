@@ -88,6 +88,10 @@
 	  </EmbeddedResource>
 	  <EmbeddedResource Include="Resources\EmbeddedResources\WarriorIdle01.png" />
 	  <EmbeddedResource Include="Resources\EmbeddedResources\WarriorIdle02.png" />
+	  <None Remove="Settings.json" />
+	  <Content Include="Settings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -98,13 +102,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Rpg.Mobile.Api\Rpg.Mobile.Api.csproj" />
 	  <ProjectReference Include="..\Rpg.Mobile.GameSdk\Rpg.Mobile.GameSdk.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="map.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
 	</ItemGroup>
 
 </Project>

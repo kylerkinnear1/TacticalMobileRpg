@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui;
+﻿using System.Collections.Concurrent;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Graphics;
@@ -9,12 +10,14 @@ namespace Rpg.Mobile.GameSdk.Core;
 public interface IGameLoop
 {
     void Start();
+    void Execute(Action actionToExecute);
 }
 
 public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispatcher, IMouse _mouse)
     : IGameLoop
 {
     private DateTime _lastUpdate = DateTime.UtcNow;
+    private readonly ConcurrentQueue<Action> _gameThreadActionQueue = new();
 
     private const int LoopTimeLimitMs = 16;
 
@@ -25,6 +28,8 @@ public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispat
         var deltaTime = (float)delta.TotalSeconds;
         
         HandleInput();
+        ProcessActionQueue();
+        
         foreach (var node in _scene.Updates)
             node.Update(deltaTime);
 
@@ -41,6 +46,15 @@ public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispat
         delayUntilNextUpdate = Math.Max(delayUntilNextUpdate, 0);
         _dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(delayUntilNextUpdate), Start);
     }
+
+    private void ProcessActionQueue()
+    {
+        foreach (var action in _gameThreadActionQueue)
+            action();
+    }
+
+    public void Execute(Action actionToExecute) =>
+        _gameThreadActionQueue.Enqueue(actionToExecute);
 
     public void OnTouchUp(TouchEventArgs touch)
     {
