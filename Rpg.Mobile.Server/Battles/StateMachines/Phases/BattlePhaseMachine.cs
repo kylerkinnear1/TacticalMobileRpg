@@ -28,12 +28,12 @@ public class BattlePhaseMachine : IDisposable
         _context = context;
         _subscriptions =
         [
-            Bus.Global.Subscribe<SetupPhaseServer.CompletedEvent>(_ => StartFirstRound()),
-            Bus.Global.Subscribe<ActivePhaseServer.NotEnoughMpEvent>(_ => ShowMessage("Not enough MP.")),
-            Bus.Global.Subscribe<ActivePhaseServer.CompletedEvent>(_ => UnitTurnEnded()),
-            Bus.Global.Subscribe<SelectingAttackTargetStepServer.AttackTargetSelectedEvent>(ApplyDamage),
-            Bus.Global.Subscribe<SelectingMagicTargetStepServer.MagicTargetSelectedEvent>(ApplyDamage),
-            Bus.Global.Subscribe<DamagePhaseServer.CompletedEvent>(_ => UnitTurnEnded())
+            Bus.Global.Subscribe<SetupPhase.CompletedEvent>(_ => StartFirstRound()),
+            Bus.Global.Subscribe<ActivePhase.NotEnoughMpEvent>(_ => ShowMessage("Not enough MP.")),
+            Bus.Global.Subscribe<ActivePhase.CompletedEvent>(_ => UnitTurnEnded()),
+            Bus.Global.Subscribe<SelectingAttackTargetStep.AttackTargetSelectedEvent>(ApplyDamage),
+            Bus.Global.Subscribe<SelectingMagicTargetStep.MagicTargetSelectedEvent>(ApplyDamage),
+            Bus.Global.Subscribe<DamagePhase.CompletedEvent>(_ => UnitTurnEnded())
         ];
     }
 
@@ -43,7 +43,7 @@ public class BattlePhaseMachine : IDisposable
     private void StartFirstRound()
     {
         _state.Change(new NewRoundPhase(_context));
-        _state.Change(new ActivePhaseServer(_context));
+        _state.Change(new ActivePhase(_context));
     }
 
     private void UnitTurnEnded()
@@ -53,31 +53,22 @@ public class BattlePhaseMachine : IDisposable
         if (_context.Data.Active.ActiveUnitIndex == 0)
             _state.Change(new NewRoundPhase(_context));
 
-        _state.Change(new ActivePhaseServer(_context));
+        _state.Change(new ActivePhase(_context));
     }
 
-    private void ApplyDamage(SelectingAttackTargetStepServer.AttackTargetSelectedEvent evnt)
+    private void ApplyDamage(SelectingAttackTargetStep.AttackTargetSelectedEvent evnt)
     {
-        var phase = new DamagePhaseServer(_context);
+        var phase = new DamagePhase(_context);
         _state.Change(phase);
         phase.PerformAttack(evnt);
     }
 
-    private void ApplyDamage(SelectingMagicTargetStepServer.MagicTargetSelectedEvent evnt)
+    private void ApplyDamage(SelectingMagicTargetStep.MagicTargetSelectedEvent evnt)
     {
-        var phase = new DamagePhaseServer(_context);
+        var phase = new DamagePhase(_context);
         _state.Change(phase);
         phase.CastSpell(evnt);
     }
 
     public void Dispose() => _subscriptions.DisposeAll();
-}
-
-public class BattlePhaseMachineClient
-{
-    private void ShowMessage(string message)
-    {
-        _context.Main.Message.Position = new(_context.Main.Map.Bounds.Left, _context.Main.Map.Bounds.Top - 10f);
-        _context.Main.Message.Play(message);
-    }
 }
