@@ -25,6 +25,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<BattleHub>("/battle-hub");
+app.MapHub<GameHub>("/game-hub");
 
 app.Run();

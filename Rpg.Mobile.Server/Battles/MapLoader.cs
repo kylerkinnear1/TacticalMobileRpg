@@ -1,10 +1,14 @@
-﻿using Microsoft.VisualBasic.CompilerServices;
-using Rpg.Mobile.Api;
-using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.Server.Utils;
 
 namespace Rpg.Mobile.Server.Battles;
 
-public class MapLoaderServer
+public interface IMapLoader
+{
+    BattleData LoadBattleData();
+}
+
+public class MapLoader : IMapLoader
 {
     public BattleData LoadBattleData()
     {

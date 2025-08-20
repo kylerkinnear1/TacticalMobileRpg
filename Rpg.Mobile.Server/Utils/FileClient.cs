@@ -10,7 +10,8 @@ public class FileClient
         var jsonText = ReadText(path);
         return JsonSerializer.Deserialize<T>(jsonText, new JsonSerializerOptions
         {
-            Converters = { new JsonStringEnumConverter() }
+            Converters = { new JsonStringEnumConverter() },
+            PropertyNameCaseInsensitive = true
         })!;
     }
 
