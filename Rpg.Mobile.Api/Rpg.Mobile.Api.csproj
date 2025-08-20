@@ -10,4 +10,8 @@
       <ProjectReference Include="..\Rpg.Mobile.GameSdk\Rpg.Mobile.GameSdk.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.8" />
+    </ItemGroup>
+
 </Project>

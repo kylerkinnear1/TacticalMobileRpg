@@ -28,4 +28,12 @@ public abstract class SceneBase
     }
 
     public abstract void Update(float deltaTime);
+
+    public virtual void OnEnter()
+    {
+    }
+
+    public virtual void OnExit()
+    {
+    }
 }

@@ -29,7 +29,6 @@ public class SetupPhaseServer(Context _context) : IBattlePhase
     public void Leave()
     {
         _subscriptions?.DisposeAll();
-        _context.Main.PlaceUnitSpriteComponent.Visible = false;
     }
     
     private void TileClicked(TileClickedEvent evnt)
@@ -80,6 +79,11 @@ public class SetupPhaseClient
             _context.Main.PlaceUnitSpriteComponent.Position = _context.Main
                 .GetPositionForTile(_lastHoveredTile!.Value, _context.Main.PlaceUnitSpriteComponent.Bounds.Size);
         }
+    }
+
+    public void Leave()
+    {
+        _context.Main.PlaceUnitSpriteComponent.Visible = false;
     }
     
     private void PlaceUnit(SetupPhaseServer.UnitPlacedEvent evnt)

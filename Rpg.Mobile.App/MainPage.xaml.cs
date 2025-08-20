@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+﻿using Rpg.Mobile.App.Game.Lobby;
+using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Windows;
 using Rpg.Mobile.GameSdk.Core;
 
@@ -18,8 +19,9 @@ public partial class MainPage : ContentPage
 
         // TODO: Inject mouse into scene
         // TODO: figure out how to dispose from this form (probably DI?)
-        var scene = new BattleGridScene(mouse);
-        var game = gameLoopFactory.Create(GameView, scene, mouse);
+        var lobby = new LobbyScene();
+        var battleScene = new BattleGridScene(mouse);
+        var game = gameLoopFactory.Create(GameView, lobby, mouse);
         game.Start();
     }
 }

@@ -11,9 +11,10 @@ public interface IGameLoop
 {
     void Start();
     void Execute(Action actionToExecute);
+    void ChangeScene(SceneBase scene);
 }
 
-public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispatcher, IMouse _mouse)
+public class GameLoop(SceneBase _scene, GraphicsView _view, IDispatcher _dispatcher, IMouse _mouse)
     : IGameLoop
 {
     private DateTime _lastUpdate = DateTime.UtcNow;
@@ -27,9 +28,9 @@ public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispat
         var delta = startTime - _lastUpdate;
         var deltaTime = (float)delta.TotalSeconds;
         
-        HandleInput();
         ProcessActionQueue();
         
+        HandleInput();
         foreach (var node in _scene.Updates)
             node.Update(deltaTime);
 
@@ -55,6 +56,14 @@ public class GameLoop(SceneBase _scene, IGraphicsView _view, IDispatcher _dispat
 
     public void Execute(Action actionToExecute) =>
         _gameThreadActionQueue.Enqueue(actionToExecute);
+
+    public void ChangeScene(SceneBase scene) => Execute(() =>
+    {
+        _scene.OnExit();
+        _scene = scene;
+        _view.Drawable = scene.ActiveCamera;
+        _scene.OnEnter();
+    });
 
     public void OnTouchUp(TouchEventArgs touch)
     {
