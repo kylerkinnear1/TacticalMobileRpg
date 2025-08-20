@@ -1,5 +1,4 @@
-﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
@@ -25,22 +24,28 @@ public class BattleUnitComponent : SpriteComponentBase
 public class BattleUnitComponentStateMachine
 {
     public record MovementCompleted(BattleUnitComponent Component) : IEvent;
+    public record MovementStarted(BattleUnitComponent Component) : IEvent;
 
     public BattleUnitComponent Unit { get; }
-
-    public BattleUnitComponentStateMachine(BattleUnitComponent unit) => Unit = unit;
-
     private readonly StateMachine _state = new(new Idle());
-
+    private readonly IEventBus _bus;
+    
+    public BattleUnitComponentStateMachine(IEventBus bus, BattleUnitComponent unit)
+    {
+        _bus = bus;
+        Unit = unit;
+    }
+    
     public void Execute(float deltaTime) => _state.Execute(deltaTime);
 
     public void MoveTo(PointF target, Action? onComplete = null, float speed = 500f)
     {
         var tween = Unit.Position.SpeedTween(target, speed);
+        _bus.Publish(new MovementStarted(Unit));
         var moving = new Moving(Unit, tween, () =>
         {
             _state.Change(new Idle());
-            Bus.Global.Publish(new MovementCompleted(Unit));
+            _bus.Publish(new MovementCompleted(Unit));
             onComplete?.Invoke();
         });
         _state.Change(moving);

@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
@@ -25,26 +26,28 @@ public class MainBattleComponent : ComponentBase
     public BattleUnitComponentStateMachine CurrentUnit => Units[_data.CurrentUnit()];
 
     private readonly BattleData _data;
+    private readonly IPathCalculator _path;
 
     private static RectF CalcBounds(PointF position, int width, int height, float size) =>
         new(position.X, position.Y, width * size, height * size);
 
-    public MainBattleComponent(PointF location, BattleData data)
+    public MainBattleComponent(PointF location, IPathCalculator path, BattleData data)
         : base(CalcBounds(location, data.Map.Tiles.Width, data.Map.Tiles.Height, TileWidth))
     {
         _data = data;
-
+        _path = path;
+        
         AddChild(Map = new(data.Map));
         AddChild(MoveShadow = new(Map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(AttackShadow = new(Map.Bounds) { BackColor = Colors.Maroon.WithAlpha(.4f) });
         AddChild(CurrentUnitShadow = new(Map.Bounds) { BackColor = Colors.Gainsboro.WithAlpha(.5f) });
-        AddChild(AttackTargetHighlight = new(data.Map, MapComponent.TileWidth, Map.Bounds, path)
+        AddChild(AttackTargetHighlight = new(data.Map, _path, MapComponent.TileWidth, Map.Bounds)
         {
             StrokeColor = Colors.Maroon.WithAlpha(.8f),
             StrokeWidth = 10f,
             Visible = false
         });
-        AddChild(CurrentTileHighlight = new(data.Map, MapComponent.TileWidth, Map.Bounds, path)
+        AddChild(CurrentTileHighlight = new(data.Map, _path, MapComponent.TileWidth, Map.Bounds)
         {
             StrokeColor = Colors.White.WithAlpha(.7f),
             Visible = false

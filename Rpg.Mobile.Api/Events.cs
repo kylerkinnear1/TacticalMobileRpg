@@ -10,6 +10,4 @@ public record UnitPlacedEvent(
     
 public record ActivePhaseBackClickedEvent : IEvent;
 
-public record TileHoveredEvent(Point Tile) : IEvent;
-public record TileClickedEvent(Point Tile) : IEvent;
 public record MiniMapClickedEvent(PointF Position) : IEvent;

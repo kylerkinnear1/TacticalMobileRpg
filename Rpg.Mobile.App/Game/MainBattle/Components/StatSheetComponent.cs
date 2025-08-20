@@ -1,24 +1,31 @@
-﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.UserInterface;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class StatSheetComponent : TextboxComponent
 {
     private readonly BattleData _data;
-
-    public StatSheetComponent(BattleData data, RectF bounds) : base(bounds, "")
+    private readonly IEventBus _bus;
+    
+    public StatSheetComponent(
+        BattleData data,
+        IEventBus bus,
+        RectF bounds) 
+        : base(bounds, "")
     {
         _data = data;
+        _bus = bus;
+        
         BackColor = Colors.Aqua;
         TextColor = Colors.Black;
         FontSize = 12f;
 
-        Bus.Global.Subscribe<TileHoveredEvent>(TileHovered);
+        _bus.Subscribe<GridComponent.TileHoveredEvent>(TileHovered);
     }
 
-    private void TileHovered(TileHoveredEvent evnt)
+    private void TileHovered(GridComponent.TileHoveredEvent evnt)
     {
         var unit = _data.UnitCoordinates.ContainsValue(evnt.Tile)
             ? _data.UnitCoordinates.First(x => x.Value == evnt.Tile).Key

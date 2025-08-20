@@ -57,7 +57,7 @@ public class BattleActivePhaseData
     public List<Point> WalkableTiles { get; set; } = new();
     public List<Point> AttackTargetTiles { get; set; } = new();
     public List<Point> SpellTargetTiles { get; set; } = new();
-    
+
     // TODO: Don't track current spell this way.
     public SpellData? CurrentSpell { get; set; }
 }

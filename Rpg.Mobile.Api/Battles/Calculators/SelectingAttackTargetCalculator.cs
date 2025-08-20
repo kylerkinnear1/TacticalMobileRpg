@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using Rpg.Mobile.Api.Battles.Data;
 
-namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
+namespace Rpg.Mobile.Api.Battles.Calculators;
 
 public interface ISelectingAttackTargetCalculator
 {

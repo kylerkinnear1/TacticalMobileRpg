@@ -1,17 +1,25 @@
-﻿using Rpg.Mobile.GameSdk.Core;
+﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class GridComponent : ComponentBase
 {
+    public record TileClickedEvent(Point Tile) : IEvent;
+    public record TileHoveredEvent(Point Tile) : IEvent;
+    
     public int Width { get; set; }
     public int Height { get; set; }
     public float Size { get; set; }
 
     private Point? _lastHoverGrid;
 
-    public GridComponent(int width, int height, float size) : base(CalcBounds(PointF.Zero, width, height, size))
+    private readonly IEventBus _bus;
+
+    public GridComponent(IEventBus bus, int width, int height, float size) : base(CalcBounds(PointF.Zero, width, height, size))
     {
+        _bus = bus;
         Width = width;
         Height = height;
         Size = size;
@@ -43,7 +51,7 @@ public class GridComponent : ComponentBase
         var x = (int)(touch.X / Size);
         var y = (int)(touch.Y / Size);
 
-        Bus.Global.Publish(new TileClickedEvent(new(x, y)));
+        _bus.Publish(new TileClickedEvent(new(x, y)));
     }
 
     public override void OnHover(PointF hover)
@@ -53,7 +61,7 @@ public class GridComponent : ComponentBase
             return;
 
         _lastHoverGrid = tile;
-        Bus.Global.Publish(new TileHoveredEvent(tile));
+        _bus.Publish(new TileHoveredEvent(tile));
     }
 
     public Point GetTileForPosition(PointF point) => new((int)(point.X / Size), (int)(point.Y / Size));

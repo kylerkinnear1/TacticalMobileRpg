@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles.Calculators;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using Rpg.Mobile.Server.Battles.Calculators;

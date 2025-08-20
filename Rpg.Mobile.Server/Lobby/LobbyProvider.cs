@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.Server.Battles;
 using Rpg.Mobile.Server.Battles.Calculators;

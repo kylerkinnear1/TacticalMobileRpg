@@ -1,12 +1,18 @@
 ﻿using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Images;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class MiniMapComponent : ComponentBase
 {
-    public MiniMapComponent(RectF bounds) : base(bounds)
+    public record MiniMapClickedEvent(PointF Touch) : IEvent;
+
+    private readonly IEventBus _bus;
+    
+    public MiniMapComponent(IEventBus bus, RectF bounds) : base(bounds)
     {
+        _bus = bus;
     }
 
     public override void Update(float deltaTime) { }
@@ -19,5 +25,6 @@ public class MiniMapComponent : ComponentBase
         canvas.DrawCenteredText("Test the Camera", new(0f, 0f, Bounds.Width, Bounds.Height));
     }
     
-    public override void OnTouchUp(IEnumerable<PointF> touches) => Bus.Global.Publish(new MiniMapClickedEvent(touches.First()));
+    public override void OnTouchUp(IEnumerable<PointF> touches) => 
+        _bus.Publish(new MiniMapClickedEvent(touches.First()));
 }

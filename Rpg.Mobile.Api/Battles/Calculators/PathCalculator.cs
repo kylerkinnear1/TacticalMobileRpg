@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.Server.Battles.Calculators;
+namespace Rpg.Mobile.Api.Battles.Calculators;
 
 public interface IPathCalculator
 {

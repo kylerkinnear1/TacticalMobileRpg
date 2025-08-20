@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.Core;
 
@@ -14,10 +15,17 @@ public class TargetIndicatorComponent : ComponentBase
 
     private readonly List<RectF> _tiles = new();
     private readonly MapData _map;
+    private readonly IPathCalculator _path;
 
-    public TargetIndicatorComponent(MapData map, int tileSize, RectF bounds) : base(bounds)
+    public TargetIndicatorComponent(
+        MapData map, 
+        IPathCalculator path, 
+        int tileSize, 
+        RectF bounds)
+        : base(bounds)
     {
         _map = map;
+        _path = path;
         TileSize = tileSize;
     }
 

@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using Rpg.Mobile.Api;
+﻿using Rpg.Mobile.Api;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
