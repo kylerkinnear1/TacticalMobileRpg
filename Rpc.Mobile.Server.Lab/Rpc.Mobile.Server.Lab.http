@@ -1,6 +1,0 @@
-@Rpc.Mobile.Server.Lab_HostAddress = http://localhost:5189
-
-GET {{Rpc.Mobile.Server.Lab_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
