@@ -1,30 +1,15 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
-using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.Api.Lobby;
 using Rpg.Mobile.Server.Battles;
 
-namespace Rpg.Mobile.Server;
-
-public interface ILobbyHubServer
-{
-    Task ConnectToGame(string gameId);
-    Task LeaveGame(string gameId);
-    Task EndGame(string gameId);
-}
-
-public interface ILobbyHubClient
-{
-    Task PlayerJoined(string gameId, int playerId);
-    Task GameStarted(string gameId, BattleData battle);
-    Task GameFull(string gameId);
-    Task PlayerLeft(string gameId, int playerId);
-    Task GameEnded(string gameId);
-}
+namespace Rpg.Mobile.Server.Lobby;
 
 public class LobbyHub(
     ConcurrentDictionary<string, GameContext> _games,
     MapLoaderServer _mapLoader)
-    : Hub<ILobbyHubClient>, ILobbyHubServer
+    : Hub<ILobbyEventApi>, ILobbyCommandApi
 {
     public async Task ConnectToGame(string gameId)
     {

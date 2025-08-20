@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.Api;
+namespace Rpg.Mobile.Api.Battles.Data;
 
 public enum TerrainType
 {

@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using static Rpg.Mobile.App.Game.Sprites;

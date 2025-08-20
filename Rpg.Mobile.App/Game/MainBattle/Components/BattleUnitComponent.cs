@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;

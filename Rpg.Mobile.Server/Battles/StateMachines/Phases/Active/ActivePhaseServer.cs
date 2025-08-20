@@ -1,9 +1,10 @@
 ﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
-namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
+namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active;
 
 public class ActivePhaseServer(BattlePhaseMachine.Context _context) : IBattlePhase
 {

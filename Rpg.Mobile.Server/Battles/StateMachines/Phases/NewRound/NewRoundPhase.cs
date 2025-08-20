@@ -1,8 +1,8 @@
 ﻿using Rpg.Mobile.Api;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
+using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.NewRound;
+namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.NewRound;
 
 public class NewRoundPhase(Context _context) : IBattlePhase
 {

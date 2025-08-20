@@ -1,9 +1,10 @@
-﻿using Rpg.Mobile.App.Game.UserInterface;
+﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Inputs;
 using Rpg.Mobile.GameSdk.Tweening;
 
-namespace Rpg.Mobile.App.Game.MainBattle.Components;
+namespace Rpg.Mobile.App.Game.MainBattle;
 
 public class BattleGridScene : SceneBase
 {

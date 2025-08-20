@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.Api;

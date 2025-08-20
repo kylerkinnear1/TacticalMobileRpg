@@ -1,14 +1,14 @@
-﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.App.Game.MainBattle.Calculators;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Damage;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.NewRound;
-using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
+﻿using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
+using Rpg.Mobile.Server.Battles.Calculators;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Damage;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.NewRound;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Setup;
 
-namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
+namespace Rpg.Mobile.Server.Battles.StateMachines.Phases;
 
 public interface IBattlePhase : IState { }
 public class BattlePhaseMachine : IDisposable

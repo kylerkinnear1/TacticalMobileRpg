@@ -1,11 +1,12 @@
 ﻿using System.Drawing;
 using Rpg.Mobile.Api;
-using Rpg.Mobile.App.Game.MainBattle.Events;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
+using Rpg.Mobile.Server.Battles.Events;
+using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
+namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
 public class SelectingAttackTargetStepServer(Context _context) : ActivePhaseServer.IStep
 {

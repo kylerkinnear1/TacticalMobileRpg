@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.Api;
+﻿namespace Rpg.Mobile.Api.Battles.Data;
 
 public enum BattleUnitType
 {

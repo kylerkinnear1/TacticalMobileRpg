@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using static Rpg.Mobile.Api.ILobbyClient;
+using Rpg.Mobile.Api.Battles.Data;
+using static Rpg.Mobile.Api.Lobby.ILobbyClient;
 
-namespace Rpg.Mobile.Api;
+namespace Rpg.Mobile.Api.Lobby;
 
 public interface ILobbyClient
 {
@@ -37,17 +38,17 @@ public class LobbyClient : ILobbyClient
 
     public async Task ConnectToGame(string gameId)
     {
-        await _hub.InvokeAsync("ConnectToGame", gameId);
+        await _hub.InvokeAsync(nameof(ILobbyCommandApi.ConnectToGame), gameId);
     }
 
     public async Task LeaveGame(string gameId)
     {
-        await _hub.InvokeAsync("LeaveGame", gameId);
+        await _hub.InvokeAsync(nameof(ILobbyCommandApi.LeaveGame), gameId);
     }
 
     public async Task EndGame(string gameId)
     {
-        await _hub.InvokeAsync("EndGame", gameId);
+        await _hub.InvokeAsync(nameof(ILobbyCommandApi.EndGame), gameId);
     }
 
     public event PlayerJoinedHandler? PlayerJoined;
@@ -58,27 +59,27 @@ public class LobbyClient : ILobbyClient
 
     private void SetupEventHandlers()
     {
-        _hub.On<string, int>("PlayerJoined", (gameId, playerId) =>
+        _hub.On<string, int>(nameof(ILobbyEventApi.PlayerJoined), (gameId, playerId) =>
         {
             PlayerJoined?.Invoke(gameId, playerId);
         });
 
-        _hub.On<string, BattleData>("GameStarted", (gameId, battleData) =>
+        _hub.On<string, BattleData>(nameof(ILobbyEventApi.GameStarted), (gameId, battleData) =>
         {
             GameStarted?.Invoke(gameId, battleData);
         });
 
-        _hub.On<string>("GameFull", (gameId) =>
+        _hub.On<string>(nameof(ILobbyEventApi.GameFull), (gameId) =>
         {
             GameFull?.Invoke(gameId);
         });
 
-        _hub.On<string, int>("PlayerLeft", (gameId, playerId) =>
+        _hub.On<string, int>(nameof(ILobbyEventApi.PlayerLeft), (gameId, playerId) =>
         {
             PlayerLeft?.Invoke(gameId, playerId);
         });
 
-        _hub.On<string>("GameEnded", (gameId) =>
+        _hub.On<string>(nameof(ILobbyEventApi.GameEnded), (gameId) =>
         {
             GameEnded?.Invoke(gameId);
         });

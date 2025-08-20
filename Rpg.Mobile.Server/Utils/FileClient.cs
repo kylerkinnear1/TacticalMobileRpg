@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Rpg.Mobile.App.Utils;
+namespace Rpg.Mobile.Server.Utils;
 
 public class FileClient
 {

@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.Core;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;

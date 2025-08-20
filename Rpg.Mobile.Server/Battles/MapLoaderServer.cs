@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic.CompilerServices;
 using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 
 namespace Rpg.Mobile.Server.Battles;
 

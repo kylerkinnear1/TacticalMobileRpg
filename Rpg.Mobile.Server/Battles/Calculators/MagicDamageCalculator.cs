@@ -1,7 +1,7 @@
-using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.Utilities;
 
-namespace Rpg.Mobile.App.Game.MainBattle.Calculators;
+namespace Rpg.Mobile.Server.Battles.Calculators;
 
 public interface IMagicDamageCalculator
 {

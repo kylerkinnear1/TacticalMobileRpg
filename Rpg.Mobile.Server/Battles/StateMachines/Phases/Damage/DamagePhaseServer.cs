@@ -1,9 +1,9 @@
-using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps.SelectingAttackTargetStepServer;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps.SelectingMagicTargetStepServer;
+using static Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps.SelectingAttackTargetStepServer;
+using static Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps.SelectingMagicTargetStepServer;
 
-namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Damage;
+namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Damage;
 
 public class DamagePhaseServer(BattlePhaseMachine.Context _context) : IBattlePhase
 {

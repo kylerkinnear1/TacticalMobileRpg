@@ -1,7 +1,7 @@
-﻿using Rpg.Mobile.Api;
-using static Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.BattlePhaseMachine;
+﻿using Rpg.Mobile.Api.Battles.Data;
+using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
 
-namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
+namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
 public class SelectingSpellStepServer(Context _context) : ActivePhaseServer.IStep
 {
