@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.Server.Battles;
 using Rpg.Mobile.Server.Lobby;
 
@@ -19,9 +20,21 @@ public class GameHub(
     public async Task EndGame(string gameId) =>
         await _lobbyProvider.EndGame(this, gameId);
 
-    public async Task UnitMovementStarted(string gameId, Point targetTile) =>
-        await _battleProvider.UnitMovementStarted(gameId, targetTile);
-    
+    public async Task TileClicked(string gameId, Point tile) =>
+        await _battleProvider.TileClicked(this, gameId, tile);
+
+    public async Task AttackClicked(string gameId) =>
+        await _battleProvider.AttackClicked(this, gameId);
+
+    public async Task MagicClicked(string gameId) =>
+        await _battleProvider.MagicClicked(this, gameId);
+
+    public async Task SpellSelected(string gameId, SpellType spellType) =>
+        await _battleProvider.SpellSelected(this, gameId, spellType);
+
+    public async Task WaitClicked(string gameId) =>
+        await _battleProvider.WaitClicked(this, gameId);
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await _lobbyProvider.OnDisconnectedAsync(this, exception);

@@ -1,19 +1,25 @@
 ﻿using Rpg.Mobile.Api.Battles.Data;
-using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
-public class SelectingSpellStep(Context _context) : ActivePhase.IStep
+public class SelectingSpellStep(
+    BattleData _data,
+    IEventBus _bus) : ActivePhase.IStep
 {
     public void SpellSelected(SpellData spell)
     {
-        if (spell.MpCost > _context.Data.CurrentUnit().RemainingMp)
+        if (spell.MpCost > _data.CurrentUnit().RemainingMp)
         {
-            Bus.Global.Publish(new ActivePhase.NotEnoughMpEvent(spell));
+            _bus.Publish(new ActivePhase.NotEnoughMpEvent(spell));
             return;
         }
 
-        _context.Data.Active.CurrentSpell = spell;
-        Bus.Global.Publish(new ActivePhase.SpellSelectedEvent(spell));
+        _data.Active.CurrentSpell = spell;
+        _bus.Publish(new ActivePhase.SpellSelectedEvent(spell));
     }
+
+    public void Enter() { }
+    public void Execute(float deltaTime) { }
+    public void Leave() { }
 }

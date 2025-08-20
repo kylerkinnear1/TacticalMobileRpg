@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Rpg.Mobile.Api;
 using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.Server.Battles;
 using Rpg.Mobile.Server.Battles.Calculators;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases;
@@ -22,7 +23,9 @@ public class LobbyProvider(
     ConcurrentDictionary<string, GameContext> _games,
     IPathCalculator _path,
     IMagicDamageCalculator _magicDamage,
-    IAttackDamageCalculator _attackDamage) : ILobbyProvider
+    IAttackDamageCalculator _attackDamage,
+    ISelectingAttackTargetCalculator _attackTargetCalc,
+    ISelectingMagicTargetCalculator _magicTargetCalc) : ILobbyProvider
 {
     public async Task ConnectToGame(Hub<IEventApi> hub, string gameId)
     {
@@ -46,11 +49,15 @@ public class LobbyProvider(
                 if (didGameStart)
                 {
                     battleData = _mapLoader.LoadBattleData();
-                    game.BattlePhase = new BattlePhaseMachine(new(
+                    game.Data = battleData;
+                    game.BattlePhase = new BattlePhaseMachine(
                         battleData,
+                        new EventBus(),
                         _path,
+                        _attackTargetCalc,
+                        _magicTargetCalc,
                         _magicDamage,
-                        _attackDamage));
+                        _attackDamage);
                 }
             }
         }
@@ -68,7 +75,6 @@ public class LobbyProvider(
 
         if (didGameStart)
         {
-            
             await hub.Clients
                 .Group(gameId)
                 .GameStarted(gameId, battleData);
@@ -100,8 +106,10 @@ public class LobbyProvider(
             if (string.IsNullOrEmpty(game.Player0ConnectionId) &&
                 string.IsNullOrEmpty(game.Player1ConnectionId))
             {
-                _games.TryRemove(gameId, out _);
+                EndGame(gameId, game);
             }
+
+            game.BattlePhase?.Dispose();
         }
 
         if (playerId.HasValue)
@@ -128,13 +136,12 @@ public class LobbyProvider(
 
             player0Id = game.Player0ConnectionId;
             player1Id = game.Player1ConnectionId;
+
+            if (!isValidPlayer)
+                return;
             
-            // Clean up game
-            _games.TryRemove(gameId, out _);
+            EndGame(gameId, game);
         }
-        
-        if (!isValidPlayer)
-            return;
         
         await hub.Clients
             .Group(gameId)
@@ -165,7 +172,7 @@ public class LobbyProvider(
                 if (string.IsNullOrEmpty(game.Player0ConnectionId) &&
                     string.IsNullOrEmpty(game.Player1ConnectionId))
                 {
-                    _games.TryRemove(gameId, out _);
+                    EndGame(gameId, game);
                 }
             }
 
@@ -206,4 +213,10 @@ public class LobbyProvider(
 
         return null;
     }
+    
+    private void EndGame(string gameId, GameContext game)
+        {
+            _games.TryRemove(gameId, out _);
+            game.BattlePhase?.Dispose();
+        }
 }

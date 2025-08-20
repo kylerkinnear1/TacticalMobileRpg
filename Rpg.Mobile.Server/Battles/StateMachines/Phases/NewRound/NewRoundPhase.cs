@@ -1,19 +1,20 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
 
 namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.NewRound;
 
-public class NewRoundPhase(Context _context) : IBattlePhase
+public class NewRoundPhase(
+    BattleData _data) : IBattlePhase
 {
     public void Enter()
     {
-        var availableUnits = _context.Data.Active.TurnOrder.Count == 0
-            ? _context.Data.Setup.PlaceOrder
-            : _context.Data.Active.TurnOrder;
+        var availableUnits = _data.Active.TurnOrder.Count == 0
+            ? _data.Setup.PlaceOrder
+            : _data.Active.TurnOrder;
         
-        _context.Data.Active.TurnOrder.Set(availableUnits.Shuffle(Rng.Instance).ToList());
-        _context.Data.Active.ActiveUnitIndex = 0;
+        _data.Active.TurnOrder.Set(availableUnits.Shuffle(Rng.Instance).ToList());
+        _data.Active.ActiveUnitIndex = 0;
     }
 
     public void Execute(float deltaTime)

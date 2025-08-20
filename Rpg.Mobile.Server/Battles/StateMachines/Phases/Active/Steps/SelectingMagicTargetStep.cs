@@ -1,24 +1,30 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
-using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
 
 namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
 // TODO: look at duplication with attack target state. Combine into 'SelectingTarget' state.
-public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
+public class SelectingMagicTargetStep(
+    BattleData _data,
+    IEventBus _bus,
+    ISelectingMagicTargetCalculator _magicTargetCalculator,
+    IPathCalculator _path) : ActivePhase.IStep
 {
     public record MagicTargetSelectedEvent(Point Target) : IEvent;
     
-    private BattleData Data => _context.Data;
+    private BattleData Data => _data;
+
+    private ISubscription[] _subscriptions = [];
     
     public void Enter()
     {
-        var gridToUnit = _context.Data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
-        var legalTargets = _context.Path
+        var gridToUnit = _data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
+        var legalTargets = _path
             .CreateFanOutArea(
-                Data.UnitCoordinates[_context.Data.CurrentUnit()],
+                Data.UnitCoordinates[_data.CurrentUnit()],
                 Data.Map.Corner(),
                 Data.Active.CurrentSpell!.MinRange,
                 Data.Active.CurrentSpell.MaxRange)
@@ -28,18 +34,27 @@ public class SelectingMagicTargetStep(Context _context) : ActivePhase.IStep
                  Data.Active.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == Data.CurrentUnit().PlayerId))
             .ToList();
 
-        _context.Data.Active.SpellTargetTiles.Set(legalTargets);
-    }
-    public void Leave()
-    {
-        _context.Data.Active.SpellTargetTiles.Clear();
+        _data.Active.SpellTargetTiles.Set(legalTargets);
+
+        _subscriptions =
+        [
+            _bus.Subscribe<TileClickedEvent>(TileClicked)
+        ];
     }
 
-    public void TileClicked(TileClickedEvent evnt)
+    public void Execute(float deltaTime) { }
+
+    public void Leave()
     {
-        if (!IsValidMagicTargetTile(evnt.Tile)) 
+        _data.Active.SpellTargetTiles.Clear();
+        _subscriptions.DisposeAll();
+    }
+
+    private void TileClicked(TileClickedEvent evnt)
+    {
+        if (!_magicTargetCalculator.IsValidMagicTargetTile(evnt.Tile, _data)) 
             return;
         
-        Bus.Global.Publish(new MagicTargetSelectedEvent(evnt.Tile));
+        _bus.Publish(new MagicTargetSelectedEvent(evnt.Tile));
     }
 }

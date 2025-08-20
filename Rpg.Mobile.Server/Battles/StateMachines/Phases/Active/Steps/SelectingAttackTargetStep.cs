@@ -1,40 +1,59 @@
 ﻿using Rpg.Mobile.Api;
+using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
-using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
+using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
-public class SelectingAttackTargetStep(Context _context) : ActivePhase.IStep
+public class SelectingAttackTargetStep(
+    BattleData _data,
+    IEventBus _bus,
+    ISelectingAttackTargetCalculator _attackTargetCalculator,
+    IPathCalculator _path) : ActivePhase.IStep
 {
     public record AttackTargetSelectedEvent(BattleUnitData Target) : IEvent;
-
+    
+    private ISubscription[] _subscriptions = [];
+    
     public void Enter()
     {
-        var gridToUnit = _context.Data.UnitCoordinates.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(x => x.Value, x => x.Key);
+        var gridToUnit = _data.UnitCoordinates.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(x => x.Value, x => x.Key);
 
-        var legalTargets = _context.Path
+        var legalTargets = _path
             .CreateFanOutArea(
-                _context.Data.UnitCoordinates[_context.Data.CurrentUnit()],
-                _context.Data.Map.Corner(),
-                _context.Data.CurrentUnit().Stats.AttackMinRange,
-                _context.Data.CurrentUnit().Stats.AttackMaxRange)
-            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != _context.Data.CurrentUnit().PlayerId))
+                _data.UnitCoordinates[_data.CurrentUnit()],
+                _data.Map.Corner(),
+                _data.CurrentUnit().Stats.AttackMinRange,
+                _data.CurrentUnit().Stats.AttackMaxRange)
+            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != _data.CurrentUnit().PlayerId))
             .ToList();
 
-        _context.Data.Active.AttackTargetTiles.Set(legalTargets);
+        _data.Active.AttackTargetTiles.Set(legalTargets);
+
+        _subscriptions =
+        [
+            _bus.Subscribe<TileClickedEvent>(TileClicked)
+        ];
     }
-    
+
+    public void Execute(float deltaTime) { }
+
     public void Leave()
     {
-        _context.Data.Active.AttackTargetTiles.Clear();
+        _data.Active.AttackTargetTiles.Clear();
+        _subscriptions.DisposeAll();
     }
     
     private void TileClicked(TileClickedEvent evnt)
     {
-        if (!IsValidAttackTargetTile(evnt.Tile)) return;
+        if (!_attackTargetCalculator.IsValidAttackTargetTile(evnt.Tile, _data)) 
+            return;
 
-        var enemy = _context.Data.UnitsAt(evnt.Tile).Single(x => x.PlayerId != _context.Data.CurrentUnit().PlayerId);
-        Bus.Global.Publish(new AttackTargetSelectedEvent(enemy));
+        var enemy = _data
+            .UnitsAt(evnt.Tile)
+            .Single(x => x.PlayerId != _data.CurrentUnit().PlayerId);
+        
+        _bus.Publish(new AttackTargetSelectedEvent(enemy));
     }
 }

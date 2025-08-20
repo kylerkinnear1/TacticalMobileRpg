@@ -14,27 +14,41 @@ namespace Rpg.Mobile.Server.Battles.StateMachines.Phases;
 public interface IBattlePhase : IState { }
 public class BattlePhaseMachine : IDisposable
 {
-    public record Context(
-        BattleData Data,
-        IPathCalculator Path,
-        IMagicDamageCalculator MagicDamageCalc,
-        IAttackDamageCalculator AttackDamageCalc);
-
+    private readonly BattleData _data;
+    private readonly IEventBus _bus;
+    private readonly IPathCalculator _path;
+    private readonly ISelectingAttackTargetCalculator _attackTargetCalculator;
+    private readonly ISelectingMagicTargetCalculator _magicTargetCalculator;
+    private readonly IMagicDamageCalculator _magicDamageCalc;
+    private readonly IAttackDamageCalculator _attackDamageCalc;
+    
     private readonly ISubscription[] _subscriptions;
-    private readonly Context _context;
     private readonly StateMachine<IBattlePhase> _state = new();
 
-    public BattlePhaseMachine(Context context)
+    public BattlePhaseMachine(
+        BattleData data,
+        IEventBus bus,
+        IPathCalculator path,
+        ISelectingAttackTargetCalculator attackTargetCalculator,
+        ISelectingMagicTargetCalculator magicTargetCalculator,
+        IMagicDamageCalculator magicDamageCalc,
+        IAttackDamageCalculator attackDamageCalc)
     {
-        _context = context;
+        _data = data;
+        _bus = bus;
+        _path = path;
+        _attackTargetCalculator = attackTargetCalculator;
+        _magicTargetCalculator = magicTargetCalculator;
+        _magicDamageCalc = magicDamageCalc;
+        _attackDamageCalc = attackDamageCalc;
+
         _subscriptions =
         [
-            Bus.Global.Subscribe<SetupPhase.CompletedEvent>(_ => StartFirstRound()),
-            Bus.Global.Subscribe<ActivePhase.NotEnoughMpEvent>(_ => ShowMessage("Not enough MP.")),
-            Bus.Global.Subscribe<ActivePhase.CompletedEvent>(_ => UnitTurnEnded()),
-            Bus.Global.Subscribe<SelectingAttackTargetStep.AttackTargetSelectedEvent>(ApplyDamage),
-            Bus.Global.Subscribe<SelectingMagicTargetStep.MagicTargetSelectedEvent>(ApplyDamage),
-            Bus.Global.Subscribe<DamagePhase.CompletedEvent>(_ => UnitTurnEnded())
+            _bus.Subscribe<SetupPhase.CompletedEvent>(_ => StartFirstRound()),
+            _bus.Subscribe<ActivePhase.CompletedEvent>(_ => UnitTurnEnded()),
+            _bus.Subscribe<SelectingAttackTargetStep.AttackTargetSelectedEvent>(ApplyDamage),
+            _bus.Subscribe<SelectingMagicTargetStep.MagicTargetSelectedEvent>(ApplyDamage),
+            _bus.Subscribe<DamagePhase.CompletedEvent>(_ => UnitTurnEnded())
         ];
     }
 
@@ -43,30 +57,30 @@ public class BattlePhaseMachine : IDisposable
     
     private void StartFirstRound()
     {
-        _state.Change(new NewRoundPhase(_context));
-        _state.Change(new ActivePhase(_context));
+        _state.Change(new NewRoundPhase(_data));
+        _state.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
     }
 
     private void UnitTurnEnded()
     {
-        _context.Data.Active.ActiveUnitIndex = (_context.Data.Active.ActiveUnitIndex + 1) % _context.Data.Active.TurnOrder.Count;
+        _data.Active.ActiveUnitIndex = (_data.Active.ActiveUnitIndex + 1) % _data.Active.TurnOrder.Count;
 
-        if (_context.Data.Active.ActiveUnitIndex == 0)
-            _state.Change(new NewRoundPhase(_context));
+        if (_data.Active.ActiveUnitIndex == 0)
+            _state.Change(new NewRoundPhase(_data));
 
-        _state.Change(new ActivePhase(_context));
+        _state.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
     }
 
     private void ApplyDamage(SelectingAttackTargetStep.AttackTargetSelectedEvent evnt)
     {
-        var phase = new DamagePhase(_context);
+        var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc);
         _state.Change(phase);
         phase.PerformAttack(evnt);
     }
 
     private void ApplyDamage(SelectingMagicTargetStep.MagicTargetSelectedEvent evnt)
     {
-        var phase = new DamagePhase(_context);
+        var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc);
         _state.Change(phase);
         phase.CastSpell(evnt);
     }

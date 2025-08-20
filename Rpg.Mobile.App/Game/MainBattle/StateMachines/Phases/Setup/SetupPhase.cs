@@ -5,6 +5,12 @@ namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Setup;
 
 public class SetupPhaseClient
 {
+    public void Enter()
+    {
+        var firstUnit = _context.Data.Setup.PlaceOrder[0];
+                _context.Main.PlaceUnitSpriteComponent.Sprite = GetUnitSprite(firstUnit.Stats.UnitType, firstUnit.PlayerId);
+    }
+    
     public void Execute(float deltaTime)
     {
         var currentOrigins = _context.Data.Setup.CurrentPlaceOrder % 2 == 0

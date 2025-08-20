@@ -1,34 +1,52 @@
-﻿using Rpg.Mobile.Api.Battles.Data;
-using static Rpg.Mobile.Server.Battles.StateMachines.Phases.BattlePhaseMachine;
+﻿using Rpg.Mobile.Api.Battles.Calculators;
+using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.GameSdk.StateManagement;
+using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
-public class IdleStep(Context _context) : ActivePhase.IStep
+public class IdleStep(
+    BattleData _data,
+    IEventBus _bus,
+    IPathCalculator _path) : ActivePhase.IStep
 {
+    public record CompletedEvent(BattleUnitData CurrentUnit) : IEvent;
+
+    private ISubscription[] _subscriptions = [];
+    
     public void Enter()
     {
-        var walkableTiles = _context.Path
-            .CreateFanOutArea(_context.Data.Active.ActiveUnitStartPosition, _context.Data.Map.Corner(), _context.Data.CurrentUnit().Stats.Movement)
+        var walkableTiles = _path
+            .CreateFanOutArea(_data.Active.ActiveUnitStartPosition, _data.Map.Corner(), _data.CurrentUnit().Stats.Movement)
             .Where(x => 
-                x == _context.Data.Active.ActiveUnitStartPosition ||
-                !_context.Data.UnitCoordinates.ContainsValue(x) &&
-                _context.Data.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
+                x == _data.Active.ActiveUnitStartPosition ||
+                !_data.UnitCoordinates.ContainsValue(x) &&
+                _data.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
             .ToList();
-        _context.Data.Active.WalkableTiles = walkableTiles;
+        _data.Active.WalkableTiles = walkableTiles;
+
+        _subscriptions =
+        [
+            _bus.Subscribe<TileClickedEvent>(TileClicked)
+        ];
     }
+
+    public void Execute(float deltaTime) { }
 
     public void Leave()
     {
-        _context.Data.Active.WalkableTiles.Clear();
+        _data.Active.WalkableTiles.Clear();
+        _subscriptions.DisposeAll();
+        _bus.Publish(new CompletedEvent(_data.CurrentUnit()));
     }
 
-    public void TileClicked(TileClickedEvent evnt)
+    private void TileClicked(TileClickedEvent evnt)
     {
-        if (!_context.Data.Active.WalkableTiles.Contains(evnt.Tile))
+        if (!_data.Active.WalkableTiles.Contains(evnt.Tile))
         {
             return;
         }
 
-        _context.Data.UnitCoordinates[_context.Data.CurrentUnit()] = evnt.Tile;
+        _data.UnitCoordinates[_data.CurrentUnit()] = evnt.Tile;
     }
 }
