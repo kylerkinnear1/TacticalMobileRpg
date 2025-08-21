@@ -11,7 +11,14 @@ public class SelectingSpellStep : ActivePhase.IStep
     private readonly BattleData _data;
     private readonly MenuComponent _menu;
     private readonly IEventBus _bus;
-    
+
+    public SelectingSpellStep(BattleData data, MenuComponent menu, IEventBus bus)
+    {
+        _data = data;
+        _menu = menu;
+        _bus = bus;
+    }
+
     public void Enter()
     {
         var buttons = _data.CurrentUnit().Spells

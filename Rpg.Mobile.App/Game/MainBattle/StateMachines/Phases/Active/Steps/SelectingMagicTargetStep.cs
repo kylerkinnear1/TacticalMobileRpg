@@ -16,10 +16,24 @@ public class SelectingMagicTargetStep : ActivePhase.IStep
     private readonly ISelectingMagicTargetCalculator _magicTargetCalculator;
     
     private ISubscription[] _subscriptions = [];
-    
+
+    public SelectingMagicTargetStep(
+        MainBattleComponent mainBattle,
+        MenuComponent menu,
+        BattleData data,
+        IEventBus bus,
+        ISelectingMagicTargetCalculator magicTargetCalculator)
+    {
+        _mainBattle = mainBattle;
+        _menu = menu;
+        _data = data;
+        _bus = bus;
+        _magicTargetCalculator = magicTargetCalculator;
+    }
+
     public void Enter()
     {
-        _mainBattle.AttackTargetHighlight.Range = _data.Active.CurrentSpell.Aoe;
+        _mainBattle.AttackTargetHighlight.Range = _data.Active.CurrentSpell!.Aoe;
         
         var attackTiles = _data.Active.SpellTargetTiles
             .Select(x => 

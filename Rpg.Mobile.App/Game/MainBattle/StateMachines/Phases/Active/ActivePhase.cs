@@ -27,6 +27,14 @@ public class ActivePhase : IBattlePhase
     private ISubscription[] _subscriptions = [];
     private readonly StateMachine<IStep> _step = new();
 
+    public ActivePhase(BattleData data, MainBattleComponent mainBattle, MenuComponent menu, IEventBus bus)
+    {
+        _data = data;
+        _mainBattle = mainBattle;
+        _menu = menu;
+        _bus = bus;
+    }
+
     public void Enter()
     {
         _subscriptions =
