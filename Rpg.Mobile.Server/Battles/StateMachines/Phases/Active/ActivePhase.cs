@@ -1,5 +1,4 @@
-﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.Api.Battles.Calculators;
+﻿using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
@@ -14,39 +13,57 @@ public class ActivePhase(
     ISelectingMagicTargetCalculator _magicTargetCalculator,
     IPathCalculator _path) : IBattlePhase
 {
-    public interface IStep : IState { }
+    public interface IStep : IState
+    {
+    }
 
     private ISubscription[] _subscriptions = [];
     private readonly StateMachine<IStep> _step = new();
-    
-    public record MagicClickedEvent : IEvent;
-    public record AttackClickedEvent : IEvent;
-    
+
+    public record MagicClickedEvent(int PlayerId) : IEvent;
+    public record AttackClickedEvent(int PlayerId) : IEvent;
     public record CompletedEvent(BattleUnitData Unit) : IEvent;
     public record NotEnoughMpEvent(SpellData Spell) : IEvent;
-    public record SpellSelectedEvent(SpellData Spell) : IEvent;
+    public record SpellSelectedEvent(int PlayerId, SpellType Spell) : IEvent;
+    public record ActiveSpellChangedEvent(SpellData Spell) : IEvent;
+    public record UnitMovedEvent(Point Tile) : IEvent;
+    public record BackClickedEvent(int PlayerId) : IEvent;
     
     public void Enter()
     {
         _subscriptions =
         [
             _bus.Subscribe<AttackClickedEvent>(_ => _step.Change(new SelectingAttackTargetStep(
-                _data, 
+                _data,
                 _bus,
                 _attackTargetCalculator,
                 _path))),
             _bus.Subscribe<MagicClickedEvent>(_ => _step.Change(new SelectingSpellStep(_data, _bus))),
-            _bus.Subscribe<ActivePhaseBackClickedEvent>(BackClicked),
-            _bus.Subscribe<SpellSelectedEvent>(_ => _step.Change(new SelectingMagicTargetStep(
-                _data,
-                _bus,
-                _magicTargetCalculator,
-                _path))),
+            _bus.Subscribe<BackClickedEvent>(BackClicked),
+            _bus.Subscribe<SpellSelectedEvent>(SpellSelected),
             _bus.Subscribe<IdleStep.CompletedEvent>(evnt => _bus.Publish(new CompletedEvent(evnt.CurrentUnit)))
         ];
-        
+
         _data.Active.ActiveUnitStartPosition = _data.UnitCoordinates[_data.CurrentUnit()];
         _step.Change(new IdleStep(_data, _bus, _path));
+    }
+
+    private void SpellSelected(SpellSelectedEvent evnt)
+    {
+        var spell = _data.CurrentUnit().Spells.FirstOrDefault(x => x.Type == evnt.Spell);
+        if (spell == null)
+        {
+            return;
+        }
+        
+        _data.Active.CurrentSpell = spell;
+        
+        _bus.Publish(new ActiveSpellChangedEvent(spell));
+        _step.Change(new SelectingMagicTargetStep(
+            _data,
+            _bus,
+            _magicTargetCalculator,
+            _path));
     }
 
     public void Execute(float deltaTime)
@@ -59,8 +76,9 @@ public class ActivePhase(
         _subscriptions.DisposeAll();
     }
 
-    private void BackClicked(ActivePhaseBackClickedEvent evnt)
+    private void BackClicked(BackClickedEvent evnt)
     {
         _data.UnitCoordinates[_data.CurrentUnit()] = _data.Active.ActiveUnitStartPosition;
+        _bus.Publish(new UnitMovedEvent(_data.Active.ActiveUnitStartPosition));
     }
 }

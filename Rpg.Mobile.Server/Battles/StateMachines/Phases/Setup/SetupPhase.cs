@@ -1,5 +1,4 @@
-﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using Point = System.Drawing.Point;
@@ -11,6 +10,7 @@ public class SetupPhase(
     IEventBus _bus) : IBattlePhase
 {
     public record CompletedEvent : IEvent;
+    public record UnitPlacedEvent(Point Tile, BattleUnitData Unit) : IEvent;
     
     private ISubscription[] _subscriptions = [];
 

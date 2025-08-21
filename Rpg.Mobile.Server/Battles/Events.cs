@@ -2,4 +2,4 @@
 
 namespace Rpg.Mobile.Server.Battles;
 
-public record TileClickedEvent(Point Tile) : IEvent;
+public record TileClickedEvent(int PlayerId, Point Tile) : IEvent;

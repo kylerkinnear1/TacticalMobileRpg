@@ -16,7 +16,7 @@ public class SelectingSpellStep(
         }
 
         _data.Active.CurrentSpell = spell;
-        _bus.Publish(new ActivePhase.SpellSelectedEvent(spell));
+        _bus.Publish(new ActivePhase.SpellSelectedEvent(0, spell.Type));
     }
 
     public void Enter() { }
