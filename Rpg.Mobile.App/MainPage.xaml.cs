@@ -16,7 +16,7 @@ public partial class MainPage : ContentPage
     private readonly SceneManager _scenes;
     private readonly LobbyNetwork _lobbyNetwork;
     
-    public MainPage(HubConnection hub)
+    public MainPage()
     {
         InitializeComponent();
         
@@ -29,6 +29,8 @@ public partial class MainPage : ContentPage
         var game = gameLoopFactory.Create(GameView, lobby, mouse);
         
         _scenes = new SceneManager(lobby, battleScene, game, bus);
+
+        var hub = DiContainer.Services!.GetRequiredService<HubConnection>();
         _lobbyNetwork = new(new LobbyClient(hub), bus, game);
         game.Start();
     }

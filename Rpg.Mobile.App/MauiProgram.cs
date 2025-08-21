@@ -20,8 +20,9 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        var hub = ConnectToHub("https://localhost:5004/game-hub");
+        var hub = ConnectToHub("http://localhost:5004/game-hub");
         builder.Services.AddSingleton(hub);
+        builder.Services.AddTransient<MainPage>();
         
         SetFullScreen(builder);
 
@@ -29,7 +30,9 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+        DiContainer.Services = app.Services;
+        return app;
     }
 
     private static HubConnection ConnectToHub(string url)
