@@ -1,8 +1,13 @@
-﻿using Rpg.Mobile.App.Game.MainBattle.Components;
+﻿using Rpg.Mobile.Api.Battles.Calculators;
+using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Inputs;
+using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Tweening;
+using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.MainBattle;
 
@@ -14,16 +19,29 @@ public class BattleGridScene : SceneBase
     private readonly StatSheetComponent _stats;
     private readonly MouseCoordinateComponent _mouseComponent;
     private readonly TextboxComponent _hoverComponent;
-    private readonly BattlePhaseMachine _stateMachine;
+    private readonly BattleData _data;
+    private readonly IEventBus _bus;
+    private readonly IPathCalculator _path;
 
     private ITween<PointF>? _cameraTween;
+    private ISubscription[] _subscriptions = [];
     
-    public BattleGridScene(IMouse mouse)
+    private readonly StateMachine<IBattlePhase> _state = new();
+    
+    public BattleGridScene(
+        IMouse mouse,
+        BattleData data,
+        IEventBus bus,
+        IPathCalculator path)
     {
-        Add(_battle = new(new(0f, 0f), battleData));
+        _data = data;
+        _bus = bus;
+        _path = path;
+        
+        Add(_battle = new(new(0f, 0f), _path, _data, _bus));
         Add(_battleMenu = new(new(900f, 100f, 150f, 200f)));
-        Add(_miniMap = new(new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
-        Add(_stats = new(battleData, new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
+        Add(_miniMap = new(_bus, new(_battleMenu.Bounds.Right + 100f, _battleMenu.Bounds.Bottom + 100f, 200f, 200f)) { IgnoreCamera = true });
+        Add(_stats = new(_data, _bus, new(900f, _battleMenu.Bounds.Bottom + 30f, 150, 300f)) { IgnoreCamera = true });
 
         Add(_mouseComponent = new(mouse, new(_miniMap.AbsoluteBounds.Left, _miniMap.AbsoluteBounds.Bottom, 300f, 100f))
         {
@@ -36,12 +54,6 @@ public class BattleGridScene : SceneBase
             BackColor = Colors.DeepSkyBlue
         });
         
-        _stateMachine = new BattlePhaseMachine(context);
-        _stateMachine.Change(new SetupPhase(context));
-
-        Bus.Global.Subscribe<TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}");
-        Bus.Global.Subscribe<MiniMapClickedEvent>(MiniMapClicked);
-        
         ActiveCamera.Offset = new PointF(80f, 80f);
     }
 
@@ -50,14 +62,30 @@ public class BattleGridScene : SceneBase
         if (_cameraTween is not null)
             ActiveCamera.Offset = _cameraTween.Advance(deltaTime);
 
-        _stateMachine.Execute(deltaTime);
+        _state.Execute(deltaTime);
     }
 
-    private void MiniMapClicked(MiniMapClickedEvent touch)
+    private void MiniMapClicked(MiniMapComponent.MiniMapClickedEvent touch)
     {
         var xPercent = touch.Position.X / _miniMap.Bounds.Width;
         var yPercent = touch.Position.Y / _miniMap.Bounds.Height;
         var target = new PointF(ActiveCamera.Size.Width * xPercent * 2, ActiveCamera.Size.Height * yPercent * 2);
         _cameraTween = ActiveCamera.Offset.SpeedTween(target, 1000f);
+    }
+
+    public override void OnEnter()
+    {
+        _subscriptions =
+        [
+            _bus.Subscribe<GridComponent.TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}"),
+            _bus.Subscribe<MiniMapComponent.MiniMapClickedEvent>(MiniMapClicked)
+        ];
+        base.OnEnter();
+    }
+
+    public override void OnExit()
+    {
+        _subscriptions.DisposeAll();
+        base.OnExit();
     }
 }

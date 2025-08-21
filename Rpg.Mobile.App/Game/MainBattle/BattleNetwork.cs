@@ -8,4 +8,6 @@ public class BattleNetwork
     public record UnitsDamagedEvent(
         List<(BattleUnitData Unit, int Damage)> DamagedUnits,
         List<BattleUnitData> DefeatedUnits) : IEvent;
+
+    public record UnitPlacedEvent(BattleUnitData Unit, Point Tile) : IEvent;
 }

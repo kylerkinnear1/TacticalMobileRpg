@@ -6,7 +6,7 @@ namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
 public class MiniMapComponent : ComponentBase
 {
-    public record MiniMapClickedEvent(PointF Touch) : IEvent;
+    public record MiniMapClickedEvent(PointF Position) : IEvent;
 
     private readonly IEventBus _bus;
     
