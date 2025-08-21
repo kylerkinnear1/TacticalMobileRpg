@@ -1,7 +1,4 @@
-﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.App.Game.MainBattle;
-using Rpg.Mobile.App.Game.MainBattle.Components;
-using Rpg.Mobile.App.Game.UserInterface;
+﻿using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 
@@ -16,19 +13,13 @@ public class LobbyScene : SceneBase
     private readonly TextboxComponent _statusText;
     private readonly IEventBus _bus;
     private readonly GameSettings _settings;
-    private readonly IGameLoop _game;
-    private readonly BattleGridScene _battleScene;
 
-    public LobbyScene(
-        IGameLoop game, 
+    public LobbyScene( 
         IEventBus bus, 
-        GameSettings settings,
-        BattleGridScene battleScene)
+        GameSettings settings)
     {
-        _game = game;
         _bus = bus;
         _settings = settings;
-        _battleScene = battleScene;
         
         Add(_titleText = new TextboxComponent(
             new RectF(200f, 100f, 400f, 60f), 

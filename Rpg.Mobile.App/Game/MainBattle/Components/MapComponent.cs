@@ -1,6 +1,6 @@
-﻿using Rpg.Mobile.Api;
-using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
 
@@ -14,11 +14,13 @@ public class MapComponent : ComponentBase
 
     private readonly GridComponent _grid;
 
-    public MapComponent(MapData state) 
+    public MapComponent(
+        MapData state,
+        IEventBus bus) 
         : base(new(0, 0, state.Width() * TileWidth, state.Height() * TileWidth))
     {
         State = state;
-        AddChild(_grid = new(state.Width(), state.Height(), TileWidth));
+        AddChild(_grid = new(bus, state.Width(), state.Height(), TileWidth));
     }
 
     public override void Update(float deltaTime) { }
