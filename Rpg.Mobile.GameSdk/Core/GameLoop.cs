@@ -92,18 +92,28 @@ public class GameLoop(SceneBase _scene, GraphicsView _view, IDispatcher _dispatc
     private void HandleHover()
     {
         var mousePosition = _mouse.GetRelativeClientPosition();
-        var hoveredComponents = _scene.ComponentTree
-            .SelectMany(x => x.All)
-            .Select(x => new
-            {
-                Bounds = x.IgnoreCamera ? x.AbsoluteBounds : x.AbsoluteBounds.Offset(_scene.ActiveCamera.Offset),
-                Component = x
-            })
-            .Where(x => x.Component.Visible && x.Bounds.Contains(mousePosition.X, mousePosition.Y))
-            .ToList();
+        var cameraOffset = _scene.ActiveCamera.Offset;
 
-        foreach (var component in hoveredComponents)
-            component.Component.OnHover(new(mousePosition.X - component.Bounds.X, mousePosition.Y - component.Bounds.Y));
+        foreach (var rootComponent in _scene.ComponentTree)
+        {
+            foreach (var component in rootComponent.All)
+            {
+                if (!component.Visible)
+                    continue;
+
+                var absoluteBounds = component.AbsoluteBounds;
+                var bounds = component.IgnoreCamera 
+                    ? absoluteBounds 
+                    : absoluteBounds.Offset(cameraOffset);
+
+                if (bounds.Contains(mousePosition.X, mousePosition.Y))
+                {
+                    var relativeX = mousePosition.X - bounds.X;
+                    var relativeY = mousePosition.Y - bounds.Y;
+                    component.OnHover(new PointF(relativeX, relativeY));
+                }
+            }
+        }
     }
 }
 
