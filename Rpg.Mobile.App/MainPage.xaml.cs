@@ -1,29 +1,44 @@
-﻿using Rpg.Mobile.App.Game.Lobby;
+﻿using Rpg.Mobile.Api.Battles.Calculators;
+using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.App.Game;
+using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle;
-using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Windows;
 using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App;
 
 public partial class MainPage : ContentPage
 {
+    private readonly SceneManager _scenes;
+    
     public MainPage()
     {
         InitializeComponent();
-
-        // TODO: Inject
+        
         var gameLoopFactory = new GameLoopFactory();
-
-        // TODO: Inject
         var mouse = new MouseWindowsUser32();
-
-        // TODO: Inject mouse into scene
-        // TODO: figure out how to dispose from this form (probably DI?)
-        var lobby = new LobbyScene();
-        var battleScene = new BattleGridScene(mouse);
+        
+        var bus = new EventBus();
+        var lobby = new LobbyScene(bus, new GameSettings("game001"));
+        var battleScene = new BattleGridScene(mouse, new BattleData(), bus, new PathCalculator());
         var game = gameLoopFactory.Create(GameView, lobby, mouse);
+
+        _scenes = new SceneManager(lobby, battleScene, game, bus);
         game.Start();
+    }
+
+    protected override void OnAppearing()
+    {
+        _scenes.Subscribe();
+        base.OnAppearing();
+    }
+
+    protected override void OnDisappearing()
+    {
+        _scenes.Unsubscribe();
+        base.OnDisappearing();
     }
 }
 

@@ -9,6 +9,7 @@ namespace Rpg.Mobile.App.Game.Lobby;
 public class LobbyNetwork : IDisposable
 {
     public record GameStartedEvent(string GameId, BattleData Battle) : IEvent;
+    public record GameEndedEvent(string GameId) : IEvent;
     
     private readonly ILobbyClient _lobbyClient;
     private readonly IEventBus _bus;
@@ -25,6 +26,7 @@ public class LobbyNetwork : IDisposable
         _game = game;
 
         _lobbyClient.GameStarted += GameStarted;
+        _lobbyClient.GameEnded += GameEnded;
         
         _subscriptions =
         [
@@ -35,6 +37,11 @@ public class LobbyNetwork : IDisposable
     private void GameStarted(string gameId, BattleData battle)
     {
         _game.Execute(() => _bus.Publish(new GameStartedEvent(gameId, battle)));
+    }
+
+    private void GameEnded(string gameId)
+    {
+        _game.Execute(() => _bus.Publish(new GameEndedEvent(gameId)));
     }
 
     private void JoinGameClicked(LobbyScene.JoinGameClickedEvent evnt)
