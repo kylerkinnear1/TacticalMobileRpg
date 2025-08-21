@@ -110,7 +110,11 @@ public class BattleProvider : IBattleProvider
     {
         _gameSubscriptions.GetOrAdd(gameId, _ =>
         [
-            bus.SubscribeAsync<ActivePhase.UnitMovedEvent>(x => UnitMoved(hub, gameId, x))
+            bus.SubscribeAsync<ActivePhase.UnitMovedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Group(gameId)
+                    .UnitMoved(gameId, x.Tile))
         ]);
     }
     
@@ -120,17 +124,6 @@ public class BattleProvider : IBattleProvider
             return;
 
         subscriptions.DisposeAll();
-    }
-
-    private async Task UnitMoved(Hub<IEventApi> hub, string gameId, ActivePhase.UnitMovedEvent evnt)
-    {
-        if (!_games.TryGetValue(gameId, out var game))
-            return;
-
-        await hub
-            .Clients
-            .Group(gameId)
-            .UnitMoved(gameId, evnt.Tile);
     }
     
     private int? GetPlayerId(GameContext game, string connectionId)
