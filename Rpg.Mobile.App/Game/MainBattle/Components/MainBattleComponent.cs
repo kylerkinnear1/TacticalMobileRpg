@@ -3,6 +3,7 @@ using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
+using Rpg.Mobile.GameSdk.StateManagement;
 using static Rpg.Mobile.App.Game.Sprites;
 
 namespace Rpg.Mobile.App.Game.MainBattle.Components;
@@ -27,17 +28,23 @@ public class MainBattleComponent : ComponentBase
 
     private readonly BattleData _data;
     private readonly IPathCalculator _path;
+    private readonly IEventBus _bus;
 
     private static RectF CalcBounds(PointF position, int width, int height, float size) =>
         new(position.X, position.Y, width * size, height * size);
 
-    public MainBattleComponent(PointF location, IPathCalculator path, BattleData data)
+    public MainBattleComponent(
+        PointF location, 
+        IPathCalculator path, 
+        BattleData data,
+        IEventBus bus)
         : base(CalcBounds(location, data.Map.Tiles.Width, data.Map.Tiles.Height, TileWidth))
     {
         _data = data;
         _path = path;
+        _bus = bus;
         
-        AddChild(Map = new(data.Map));
+        AddChild(Map = new(data.Map, bus));
         AddChild(MoveShadow = new(Map.Bounds) { BackColor = Colors.BlueViolet.WithAlpha(.3f) });
         AddChild(AttackShadow = new(Map.Bounds) { BackColor = Colors.Maroon.WithAlpha(.4f) });
         AddChild(CurrentUnitShadow = new(Map.Bounds) { BackColor = Colors.Gainsboro.WithAlpha(.5f) });

@@ -73,14 +73,14 @@ public class BattlePhaseMachine : IDisposable
 
     private void ApplyDamage(SelectingAttackTargetStep.AttackTargetSelectedEvent evnt)
     {
-        var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc);
+        var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc, _bus);
         _state.Change(phase);
         phase.PerformAttack(evnt);
     }
 
     private void ApplyDamage(SelectingMagicTargetStep.MagicTargetSelectedEvent evnt)
     {
-        var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc);
+        var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc, _bus);
         _state.Change(phase);
         phase.CastSpell(evnt);
     }

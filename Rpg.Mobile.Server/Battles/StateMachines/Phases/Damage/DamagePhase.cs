@@ -11,9 +11,14 @@ public class DamagePhase(
     BattleData _data,
     IPathCalculator _path,
     IAttackDamageCalculator _attackDamageCalc,
-    IMagicDamageCalculator _magicDamageCalc) : IBattlePhase
+    IMagicDamageCalculator _magicDamageCalc,
+    IEventBus _bus) : IBattlePhase
 {
     public record CompletedEvent(BattleUnitData Unit) : IEvent;
+
+    public record UnitsDamaged(
+        List<(BattleUnitData Unit, int Damage)> DamagedUnits,
+        List<BattleUnitData> DefeatedUnits) : IEvent;
     
     public void Enter()
     {
@@ -78,5 +83,7 @@ public class DamagePhase(
 
         if (_data.Active.ActiveUnitIndex >= _data.Active.TurnOrder.Count)
             _data.Active.ActiveUnitIndex = 0;
+        
+        _bus.Publish(new UnitsDamaged(damagedUnits, defeatedUnits));
     }
 }

@@ -1,40 +1,59 @@
 ﻿using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Damage;
 
-public class DamagePhase
+public class DamagePhase : IBattlePhase
 {
+    public record CompletedEvent(BattleUnitData BattleUnit) : IEvent;
+    
+    private readonly MainBattleComponent _mainBattle;
+    private readonly IEventBus _bus;
+    private readonly BattleData _data;
+
+    private ISubscription[] _subscriptions = [];
+
+    public DamagePhase(MainBattleComponent mainBattle, IEventBus bus, BattleData data)
+    {
+        _mainBattle = mainBattle;
+        _bus = bus;
+        _data = data;
+    }
+
     public void Enter()
     {
-        _context.Main.DamageIndicator.Visible = true;
+        _mainBattle.DamageIndicator.Visible = true;
+        _subscriptions =
+        [
+            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(ApplyDamage)
+        ];
     }
     
     public void Leave()
     {
-        _context.Main.DamageIndicator.Visible = false;
-    }
-
-    // TODO: Hm... i don't want to wait for the client to finish the damage
-    // and then tell the server and hold up the game while waiting for damage?
-    // or is that ok?
-    public void Execute(float deltaTime)
-    {
-        if (_context.Main.DamageIndicator.IsPlaying)
-            return;
-        
-        Bus.Global.Publish(new CompletedEvent(_context.Data.CurrentUnit()));
+        _mainBattle.DamageIndicator.Visible = false;
     }
     
-    private void ApplyDamage(IEnumerable<BattleUnitData> targets, int damage)
+    public void Execute(float deltaTime)
     {
-        var positions = damagedUnits
-            .Select(x => (_context.Main.Units[x.Unit].Unit.Position, x.Damage))
+        if (_mainBattle.DamageIndicator.IsPlaying)
+            return;
+        
+        _bus.Publish(new CompletedEvent(_data.CurrentUnit()));
+    }
+    
+    private void ApplyDamage(BattleNetwork.UnitsDamagedEvent evnt)
+    {
+        var positions = evnt.DamagedUnits
+            .Select(x => (_mainBattle.Units[x.Unit].Unit.Position, x.Damage))
             .ToList();
 
-        _context.Main.DamageIndicator.SetDamage(positions);
-        _context.Main.DamageIndicator.Visible = true;
+        _mainBattle.DamageIndicator.SetDamage(positions);
+        _mainBattle.DamageIndicator.Visible = true;
 
-        var defeatedComponents = defeatedUnits.Select(x => _context.Main.Units[x]).ToList();
+        var defeatedComponents = evnt.DefeatedUnits
+            .Select(x => _mainBattle.Units[x]);
         
         foreach (var component in defeatedComponents)
         {
