@@ -6,11 +6,17 @@ using Rpg.Mobile.Server.Lobby;
 
 namespace Rpg.Mobile.Server;
 
-public class GameHub(
-    ILobbyProvider _lobbyProvider,
-    IBattleProvider _battleProvider)
-    : Hub<IEventApi>, ICommandApi
+public class GameHub : Hub<IEventApi>, ICommandApi
 {
+    private readonly ILobbyProvider _lobbyProvider;
+    private readonly IBattleProvider _battleProvider;
+
+    public GameHub(ILobbyProvider lobbyProvider, IBattleProvider battleProvider)
+    {
+        _lobbyProvider = lobbyProvider;
+        _battleProvider = battleProvider;
+    }
+
     public async Task ConnectToGame(string gameId) =>
         await _lobbyProvider.ConnectToGame(this, gameId);
 

@@ -11,3 +11,8 @@ public interface IBattleCommandApi
     Task SpellSelected(string gameId, SpellType spellType);
     Task WaitClicked(string gameId);
 }
+
+public interface IBattleEventApi
+{
+    Task UnitMoved(string gameId, Point tile);
+}

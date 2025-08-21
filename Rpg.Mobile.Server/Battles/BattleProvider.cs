@@ -1,5 +1,9 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.SignalR;
+using Rpg.Mobile.Api;
 using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.GameSdk.StateManagement;
+using Rpg.Mobile.GameSdk.Utilities;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
 
@@ -12,11 +16,15 @@ public interface IBattleProvider
     Task MagicClicked(GameHub hub, string gameId);
     Task SpellSelected(GameHub hub, string gameId, SpellType spellType);
     Task WaitClicked(GameHub hub, string gameId);
+
+    void SubscribeToGame(Hub<IEventApi> hub, string gameId, IEventBus Bus);
+    void UnsubscribeFromGame(string gameId);
 }
 
 public class BattleProvider : IBattleProvider
 {
     private readonly ConcurrentDictionary<string, GameContext> _games;
+    private readonly ConcurrentDictionary<string, ISubscription[]> _gameSubscriptions = new();
 
     public BattleProvider(ConcurrentDictionary<string, GameContext> games)
     {
@@ -97,7 +105,34 @@ public class BattleProvider : IBattleProvider
 
         return Task.CompletedTask;
     }
+    
+    public void SubscribeToGame(Hub<IEventApi> hub, string gameId, IEventBus bus)
+    {
+        _gameSubscriptions.GetOrAdd(gameId, _ =>
+        [
+            bus.SubscribeAsync<ActivePhase.UnitMovedEvent>(x => UnitMoved(hub, gameId, x))
+        ]);
+    }
+    
+    public void UnsubscribeFromGame(string gameId)
+    {
+        if (!_gameSubscriptions.TryGetValue(gameId, out var subscriptions))
+            return;
 
+        subscriptions.DisposeAll();
+    }
+
+    private async Task UnitMoved(Hub<IEventApi> hub, string gameId, ActivePhase.UnitMovedEvent evnt)
+    {
+        if (!_games.TryGetValue(gameId, out var game))
+            return;
+
+        await hub
+            .Clients
+            .Group(gameId)
+            .UnitMoved(gameId, evnt.Tile);
+    }
+    
     private int? GetPlayerId(GameContext game, string connectionId)
     {
         if (game.Player0ConnectionId == connectionId) 

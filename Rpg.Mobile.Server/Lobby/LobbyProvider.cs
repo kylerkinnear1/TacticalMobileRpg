@@ -19,13 +19,14 @@ public interface ILobbyProvider
 }
 
 public class LobbyProvider(
-    MapLoader _mapLoader, 
+    MapLoader _mapLoader,
     ConcurrentDictionary<string, GameContext> _games,
     IPathCalculator _path,
     IMagicDamageCalculator _magicDamage,
     IAttackDamageCalculator _attackDamage,
     ISelectingAttackTargetCalculator _attackTargetCalc,
-    ISelectingMagicTargetCalculator _magicTargetCalc) : ILobbyProvider
+    ISelectingMagicTargetCalculator _magicTargetCalc,
+    IBattleProvider _battleProvider) : ILobbyProvider
 {
     public async Task ConnectToGame(Hub<IEventApi> hub, string gameId)
     {
@@ -34,12 +35,12 @@ public class LobbyProvider(
         var didGameStart = false;
         var playerId = 0;
         var battleData = new BattleData();
-        
+
         lock (game.Lock)
         {
             gameIsFull = !string.IsNullOrEmpty(game.Player0ConnectionId) &&
                          !string.IsNullOrEmpty(game.Player1ConnectionId);
-            
+
             if (!gameIsFull)
             {
                 playerId = AssignPlayerSlot(hub.Context.ConnectionId, game);
@@ -48,16 +49,7 @@ public class LobbyProvider(
 
                 if (didGameStart)
                 {
-                    battleData = _mapLoader.LoadBattleData();
-                    game.Data = battleData;
-                    game.BattlePhase = new BattlePhaseMachine(
-                        battleData,
-                        new EventBus(),
-                        _path,
-                        _attackTargetCalc,
-                        _magicTargetCalc,
-                        _magicDamage,
-                        _attackDamage);
+                    battleData = StartGame(game, hub, gameId);
                 }
             }
         }
@@ -67,7 +59,7 @@ public class LobbyProvider(
             await hub.Clients.Caller.GameFull(gameId);
             return;
         }
-        
+
         await hub.Groups.AddToGroupAsync(hub.Context.ConnectionId, gameId);
         await hub.Clients
             .Group(gameId)
@@ -139,10 +131,10 @@ public class LobbyProvider(
 
             if (!isValidPlayer)
                 return;
-            
+
             EndGame(gameId, game);
         }
-        
+
         await hub.Clients
             .Group(gameId)
             .GameEnded(gameId);
@@ -167,7 +159,7 @@ public class LobbyProvider(
                 {
                     continue;
                 }
-                
+
                 playerId = RemovePlayer(hub.Context.ConnectionId, game);
                 if (string.IsNullOrEmpty(game.Player0ConnectionId) &&
                     string.IsNullOrEmpty(game.Player1ConnectionId))
@@ -176,9 +168,9 @@ public class LobbyProvider(
                 }
             }
 
-            if (!playerId.HasValue) 
+            if (!playerId.HasValue)
                 continue;
-            
+
             await hub.Clients
                 .Group(gameId)
                 .PlayerLeft(gameId, playerId.Value);
@@ -196,7 +188,7 @@ public class LobbyProvider(
         game.Player1ConnectionId = connectionId;
         return 1;
     }
-    
+
     private int? RemovePlayer(string connectionId, GameContext game)
     {
         if (game.Player0ConnectionId == connectionId)
@@ -204,7 +196,7 @@ public class LobbyProvider(
             game.Player0ConnectionId = null;
             return 0;
         }
-            
+
         if (game.Player1ConnectionId == connectionId)
         {
             game.Player1ConnectionId = null;
@@ -213,10 +205,30 @@ public class LobbyProvider(
 
         return null;
     }
-    
+
     private void EndGame(string gameId, GameContext game)
-        {
-            _games.TryRemove(gameId, out _);
-            game.BattlePhase?.Dispose();
-        }
+    {
+        _games.TryRemove(gameId, out _);
+        _battleProvider.UnsubscribeFromGame(gameId);
+        game.BattlePhase?.Dispose();
+    }
+    
+    private BattleData StartGame(GameContext game, Hub<IEventApi> hub, string gameId)
+    {
+        var battleData = _mapLoader.LoadBattleData();
+        game.Data = battleData;
+
+        var bus = new EventBus();
+        game.BattlePhase = new BattlePhaseMachine(
+            battleData,
+            bus,
+            _path,
+            _attackTargetCalc,
+            _magicTargetCalc,
+            _magicDamage,
+            _attackDamage);
+        
+        _battleProvider.SubscribeToGame(hub, gameId, game.Bus);
+        return battleData;
+    }
 }

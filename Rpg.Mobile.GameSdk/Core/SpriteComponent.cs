@@ -14,8 +14,6 @@ public abstract class SpriteComponentBase(IImage sprite) : ComponentBase(new(0, 
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
     {
-        if (!Visible)
-            return;
         canvas.DrawImage(Sprite, Scale);
     }
 
