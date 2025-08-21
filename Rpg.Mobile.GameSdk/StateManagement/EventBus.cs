@@ -22,7 +22,7 @@ public class EventBus : IEventBus
 
     public void Publish<T>(T evnt) where T : IEvent
     {
-        if (_actionNotificationHandlers.TryGetValue(evnt.GetType(), out var actionHandlers))
+        if (_actionNotificationHandlers.TryGetValue(typeof(T), out var actionHandlers))
         {
             List<ActionHandlerWrapper>? copiedActionHandlers;
             lock (actionHandlers)
@@ -33,7 +33,7 @@ public class EventBus : IEventBus
             copiedActionHandlers.ForEach(x => x.WrappedHandler(evnt));
         }
 
-        if (_taskNotificationHandlers.TryGetValue(evnt.GetType(), out var taskHandlers))
+        if (_taskNotificationHandlers.TryGetValue(typeof(T), out var taskHandlers))
         {
             List<TaskHandlerWrapper>? copiedTaskHandlers;
             lock (taskHandlers)
@@ -67,7 +67,7 @@ public class EventBus : IEventBus
 
     public async Task PublishAsync<T>(T evnt) where T : IEvent
     {
-        if (_actionNotificationHandlers.TryGetValue(evnt.GetType(), out var actionHandlers))
+        if (_actionNotificationHandlers.TryGetValue(typeof(T), out var actionHandlers))
         {
             List<ActionHandlerWrapper>? copiedActionHandlers;
             lock (actionHandlers)
@@ -78,7 +78,7 @@ public class EventBus : IEventBus
             copiedActionHandlers.ForEach(x => x.WrappedHandler(evnt));
         }
 
-        if (_taskNotificationHandlers.TryGetValue(evnt.GetType(), out var taskHandlers))
+        if (_taskNotificationHandlers.TryGetValue(typeof(T), out var taskHandlers))
         {
             List<TaskHandlerWrapper>? copiedTaskHandlers;
             lock (taskHandlers)
