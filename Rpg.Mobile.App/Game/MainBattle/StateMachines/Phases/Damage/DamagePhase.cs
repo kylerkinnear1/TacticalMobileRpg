@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.Api.Battles.Data;
 
-namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Damage;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Damage;
 
 public class DamagePhase
 {

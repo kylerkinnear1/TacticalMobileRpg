@@ -58,7 +58,7 @@ public class ActivePhase : IBattlePhase
             _mainBattle.CurrentUnit.Unit.Bounds.Size);
         _mainBattle.CurrentUnit.MoveTo(
             position, 
-            () => _step.Change(new IdleStepClient(
+            () => _step.Change(new IdleStep(
                 _menu,
                 _bus,
                 _data,

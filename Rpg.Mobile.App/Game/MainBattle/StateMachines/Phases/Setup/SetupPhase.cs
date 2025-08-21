@@ -1,7 +1,6 @@
 ﻿using Rpg.Mobile.Api.Battles.Data;
-using Point = System.Drawing.Point;
 
-namespace Rpg.Mobile.Server.Battles.StateMachines.Phases.Setup;
+namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
 
 public class SetupPhaseClient
 {

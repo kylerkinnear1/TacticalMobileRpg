@@ -7,7 +7,7 @@ using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
-public class IdleStepClient : ActivePhase.IStep
+public class IdleStep : ActivePhase.IStep
 {
     private readonly MenuComponent _menu;
     private readonly IEventBus _bus;
@@ -16,7 +16,7 @@ public class IdleStepClient : ActivePhase.IStep
 
     private ISubscription[] _subscriptions = [];
     
-    public IdleStepClient(MenuComponent menu, IEventBus bus, BattleData data, MainBattleComponent mainBattle)
+    public IdleStep(MenuComponent menu, IEventBus bus, BattleData data, MainBattleComponent mainBattle)
     {
         _menu = menu;
         _bus = bus;

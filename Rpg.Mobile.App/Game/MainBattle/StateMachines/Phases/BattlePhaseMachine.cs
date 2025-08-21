@@ -1,4 +1,4 @@
-﻿namespace Rpg.Mobile.Server.Battles.StateMachines.Phases;
+﻿namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
 
 public class BattlePhaseMachineClient
 {
