@@ -6,14 +6,14 @@ using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.Lobby;
 
-public class LobbyNetwork : IDisposable
+public class LobbyNetwork
 {
     public record GameStartedEvent(string GameId, BattleData Battle) : IEvent;
     public record GameEndedEvent(string GameId) : IEvent;
     
     private readonly ILobbyClient _lobbyClient;
     private readonly IEventBus _bus;
-    private readonly ISubscription[] _subscriptions;
+    private ISubscription[] _subscriptions = [];
     private readonly IGameLoop _game;
 
     public LobbyNetwork(
@@ -24,7 +24,10 @@ public class LobbyNetwork : IDisposable
         _lobbyClient = lobbyClient;
         _bus = bus;
         _game = game;
-
+    }
+    
+    public void Connect()
+    {
         _lobbyClient.GameStarted += GameStarted;
         _lobbyClient.GameEnded += GameEnded;
         
@@ -32,6 +35,13 @@ public class LobbyNetwork : IDisposable
         [
             _bus.Subscribe<LobbyScene.JoinGameClickedEvent>(JoinGameClicked)
         ];
+    }
+
+    public void Disconnect()
+    {
+        _lobbyClient.GameStarted -= GameStarted;
+        _lobbyClient.GameEnded -= GameEnded;
+        _subscriptions.DisposeAll();
     }
 
     private void GameStarted(string gameId, BattleData battle)

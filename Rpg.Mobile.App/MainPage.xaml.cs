@@ -1,5 +1,7 @@
-﻿using Rpg.Mobile.Api.Battles.Calculators;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.Api.Lobby;
 using Rpg.Mobile.App.Game;
 using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle;
@@ -12,6 +14,7 @@ namespace Rpg.Mobile.App;
 public partial class MainPage : ContentPage
 {
     private readonly SceneManager _scenes;
+    private readonly LobbyNetwork _lobbyNetwork;
     
     public MainPage()
     {
@@ -25,19 +28,26 @@ public partial class MainPage : ContentPage
         var battleScene = new BattleGridScene(mouse, new BattleData(), bus, new PathCalculator());
         var game = gameLoopFactory.Create(GameView, lobby, mouse);
 
+        var hub = new HubConnectionBuilder()
+            .WithUrl("https://localhost:5004/game-hub")
+            .Build();
+        
         _scenes = new SceneManager(lobby, battleScene, game, bus);
+        _lobbyNetwork = new(new LobbyClient(hub), bus, game);
         game.Start();
     }
 
     protected override void OnAppearing()
     {
         _scenes.Subscribe();
+        _lobbyNetwork.Connect();
         base.OnAppearing();
     }
 
     protected override void OnDisappearing()
     {
         _scenes.Unsubscribe();
+        _lobbyNetwork.Disconnect();
         base.OnDisappearing();
     }
 }
