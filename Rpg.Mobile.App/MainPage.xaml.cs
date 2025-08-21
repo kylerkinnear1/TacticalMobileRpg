@@ -16,7 +16,7 @@ public partial class MainPage : ContentPage
     private readonly SceneManager _scenes;
     private readonly LobbyNetwork _lobbyNetwork;
     
-    public MainPage()
+    public MainPage(HubConnection hub)
     {
         InitializeComponent();
         
@@ -27,10 +27,6 @@ public partial class MainPage : ContentPage
         var lobby = new LobbyScene(bus, new GameSettings("game001"));
         var battleScene = new BattleGridScene(mouse, new BattleData(), bus, new PathCalculator());
         var game = gameLoopFactory.Create(GameView, lobby, mouse);
-
-        var hub = new HubConnectionBuilder()
-            .WithUrl("https://localhost:5004/game-hub")
-            .Build();
         
         _scenes = new SceneManager(lobby, battleScene, game, bus);
         _lobbyNetwork = new(new LobbyClient(hub), bus, game);

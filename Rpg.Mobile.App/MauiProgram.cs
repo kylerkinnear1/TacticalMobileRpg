@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 
 #if WINDOWS
 using Microsoft.Maui.LifecycleEvents;
@@ -19,6 +20,9 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+        var hub = ConnectToHub("https://localhost:5004/game-hub");
+        builder.Services.AddSingleton(hub);
+        
         SetFullScreen(builder);
 
 #if DEBUG
@@ -26,6 +30,18 @@ public static class MauiProgram
 #endif
 
         return builder.Build();
+    }
+
+    private static HubConnection ConnectToHub(string url)
+    {
+        var hub = new HubConnectionBuilder()
+            .WithUrl(url)
+            .WithAutomaticReconnect()
+            .Build();
+
+        // TODO: Figure out how to do async startup for Maui.
+        hub.StartAsync().GetAwaiter().GetResult();
+        return hub;
     }
 
     private static void SetFullScreen(MauiAppBuilder builder)
@@ -54,5 +70,3 @@ public static class MauiProgram
 #endif
     }
 }
-
-
