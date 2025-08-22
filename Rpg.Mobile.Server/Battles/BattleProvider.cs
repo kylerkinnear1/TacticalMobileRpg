@@ -6,6 +6,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Setup;
 
 namespace Rpg.Mobile.Server.Battles;
 
@@ -114,7 +115,12 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Group(gameId)
-                    .UnitMoved(gameId, x.Tile))
+                    .UnitMoved(gameId, x.Tile)),
+            bus.SubscribeAsync<SetupPhase.StartedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Group(gameId)
+                    .SetupStarted(gameId, x.PlaceOrder))
         ]);
     }
     

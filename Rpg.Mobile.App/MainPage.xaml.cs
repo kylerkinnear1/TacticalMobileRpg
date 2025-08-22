@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Rpg.Mobile.Api.Battles;
 using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.Api.Lobby;
@@ -15,6 +16,7 @@ public partial class MainPage : ContentPage
 {
     private readonly SceneManager _scenes;
     private readonly LobbyNetwork _lobbyNetwork;
+    private readonly BattleNetwork _battleNetwork;
     
     public MainPage()
     {
@@ -32,6 +34,7 @@ public partial class MainPage : ContentPage
 
         var hub = DiContainer.Services!.GetRequiredService<HubConnection>();
         _lobbyNetwork = new(new LobbyClient(hub), bus, game);
+        _battleNetwork = new(new BattleClient(hub), bus, game);
         game.Start();
     }
 
@@ -39,6 +42,7 @@ public partial class MainPage : ContentPage
     {
         _scenes.Subscribe();
         _lobbyNetwork.Connect();
+        _battleNetwork.Connect();
         base.OnAppearing();
     }
 
@@ -46,6 +50,7 @@ public partial class MainPage : ContentPage
     {
         _scenes.Unsubscribe();
         _lobbyNetwork.Disconnect();
+        _battleNetwork.Disconnect();
         base.OnDisappearing();
     }
 }

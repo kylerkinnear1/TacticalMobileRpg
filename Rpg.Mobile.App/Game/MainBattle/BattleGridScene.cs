@@ -79,10 +79,10 @@ public class BattleGridScene : SceneBase
         _subscriptions =
         [
             _bus.Subscribe<GridComponent.TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}"),
-            _bus.Subscribe<MiniMapComponent.MiniMapClickedEvent>(MiniMapClicked)
+            _bus.Subscribe<MiniMapComponent.MiniMapClickedEvent>(MiniMapClicked),
+            _bus.Subscribe<BattleNetwork.SetupStartedEvent>(SetupStarted)
         ];
         
-        _phase.Change(new SetupPhase(_data, _battle, _bus));
         base.OnEnter();
     }
 
@@ -90,5 +90,11 @@ public class BattleGridScene : SceneBase
     {
         _subscriptions.DisposeAll();
         base.OnExit();
+    }
+    
+    private void SetupStarted(BattleNetwork.SetupStartedEvent evnt)
+    {
+        _data.Setup.PlaceOrder = evnt.PlaceOrder;
+        _phase.Change(new SetupPhase(_data, _battle, _bus));
     }
 }

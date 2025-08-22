@@ -15,4 +15,5 @@ public interface IBattleCommandApi
 public interface IBattleEventApi
 {
     Task UnitMoved(string gameId, Point tile);
+    Task SetupStarted(string gameId, List<BattleUnitData> placeOrder);
 }
