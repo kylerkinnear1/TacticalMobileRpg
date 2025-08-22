@@ -8,6 +8,8 @@ public class BattleData
     public Dictionary<BattleUnitData, Point> UnitCoordinates { get; set; } = new();
     public BattleSetupPhaseData Setup { get; set; } = new();
     public BattleActivePhaseData Active { get; set; } = new();
+    public List<BattleUnitType> Team0 { get; set; } = new();
+    public List<BattleUnitType> Team1 { get; set; } = new();
 
     // TODO: Remove
     public List<BattleUnitData> UnitsAt(Point point) =>
@@ -22,15 +24,6 @@ public class BattleData
     {
         var data = new BattleData();
         data.Map = map;
-
-        var team1 = map.Team1
-            .Select(x => map.BaseStats.Single(y => x == y.UnitType))
-            .Select(x => new BattleUnitData { PlayerId = 0, Stats = x});
-        var team2 = map.Team2
-            .Select(x => map.BaseStats.Single(y => x == y.UnitType))
-            .Select(x => new BattleUnitData { PlayerId = 1, Stats = x});
-
-        data.Setup.PlaceOrder = team1.Zip(team2).SelectMany(x => new[] { x.First, x.Second }).ToList();
 
         // TODO: workaround
         foreach (var unit in data.Setup.PlaceOrder.Where(x => x.Stats.UnitType == BattleUnitType.Mage))

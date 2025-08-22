@@ -12,7 +12,7 @@ namespace Rpg.Mobile.Server.Lobby;
 
 public interface ILobbyProvider
 {
-    Task ConnectToGame(Hub<IEventApi> hub, string gameId);
+    Task ConnectToGame(Hub<IEventApi> hub, string gameId, IEnumerable<BattleUnitType> team);
     Task LeaveGame(Hub<IEventApi> hub, string gameId);
     Task EndGame(Hub<IEventApi> hub, string gameId);
     Task OnDisconnectedAsync(Hub<IEventApi> hub, Exception? exception);
@@ -28,7 +28,7 @@ public class LobbyProvider(
     ISelectingMagicTargetCalculator _magicTargetCalc,
     IBattleProvider _battleProvider) : ILobbyProvider
 {
-    public async Task ConnectToGame(Hub<IEventApi> hub, string gameId)
+    public async Task ConnectToGame(Hub<IEventApi> hub, string gameId, IEnumerable<BattleUnitType> team)
     {
         var game = _games.GetOrAdd(gameId, _ => new GameContext());
         var gameIsFull = false;
@@ -43,7 +43,7 @@ public class LobbyProvider(
 
             if (!gameIsFull)
             {
-                playerId = AssignPlayerSlot(hub.Context.ConnectionId, game);
+                playerId = AssignPlayerSlot(hub.Context.ConnectionId, game, team);
                 didGameStart = !string.IsNullOrEmpty(game.Player0ConnectionId) &&
                                !string.IsNullOrEmpty(game.Player1ConnectionId);
 
@@ -177,15 +177,17 @@ public class LobbyProvider(
         }
     }
 
-    private int AssignPlayerSlot(string connectionId, GameContext game)
+    private int AssignPlayerSlot(string connectionId, GameContext game, IEnumerable<BattleUnitType> team)
     {
         if (string.IsNullOrEmpty(game.Player0ConnectionId))
         {
             game.Player0ConnectionId = connectionId;
+            game.Data.Team0 = team.ToList();
             return 0;
         }
 
         game.Player1ConnectionId = connectionId;
+        game.Data.Team1 = team.ToList();
         return 1;
     }
 

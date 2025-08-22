@@ -16,6 +16,15 @@ public class SetupPhase(
 
     public void Enter()
     {
+        var team1 = _data.Team0
+            .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
+            .Select(x => new BattleUnitData { PlayerId = 0, Stats = x});
+        var team2 = _data.Team1
+            .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
+            .Select(x => new BattleUnitData { PlayerId = 1, Stats = x});
+
+        _data.Setup.PlaceOrder = team1.Zip(team2).SelectMany(x => new[] { x.First, x.Second }).ToList();
+        
         _subscriptions = 
         [
             _bus.Subscribe<TileClickedEvent>(TileClicked)

@@ -1,12 +1,6 @@
 {
   "RowCount": 10,
   "ColumnCount": 12,
-  "Player1Team": [
-    "Mage"
-  ],
-  "Player2Team": [
-    "Healer"
-  ],
   "Player1Origins": [
     {
       "X": 0,

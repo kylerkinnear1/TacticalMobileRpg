@@ -19,8 +19,6 @@ public class MapData
     public Array2d<TileState> Tiles { get; set; } = new(0, 0);
     public List<Point> Player1Origins { get; set; } = new();
     public List<Point> Player2Origins { get; set; } = new();
-    public List<BattleUnitType> Team1 { get; set; } = new();
-    public List<BattleUnitType> Team2 { get; set; } = new();
     public List<BattleUnitStats> BaseStats { get; set; } = new();
     
     // TODO: Remove
@@ -33,8 +31,6 @@ public class MapData
 public record MapJson(
     int RowCount,
     int ColumnCount,
-    List<BattleUnitType> Player1Team,
-    List<BattleUnitType> Player2Team,
     List<Coordinate> Player1Origins,
     List<Coordinate> Player2Origins,
     List<Coordinate> RockPositions,
@@ -56,8 +52,6 @@ public static class MapStateMapper
         var state = new MapData
         {
             Tiles = tiles,
-            Team1 = mapJson.Player1Team,
-            Team2 = mapJson.Player2Team,
             Player1Origins = mapJson.Player1Origins.Select(x => new Point(x.X, x.Y)).ToList(),
             Player2Origins = mapJson.Player2Origins.Select(x => new Point(x.X, x.Y)).ToList(),
             BaseStats = mapJson.BaseStats

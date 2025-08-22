@@ -17,8 +17,8 @@ public class GameHub : Hub<IEventApi>, ICommandApi
         _battleProvider = battleProvider;
     }
 
-    public async Task ConnectToGame(string gameId) =>
-        await _lobbyProvider.ConnectToGame(this, gameId);
+    public async Task ConnectToGame(string gameId, List<BattleUnitType> team) =>
+        await _lobbyProvider.ConnectToGame(this, gameId, team);
 
     public async Task LeaveGame(string gameId) =>
         await _lobbyProvider.LeaveGame(this, gameId);

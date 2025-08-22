@@ -4,7 +4,7 @@ namespace Rpg.Mobile.Api.Lobby;
 
 public interface ILobbyCommandApi
 {
-    Task ConnectToGame(string gameId);
+    Task ConnectToGame(string gameId, List<BattleUnitType> team);
     Task LeaveGame(string gameId);
     Task EndGame(string gameId);
 }
