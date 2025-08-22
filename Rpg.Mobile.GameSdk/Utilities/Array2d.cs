@@ -1,10 +1,20 @@
-﻿namespace Rpg.Mobile.GameSdk.Utilities;
+﻿using System.Text.Json.Serialization;
+
+namespace Rpg.Mobile.GameSdk.Utilities;
 
 public class Array2d<T>
 {
-    public readonly T[] Data;
-    public readonly int Width;
-    public readonly int Height;
+    public T[] Data { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
+
+    // Parameterless constructor required for deserialization
+    public Array2d()
+    {
+        Data = Array.Empty<T>();
+        Width = 0;
+        Height = 0;
+    }
 
     public Array2d(int width, int height)
     {
@@ -13,12 +23,14 @@ public class Array2d<T>
         Data = new T[Width * Height];
     }
 
+    [JsonIgnore]
     public T this[int x, int y]
     {
         get => Data[y * Width + x];
         set => Data[y * Width + x] = value;
     }
 
+    [JsonIgnore]
     public T this[int yPlusX]
     {
         get => Data[yPlusX];
