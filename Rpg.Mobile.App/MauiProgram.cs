@@ -23,6 +23,10 @@ public static class MauiProgram
         var hub = ConnectToHub("http://localhost:5004/game-hub");
         builder.Services.AddSingleton(hub);
         builder.Services.AddTransient<MainPage>();
+
+        var settingsLoader = new SettingsLoader();
+        var settings = settingsLoader.LoadSettingsAsync().GetAwaiter().GetResult();
+        builder.Services.AddSingleton(settings);
         
         SetFullScreen(builder);
 

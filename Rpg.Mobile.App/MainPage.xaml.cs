@@ -24,11 +24,11 @@ public partial class MainPage : ContentPage
         var mouse = new MouseWindowsUser32();
         
         var bus = new EventBus();
-        var lobby = new LobbyScene(bus, new GameSettings("game001"));
-        var battleScene = new BattleGridScene(mouse, new BattleData(), bus, new PathCalculator());
+        var settings = DiContainer.Services!.GetRequiredService<GameSettings>();
+        var lobby = new LobbyScene(bus, settings);
         var game = gameLoopFactory.Create(GameView, lobby, mouse);
-        
-        _scenes = new SceneManager(lobby, battleScene, game, bus);
+
+        _scenes = new SceneManager(lobby, game, bus, mouse, new PathCalculator());
 
         var hub = DiContainer.Services!.GetRequiredService<HubConnection>();
         _lobbyNetwork = new(new LobbyClient(hub), bus, game);

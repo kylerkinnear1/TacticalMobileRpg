@@ -1,3 +1,6 @@
 ﻿{
-  "gameId": "test-game-001"
+  "GameId": "test-game-001",
+  "Team": [
+    "Mage"
+  ]
 }

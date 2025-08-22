@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
+using Rpg.Mobile.Api.Battles.Data;
 
 namespace Rpg.Mobile.App;
 
-public record GameSettings(string GameId);
+public record GameSettings(string GameId, BattleUnitType[] Team);
 
 public class SettingsLoader
 {
@@ -17,6 +18,6 @@ public class SettingsLoader
             PropertyNameCaseInsensitive = true
         });
         
-        return settings ?? new GameSettings("default-game");
+        return settings!;
     }
 }
