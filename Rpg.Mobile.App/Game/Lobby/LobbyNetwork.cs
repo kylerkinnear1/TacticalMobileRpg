@@ -56,7 +56,7 @@ public class LobbyNetwork
 
     private void JoinGameClicked(LobbyScene.JoinGameClickedEvent evnt)
     {
-        _lobbyClient.ConnectToGame(evnt.GameId);
+        _lobbyClient.ConnectToGame(evnt.GameId, evnt.Team);
     }
 
     public void Dispose()

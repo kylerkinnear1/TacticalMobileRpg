@@ -6,7 +6,7 @@ namespace Rpg.Mobile.Api.Lobby;
 
 public interface ILobbyClient
 {
-    Task ConnectToGame(string gameId);
+    Task ConnectToGame(string gameId, List<BattleUnitType> team);
     Task LeaveGame(string gameId);
     Task EndGame(string gameId);
 
@@ -36,9 +36,9 @@ public class LobbyClient : ILobbyClient
         SetupEventHandlers();
     }
 
-    public async Task ConnectToGame(string gameId)
+    public async Task ConnectToGame(string gameId, List<BattleUnitType> team)
     {
-        await _hub.InvokeAsync(nameof(ILobbyCommandApi.ConnectToGame), gameId);
+        await _hub.InvokeAsync(nameof(ILobbyCommandApi.ConnectToGame), gameId, team);
     }
 
     public async Task LeaveGame(string gameId)

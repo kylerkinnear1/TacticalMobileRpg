@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.App.Game.UserInterface;
+﻿using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 
@@ -6,7 +7,7 @@ namespace Rpg.Mobile.App.Game.Lobby;
 
 public class LobbyScene : SceneBase
 {
-    public record JoinGameClickedEvent(string GameId) : IEvent;
+    public record JoinGameClickedEvent(string GameId, List<BattleUnitType> Team) : IEvent;
 
     private readonly ButtonComponent _joinGameButton;
     private readonly TextboxComponent _titleText;
@@ -56,7 +57,7 @@ public class LobbyScene : SceneBase
     {
         _statusText.Label = "Connecting...";
         _joinGameButton.Visible = false;
-        _bus.Publish(new JoinGameClickedEvent(_settings.GameId));
+        _bus.Publish(new JoinGameClickedEvent(_settings.GameId, _settings.Team.ToList()));
     }
     
     public override void Update(float deltaTime)
