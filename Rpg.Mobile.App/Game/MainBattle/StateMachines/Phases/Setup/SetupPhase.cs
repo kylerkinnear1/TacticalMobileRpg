@@ -13,16 +13,15 @@ public class SetupPhase : IBattlePhase
     private readonly MainBattleComponent _mainBattle;
     private readonly IEventBus _bus;
 
-    private Point? _lastHoveredTile;
+    private Point? _lastHoveredTile = null;
 
     private ISubscription[] _subscriptions = [];
 
-    public SetupPhase(BattleData data, MainBattleComponent mainBattle, IEventBus bus, Point? lastHoveredTile)
+    public SetupPhase(BattleData data, MainBattleComponent mainBattle, IEventBus bus)
     {
         _data = data;
         _mainBattle = mainBattle;
         _bus = bus;
-        _lastHoveredTile = lastHoveredTile;
     }
 
     public void Enter()

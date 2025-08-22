@@ -2,6 +2,7 @@
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.Inputs;
@@ -26,7 +27,7 @@ public class BattleGridScene : SceneBase
     private ITween<PointF>? _cameraTween;
     private ISubscription[] _subscriptions = [];
     
-    private readonly StateMachine<IBattlePhase> _state = new();
+    private readonly StateMachine<IBattlePhase> _phase = new();
     
     public BattleGridScene(
         IMouse mouse,
@@ -62,7 +63,7 @@ public class BattleGridScene : SceneBase
         if (_cameraTween is not null)
             ActiveCamera.Offset = _cameraTween.Advance(deltaTime);
 
-        _state.Execute(deltaTime);
+        _phase.Execute(deltaTime);
     }
 
     private void MiniMapClicked(MiniMapComponent.MiniMapClickedEvent touch)
@@ -80,6 +81,8 @@ public class BattleGridScene : SceneBase
             _bus.Subscribe<GridComponent.TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}"),
             _bus.Subscribe<MiniMapComponent.MiniMapClickedEvent>(MiniMapClicked)
         ];
+        
+        _phase.Change(new SetupPhase(_data, _battle, _bus));
         base.OnEnter();
     }
 

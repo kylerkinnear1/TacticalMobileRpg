@@ -1,6 +1,7 @@
 ﻿{
   "GameId": "test-game-001",
   "Team": [
-    "Mage"
+    "Mage",
+    "Warrior"
   ]
 }

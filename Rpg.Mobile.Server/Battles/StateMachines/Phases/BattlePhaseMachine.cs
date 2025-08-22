@@ -23,7 +23,7 @@ public class BattlePhaseMachine : IDisposable
     private readonly IAttackDamageCalculator _attackDamageCalc;
     
     private readonly ISubscription[] _subscriptions;
-    private readonly StateMachine<IBattlePhase> _state = new();
+    private readonly StateMachine<IBattlePhase> _phase = new();
 
     public BattlePhaseMachine(
         BattleData data,
@@ -52,13 +52,13 @@ public class BattlePhaseMachine : IDisposable
         ];
     }
 
-    public void Change(IBattlePhase phase) => _state.Change(phase);
-    public void Execute(float deltaTime) => _state.Execute(deltaTime);
+    public void Change(IBattlePhase phase) => _phase.Change(phase);
+    public void Execute(float deltaTime) => _phase.Execute(deltaTime);
     
     private void StartFirstRound()
     {
-        _state.Change(new NewRoundPhase(_data));
-        _state.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
+        _phase.Change(new NewRoundPhase(_data));
+        _phase.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
     }
 
     private void UnitTurnEnded()
@@ -66,22 +66,22 @@ public class BattlePhaseMachine : IDisposable
         _data.Active.ActiveUnitIndex = (_data.Active.ActiveUnitIndex + 1) % _data.Active.TurnOrder.Count;
 
         if (_data.Active.ActiveUnitIndex == 0)
-            _state.Change(new NewRoundPhase(_data));
+            _phase.Change(new NewRoundPhase(_data));
 
-        _state.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
+        _phase.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
     }
 
     private void ApplyDamage(SelectingAttackTargetStep.AttackTargetSelectedEvent evnt)
     {
         var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc, _bus);
-        _state.Change(phase);
+        _phase.Change(phase);
         phase.PerformAttack(evnt);
     }
 
     private void ApplyDamage(SelectingMagicTargetStep.MagicTargetSelectedEvent evnt)
     {
         var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc, _bus);
-        _state.Change(phase);
+        _phase.Change(phase);
         phase.CastSpell(evnt);
     }
 
