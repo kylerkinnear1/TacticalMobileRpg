@@ -2,7 +2,39 @@
 
 public static class SpellPresets
 {
-    public static readonly SpellData Fire1 = new(SpellType.Fire1, "Fire", 2, 1, 2, false, true);
-    public static readonly SpellData Fire2 = new(SpellType.Fire2, "Fire 2", 6, 1, 2, false, true, 2);
-    public static readonly SpellData Cure1 = new(SpellType.Cure1, "Cure", 3, 0, 1, true, false);
+    public static readonly SpellData Fire1 = new()
+    {
+        Type = SpellType.Fire1,
+        Name = "Fire",
+        MpCost = 2,
+        MinRange = 1,
+        MaxRange = 2,
+        TargetsFriendlies = false,
+        TargetsEnemies = true,
+        Aoe = 1
+    };
+
+    public static readonly SpellData Fire2 = new()
+    {
+        Type = SpellType.Fire2,
+        Name = "Fire 2",
+        MpCost = 6,
+        MinRange = 1,
+        MaxRange = 2,
+        TargetsFriendlies = false,
+        TargetsEnemies = true,
+        Aoe = 2
+    };
+
+    public static readonly SpellData Cure1 = new()
+    {
+        Type = SpellType.Cure1,
+        Name = "Cure",
+        MpCost = 3,
+        MinRange = 0,
+        MaxRange = 1,
+        TargetsFriendlies = true,
+        TargetsEnemies = false,
+        Aoe = 1
+    };
 }
