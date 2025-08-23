@@ -72,11 +72,6 @@ public class LobbyProvider(
                 .Group(gameId)
                 .GameStarted(gameId, battleData);
         }
-
-        lock (game.Lock)
-        {
-            game.BattlePhase!.Change(new SetupPhase(game.Data, game.Bus));
-        }
     }
 
     public async Task LeaveGame(Hub<IEventApi> hub, string gameId)
@@ -236,6 +231,7 @@ public class LobbyProvider(
             _attackDamage);
         
         _battleProvider.SubscribeToGame(hub, gameId, game.Bus);
+        game.BattlePhase!.Change(new SetupPhase(game.Data, game.Bus));
         return battleData;
     }
 }
