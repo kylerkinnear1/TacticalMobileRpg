@@ -72,11 +72,6 @@ public class LobbyProvider(
             await hub.Clients
                 .Group(gameId)
                 .GameStarted(gameId, battleData);
-            
-            lock (game.Lock)
-            {
-                game.BattlePhase!.Change(new SetupPhase(game.Data, game.Bus));
-            }
         }
     }
 
