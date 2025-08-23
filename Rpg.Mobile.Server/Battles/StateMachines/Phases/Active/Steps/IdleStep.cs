@@ -47,7 +47,7 @@ public class IdleStep(
             return;
         }
 
-        _data.UnitCoordinates[_data.CurrentUnit()] = evnt.Tile;
+        _data.UnitCoordinates[_data.CurrentUnit().PlayerId] = evnt.Tile;
         _bus.Publish(new ActivePhase.UnitMovedEvent(evnt.Tile));
     }
 }

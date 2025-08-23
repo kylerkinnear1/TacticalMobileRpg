@@ -9,11 +9,11 @@ public class NewRoundPhase(
 {
     public void Enter()
     {
-        var availableUnits = _data.Active.TurnOrder.Count == 0
-            ? _data.Setup.PlaceOrder
-            : _data.Active.TurnOrder;
+        var availableUnits = _data.Active.TurnOrderIds.Count == 0
+            ? _data.Setup.PlaceOrderIds
+            : _data.Active.TurnOrderIds;
         
-        _data.Active.TurnOrder.Set(availableUnits.Shuffle(Rng.Instance).ToList());
+        _data.Active.TurnOrderIds.Set(availableUnits.Shuffle(Rng.Instance).ToList());
         _data.Active.ActiveUnitIndex = 0;
     }
 

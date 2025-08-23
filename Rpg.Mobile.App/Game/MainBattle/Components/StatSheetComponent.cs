@@ -28,8 +28,8 @@ public class StatSheetComponent : TextboxComponent
     private void TileHovered(GridComponent.TileHoveredEvent evnt)
     {
         var unit = _data.UnitCoordinates.ContainsValue(evnt.Tile)
-            ? _data.UnitCoordinates.First(x => x.Value == evnt.Tile).Key
-        : null;
+            ? _data.Units.Single(x => x.UnitId == _data.UnitCoordinates.First(x => x.Value == evnt.Tile).Key)
+            : null;
 
         Label = unit is not null ? Format(unit) : "";
         BackColor = unit?.PlayerId == 0 ? Colors.Aqua : Colors.Orange;

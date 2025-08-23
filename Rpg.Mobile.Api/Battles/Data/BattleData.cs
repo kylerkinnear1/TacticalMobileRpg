@@ -5,7 +5,8 @@ namespace Rpg.Mobile.Api.Battles.Data;
 public class BattleData
 {
     public MapData Map { get; set; } = new();
-    public Dictionary<BattleUnitData, Point> UnitCoordinates { get; set; } = new();
+    public List<BattleUnitData> Units { get; set; } = [];
+    public Dictionary<int, Point> UnitCoordinates { get; set; } = new();
     public BattleSetupPhaseData Setup { get; set; } = new();
     public BattleActivePhaseData Active { get; set; } = new();
     public List<BattleUnitType> Team0 { get; set; } = new();
@@ -13,11 +14,14 @@ public class BattleData
 
     // TODO: Remove
     public List<BattleUnitData> UnitsAt(Point point) =>
-        UnitCoordinates.Where(x => x.Value == point).Select(x => x.Key).ToList();
+        UnitCoordinates
+            .Where(x => x.Value == point)
+            .Select(x => Units.Single(y => y.UnitId == x.Key))
+            .ToList();
 
     // TODO: Remove
     public BattleUnitData CurrentUnit() =>
-        Active.TurnOrder[Active.ActiveUnitIndex];
+        Units.Single(x => x.UnitId == Active.TurnOrderIds[Active.ActiveUnitIndex]);
     
     // TODO: Remove
     public static BattleData FromMap(MapData map)
@@ -26,11 +30,19 @@ public class BattleData
         data.Map = map;
 
         // TODO: workaround
-        foreach (var unit in data.Setup.PlaceOrder.Where(x => x.Stats.UnitType == BattleUnitType.Mage))
+        foreach (var unit in data.Setup.PlaceOrderIds
+                     .Select(x => data.Units.Single(y => y.PlayerId == x))
+                     .Where(x => x.Stats.UnitType == BattleUnitType.Mage))
+        {
             unit.Spells = new() { SpellPresets.Fire1, SpellPresets.Fire2 };
+        }
 
-        foreach (var unit in data.Setup.PlaceOrder.Where(x => x.Stats.UnitType == BattleUnitType.Healer))
+        foreach (var unit in data.Setup.PlaceOrderIds
+                     .Select(x => data.Units.Single(y => y.PlayerId == x))
+                     .Where(x => x.Stats.UnitType == BattleUnitType.Healer))
+        {
             unit.Spells = new() { SpellPresets.Cure1 };
+        }
 
         return data;
     }
@@ -39,12 +51,12 @@ public class BattleData
 public class BattleSetupPhaseData
 {
     public int CurrentPlaceOrder { get; set; } = 0;
-    public List<BattleUnitData> PlaceOrder { get; set; } = new();
+    public List<int> PlaceOrderIds { get; set; } = new();
 }
 
 public class BattleActivePhaseData
 {
-    public List<BattleUnitData> TurnOrder { get; set; } = new();
+    public List<int> TurnOrderIds { get; set; } = new();
     public int ActiveUnitIndex { get; set; } = -1;
     public Point ActiveUnitStartPosition { get; set; } = Point.Empty;
     public List<Point> WalkableTiles { get; set; } = new();

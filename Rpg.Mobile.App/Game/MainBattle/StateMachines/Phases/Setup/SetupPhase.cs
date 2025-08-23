@@ -26,7 +26,7 @@ public class SetupPhase : IBattlePhase
 
     public void Enter()
     {
-        var firstUnit = _data.Setup.PlaceOrder[0];
+        var firstUnit = _data.Units.Single(x => x.UnitId == _data.Setup.PlaceOrderIds[0]);
         _mainBattle.PlaceUnitSpriteComponent.Sprite = GetUnitSprite(firstUnit.Stats.UnitType, firstUnit.PlayerId);
 
         _subscriptions =
@@ -75,9 +75,9 @@ public class SetupPhase : IBattlePhase
 
         component.Position = _mainBattle.GetPositionForTile(evnt.Tile, component.Bounds.Size);
 
-        if (_data.Setup.CurrentPlaceOrder < _data.Setup.PlaceOrder.Count)
+        if (_data.Setup.CurrentPlaceOrder < _data.Setup.PlaceOrderIds.Count)
         {
-            var nextUnit = _data.Setup.PlaceOrder[_data.Setup.CurrentPlaceOrder];
+            var nextUnit = _data.Units.Single(x => x.UnitId == _data.Setup.PlaceOrderIds[_data.Setup.CurrentPlaceOrder]);
             _mainBattle.PlaceUnitSpriteComponent.Sprite = GetUnitSprite(nextUnit.Stats.UnitType, nextUnit.PlayerId);
         }
     }

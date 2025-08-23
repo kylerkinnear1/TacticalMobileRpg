@@ -12,21 +12,22 @@ public class SelectingAttackTargetStep(
     ISelectingAttackTargetCalculator _attackTargetCalculator,
     IPathCalculator _path) : ActivePhase.IStep
 {
-    public record AttackTargetSelectedEvent(BattleUnitData Target) : IEvent;
+    public record AttackTargetSelectedEvent(int TargetId) : IEvent;
     
     private ISubscription[] _subscriptions = [];
     
     public void Enter()
     {
-        var gridToUnit = _data.UnitCoordinates.ToLookup<KeyValuePair<BattleUnitData, Point>, Point, BattleUnitData>(x => x.Value, x => x.Key);
+        var gridToUnit = _data.UnitCoordinates
+            .ToLookup(x => x.Value, x => x.Key);
 
         var legalTargets = _path
             .CreateFanOutArea(
-                _data.UnitCoordinates[_data.CurrentUnit()],
+                _data.UnitCoordinates[_data.CurrentUnit().PlayerId],
                 _data.Map.Corner(),
                 _data.CurrentUnit().Stats.AttackMinRange,
                 _data.CurrentUnit().Stats.AttackMaxRange)
-            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y.PlayerId != _data.CurrentUnit().PlayerId))
+            .Where(x => !gridToUnit.Contains(x) || gridToUnit[x].All(y => y != _data.CurrentUnit().PlayerId))
             .ToList();
 
         _data.Active.AttackTargetTiles.Set(legalTargets);
@@ -54,6 +55,6 @@ public class SelectingAttackTargetStep(
             .UnitsAt(evnt.Tile)
             .Single(x => x.PlayerId != _data.CurrentUnit().PlayerId);
         
-        _bus.Publish(new AttackTargetSelectedEvent(enemy));
+        _bus.Publish(new AttackTargetSelectedEvent(enemy.UnitId));
     }
 }

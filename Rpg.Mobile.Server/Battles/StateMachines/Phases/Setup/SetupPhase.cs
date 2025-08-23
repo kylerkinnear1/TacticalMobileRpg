@@ -10,7 +10,7 @@ public class SetupPhase(
     IEventBus _bus) : IBattlePhase
 {
     public record CompletedEvent : IEvent;
-    public record UnitPlacedEvent(Point Tile, BattleUnitData Unit) : IEvent;
+    public record UnitPlacedEvent(Point Tile, int UnitId) : IEvent;
     public record StartedEvent(BattleSetupPhaseData Data) : IEvent;
     
     private ISubscription[] _subscriptions = [];
@@ -19,14 +19,14 @@ public class SetupPhase(
     {
         var team1 = _data.Team0
             .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
-            .Select(x => new BattleUnitData { PlayerId = 0, Stats = x});
+            .Select((x, i) => new BattleUnitData { UnitId = i, PlayerId = 0, Stats = x});
         var team2 = _data.Team1
             .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
-            .Select(x => new BattleUnitData { PlayerId = 1, Stats = x});
+            .Select((x, i) => new BattleUnitData { UnitId = i + _data.Team0.Count, PlayerId = 1, Stats = x});
 
-        _data.Setup.PlaceOrder = team1
+        _data.Setup.PlaceOrderIds = team1
             .Zip(team2)
-            .SelectMany(x => new[] { x.First, x.Second })
+            .SelectMany(x => new[] { x.First.PlayerId, x.Second.PlayerId })
             .ToList();
         
         _subscriptions = 
@@ -57,7 +57,7 @@ public class SetupPhase(
             return;
 
         PlaceUnit(evnt.Tile);
-        if (_data.Setup.CurrentPlaceOrder >= _data.Setup.PlaceOrder.Count)
+        if (_data.Setup.CurrentPlaceOrder >= _data.Setup.PlaceOrderIds.Count)
         {
             _bus.Publish(new CompletedEvent());
         }
@@ -65,7 +65,7 @@ public class SetupPhase(
 
     private void PlaceUnit(Point tile)
     {
-        var unit = _data.Setup.PlaceOrder[_data.Setup.CurrentPlaceOrder];
+        var unit = _data.Setup.PlaceOrderIds[_data.Setup.CurrentPlaceOrder];
         _data.UnitCoordinates[unit] = tile;
         _data.Setup.CurrentPlaceOrder++;
         var point = _data.UnitCoordinates[unit];

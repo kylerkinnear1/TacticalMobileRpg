@@ -34,8 +34,9 @@ public class DamagePhase(
     
     public void PerformAttack(SelectingAttackTargetStep.AttackTargetSelectedEvent evnt)
     {
-        var damage = _attackDamageCalc.CalcDamage(_data.CurrentUnit().Stats.Attack, evnt.Target.Stats.Defense);
-        ApplyDamage(new[] { evnt.Target }, damage);
+        var target = _data.Units.Single(x => x.UnitId == evnt.TargetId);
+        var damage = _attackDamageCalc.CalcDamage(_data.CurrentUnit().Stats.Attack, target.Stats.Defense);
+        ApplyDamage(new[] { evnt.TargetId }, damage);
     }
     
     public void CastSpell(MagicTargetSelectedEvent evnt)
@@ -47,8 +48,8 @@ public class DamagePhase(
         var units = _data.UnitCoordinates.Where(x => hits.Contains(x.Value));
         var targets = units
             .Where(x =>
-                x.Key.PlayerId == _data.CurrentUnit().PlayerId && spell.TargetsFriendlies ||
-                x.Key.PlayerId != _data.CurrentUnit().PlayerId && spell.TargetsEnemies)
+                x.Key == _data.CurrentUnit().PlayerId && spell.TargetsFriendlies ||
+                x.Key != _data.CurrentUnit().PlayerId && spell.TargetsEnemies)
             .ToList();
 
         _data.CurrentUnit().RemainingMp -= spell.MpCost;
@@ -58,12 +59,12 @@ public class DamagePhase(
         ApplyDamage(targets.Select(x => x.Key), damage);
     }
     
-    private void ApplyDamage(IEnumerable<BattleUnitData> targets, int damage)
+    private void ApplyDamage(IEnumerable<int> targetIds, int damage)
     {
         var defeatedUnits = new List<BattleUnitData>();
         var damagedUnits = new List<(BattleUnitData Unit, int Damage)>();
 
-        foreach (var target in targets)
+        foreach (var target in targetIds.Select(x => _data.Units.Single(y => x == y.PlayerId)))
         {
             target.RemainingHealth = damage >= 0
                 ? Math.Max(target.RemainingHealth - damage, 0)
@@ -76,12 +77,12 @@ public class DamagePhase(
                 defeatedUnits.Add(target);
 
                 // TODO: Don't remove. Just mark as dead.
-                _data.Active.TurnOrder.Remove(target);
-                _data.UnitCoordinates.Remove(target);
+                _data.Active.TurnOrderIds.Remove(target.UnitId);
+                _data.UnitCoordinates.Remove(target.UnitId);
             }
         }
 
-        if (_data.Active.ActiveUnitIndex >= _data.Active.TurnOrder.Count)
+        if (_data.Active.ActiveUnitIndex >= _data.Active.TurnOrderIds.Count)
             _data.Active.ActiveUnitIndex = 0;
         
         _bus.Publish(new UnitsDamaged(damagedUnits, defeatedUnits));

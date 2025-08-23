@@ -60,7 +60,7 @@ public class IdleStep : ActivePhase.IStep
             return;
         }
         
-        _data.UnitCoordinates[_data.CurrentUnit()] = evnt.Tile;
+        _data.UnitCoordinates[_data.CurrentUnit().UnitId] = evnt.Tile;
         var finalTarget = _mainBattle.GetPositionForTile(evnt.Tile, _mainBattle.CurrentUnit.Unit.Bounds.Size);
         _mainBattle.Units[_data.CurrentUnit()].MoveTo(finalTarget, speed: 500f);
     }

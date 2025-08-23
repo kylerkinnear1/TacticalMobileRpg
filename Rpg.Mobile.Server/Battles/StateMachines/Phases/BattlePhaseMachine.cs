@@ -63,7 +63,7 @@ public class BattlePhaseMachine : IDisposable
 
     private void UnitTurnEnded()
     {
-        _data.Active.ActiveUnitIndex = (_data.Active.ActiveUnitIndex + 1) % _data.Active.TurnOrder.Count;
+        _data.Active.ActiveUnitIndex = (_data.Active.ActiveUnitIndex + 1) % _data.Active.TurnOrderIds.Count;
 
         if (_data.Active.ActiveUnitIndex == 0)
             _phase.Change(new NewRoundPhase(_data));

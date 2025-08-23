@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle;
 using Rpg.Mobile.App.Game.UserInterface;
@@ -16,6 +17,8 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
     private readonly List<NetworkEvent> _events = new();
     private readonly IEventBus _bus;
     private readonly IGameLoop _game;
+    private readonly BattleData _data;
+    
     private readonly ButtonComponent _prevButton;
     private readonly ButtonComponent _nextButton;
     private readonly ButtonComponent _copyButton;
@@ -36,10 +39,16 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
     public float FontSize { get; set; } = 10f;
     public float HeaderFontSize { get; set; } = 12f;
 
-    public NetworkMonitorComponent(IEventBus bus, IGameLoop game, RectF bounds) : base(bounds)
+    public NetworkMonitorComponent(
+        IEventBus bus, 
+        IGameLoop game, 
+        RectF bounds,
+        BattleData data) : base(bounds)
     {
         _bus = bus;
         _game = game;
+        _data = data;
+        
         IgnoreCamera = true;
         
         _jsonOptions = new JsonSerializerOptions 
@@ -124,8 +133,10 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(e => 
                 AddEvent("🌐 SetupStarted", new { 
                     CurrentPlaceOrder = e.Data.CurrentPlaceOrder,
-                    PlaceOrderCount = e.Data.PlaceOrder.Count,
-                    Units = e.Data.PlaceOrder.Select(u => new {
+                    PlaceOrderCount = e.Data.PlaceOrderIds.Count,
+                    Units = e.Data.PlaceOrderIds
+                        .Select(u => _data.Units.Single(x => x.UnitId == u))
+                        .Select(u => new {
                         u.PlayerId,
                         u.Stats.UnitType,
                         HP = u.Stats.MaxHealth,

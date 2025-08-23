@@ -44,7 +44,7 @@ public class ActivePhase(
             _bus.Subscribe<IdleStep.CompletedEvent>(evnt => _bus.Publish(new CompletedEvent(evnt.CurrentUnit)))
         ];
 
-        _data.Active.ActiveUnitStartPosition = _data.UnitCoordinates[_data.CurrentUnit()];
+        _data.Active.ActiveUnitStartPosition = _data.UnitCoordinates[_data.CurrentUnit().UnitId];
         _step.Change(new IdleStep(_data, _bus, _path));
     }
 
@@ -78,7 +78,7 @@ public class ActivePhase(
 
     private void BackClicked(BackClickedEvent evnt)
     {
-        _data.UnitCoordinates[_data.CurrentUnit()] = _data.Active.ActiveUnitStartPosition;
+        _data.UnitCoordinates[_data.CurrentUnit().PlayerId] = _data.Active.ActiveUnitStartPosition;
         _bus.Publish(new UnitMovedEvent(_data.Active.ActiveUnitStartPosition));
     }
 }

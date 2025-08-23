@@ -45,7 +45,7 @@ public class ActivePhase : IBattlePhase
 
     public void Execute(float deltaTime)
     {
-        var currentUnitPosition = _data.UnitCoordinates[_data.CurrentUnit()];
+        var currentUnitPosition = _data.UnitCoordinates[_data.CurrentUnit().UnitId];
         _mainBattle.CurrentUnitShadow.Shadows.SetSingle(
             new(
                 currentUnitPosition.X * MainBattleComponent.TileWidth, 

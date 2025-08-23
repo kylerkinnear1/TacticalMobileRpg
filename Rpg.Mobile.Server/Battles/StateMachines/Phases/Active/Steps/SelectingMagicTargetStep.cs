@@ -24,14 +24,14 @@ public class SelectingMagicTargetStep(
         var gridToUnit = _data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
         var legalTargets = _path
             .CreateFanOutArea(
-                Data.UnitCoordinates[_data.CurrentUnit()],
+                Data.UnitCoordinates[_data.CurrentUnit().PlayerId],
                 Data.Map.Corner(),
                 Data.Active.CurrentSpell!.MinRange,
                 Data.Active.CurrentSpell.MaxRange)
             .Where(x =>
                 !gridToUnit.Contains(x) ||
-                Data.Active.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y.PlayerId != Data.CurrentUnit().PlayerId) ||
-                 Data.Active.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y.PlayerId == Data.CurrentUnit().PlayerId))
+                Data.Active.CurrentSpell.TargetsEnemies && gridToUnit[x].Any(y => y != Data.CurrentUnit().PlayerId) ||
+                 Data.Active.CurrentSpell.TargetsFriendlies && gridToUnit[x].Any(y => y == Data.CurrentUnit().PlayerId))
             .ToList();
 
         _data.Active.SpellTargetTiles.Set(legalTargets);
