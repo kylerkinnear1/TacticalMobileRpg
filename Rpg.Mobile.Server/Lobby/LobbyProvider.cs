@@ -7,6 +7,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.Server.Battles;
 using Rpg.Mobile.Server.Battles.Calculators;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Setup;
 
 namespace Rpg.Mobile.Server.Lobby;
 
@@ -230,6 +231,7 @@ public class LobbyProvider(
             _attackDamage);
         
         _battleProvider.SubscribeToGame(hub, gameId, game.Bus);
+        game.BattlePhase.Change(new SetupPhase(game.Data, game.Bus));
         return battleData;
     }
 }
