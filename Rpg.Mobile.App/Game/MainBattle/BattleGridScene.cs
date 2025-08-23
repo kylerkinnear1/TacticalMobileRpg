@@ -1,5 +1,6 @@
 ﻿using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Setup;
@@ -15,6 +16,8 @@ namespace Rpg.Mobile.App.Game.MainBattle;
 
 public class BattleGridScene : SceneBase
 {
+    public record PlayerReadyEvent : IEvent;
+    
     private readonly MainBattleComponent _battle;
     private readonly MiniMapComponent _miniMap;
     private readonly BattleMenuComponent _battleMenu;
@@ -115,6 +118,8 @@ public class BattleGridScene : SceneBase
         ];
         
         _phase.Start();
+        _bus.Publish(new PlayerReadyEvent());
+        
         base.OnEnter();
     }
 

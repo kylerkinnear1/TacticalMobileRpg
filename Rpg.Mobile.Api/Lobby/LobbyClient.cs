@@ -9,6 +9,7 @@ public interface ILobbyClient
     Task ConnectToGame(string gameId, List<BattleUnitType> team);
     Task LeaveGame(string gameId);
     Task EndGame(string gameId);
+    Task PlayerReady(string gameId);
 
     public delegate void PlayerJoinedHandler(string gameId, int playerId);
     event PlayerJoinedHandler? PlayerJoined;
@@ -49,6 +50,11 @@ public class LobbyClient : ILobbyClient
     public async Task EndGame(string gameId)
     {
         await _hub.InvokeAsync(nameof(ILobbyCommandApi.EndGame), gameId);
+    }
+
+    public async Task PlayerReady(string gameId)
+    {
+        await _hub.InvokeAsync(nameof(ILobbyCommandApi.PlayerReady), gameId);
     }
 
     public event PlayerJoinedHandler? PlayerJoined;

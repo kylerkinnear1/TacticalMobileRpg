@@ -1,5 +1,6 @@
 ﻿using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.Api.Lobby;
+using Rpg.Mobile.App.Game.MainBattle;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
@@ -37,7 +38,8 @@ public class LobbyNetwork
         
         _subscriptions =
         [
-            _bus.Subscribe<LobbyScene.JoinGameClickedEvent>(JoinGameClicked)
+            _bus.Subscribe<LobbyScene.JoinGameClickedEvent>(evnt => _lobbyClient.ConnectToGame(_settings.GameId, evnt.Team)),
+            _bus.Subscribe<BattleGridScene.PlayerReadyEvent>(_ => _lobbyClient.PlayerReady(_settings.GameId))
         ];
     }
 
@@ -56,16 +58,5 @@ public class LobbyNetwork
     private void GameEnded(string gameId)
     {
         _game.Execute(() => _bus.Publish(new GameEndedEvent(gameId)));
-    }
-
-    private void JoinGameClicked(LobbyScene.JoinGameClickedEvent evnt)
-    {
-        _lobbyClient.ConnectToGame(_settings.GameId, evnt.Team);
-    }
-
-    public void Dispose()
-    {
-        _lobbyClient.GameStarted -= GameStarted;
-        _subscriptions.DisposeAll();
     }
 }
