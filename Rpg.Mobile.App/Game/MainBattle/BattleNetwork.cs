@@ -9,7 +9,7 @@ namespace Rpg.Mobile.App.Game.MainBattle;
 
 public class BattleNetwork
 {
-    public record SetupStartedEvent(BattleSetupPhaseData Data) : IEvent;
+    public record SetupStartedEvent(List<BattleUnitData> Units, BattleSetupPhaseData SetupData) : IEvent;
     
     public record UnitsDamagedEvent(
         List<(BattleUnitData Unit, int Damage)> DamagedUnits,
@@ -48,9 +48,9 @@ public class BattleNetwork
         _subscriptions.DisposeAll();
     }
     
-    private void SetupStarted(string gameId, BattleSetupPhaseData data)
+    private void SetupStarted(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data)
     {
-        _game.Execute(() => _bus.Publish(new SetupStartedEvent(data)));
+        _game.Execute(() => _bus.Publish(new SetupStartedEvent(units, data)));
     }
     
     private void TileClicked(GridComponent.TileClickedEvent evnt)

@@ -16,9 +16,7 @@ public class MapLoader : IMapLoader
         var jsonLoader = new FileClient();
         var mapJson = jsonLoader.ReadJson<MapJson>(mapPath);
         var mapState = mapJson.ToState();
-        var battleData = BattleData.FromMap(mapState);
-        battleData.Team0 = team0;
-        battleData.Team1 = team1;
+        var battleData = BattleData.FromMap(mapState, team0, team1);
         return battleData;
     }
 }

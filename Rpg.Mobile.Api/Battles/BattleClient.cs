@@ -21,7 +21,7 @@ public class BattleClient : IBattleClient
         SetupEventHandlers();
     }
 
-    public delegate void SetupPhaseStartedHandler(string gameId, BattleSetupPhaseData data);
+    public delegate void SetupPhaseStartedHandler(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);
 
     public async Task TileClicked(string gameId, Point tile)
     {
@@ -32,7 +32,7 @@ public class BattleClient : IBattleClient
 
     private void SetupEventHandlers()
     {
-        _hub.On<string, BattleSetupPhaseData>(nameof(IBattleEventApi.SetupStarted),
-            (gameId, data) => { SetupStarted?.Invoke(gameId, data); });
+        _hub.On<string, List<BattleUnitData>, BattleSetupPhaseData>(nameof(IBattleEventApi.SetupStarted),
+            (gameId, units, setupData) => { SetupStarted?.Invoke(gameId, units, setupData); });
     }
 }

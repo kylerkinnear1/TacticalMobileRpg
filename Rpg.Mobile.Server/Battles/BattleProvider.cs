@@ -120,7 +120,7 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Group(gameId)
-                    .SetupStarted(gameId, x.Data))
+                    .SetupStarted(gameId, x.Units, x.SetupData))
         ]);
     }
     

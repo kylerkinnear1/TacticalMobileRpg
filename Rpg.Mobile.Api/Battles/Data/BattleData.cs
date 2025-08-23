@@ -24,11 +24,16 @@ public class BattleData
         Units.Single(x => x.UnitId == Active.TurnOrderIds[Active.ActiveUnitIndex]);
     
     // TODO: Remove
-    public static BattleData FromMap(MapData map)
+    public static BattleData FromMap(
+        MapData map,
+        List<BattleUnitType> team0,
+        List<BattleUnitType> team1)
     {
         var data = new BattleData();
         data.Map = map;
-
+        data.Team0 = team0;
+        data.Team1 = team1;
+        
         // TODO: workaround
         foreach (var unit in data.Setup.PlaceOrderIds
                      .Select(x => data.Units.Single(y => y.PlayerId == x))

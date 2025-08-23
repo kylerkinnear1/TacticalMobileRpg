@@ -35,7 +35,8 @@ public class BattlePhaseMachine : IDisposable
 
     private void SetupStarted(BattleNetwork.SetupStartedEvent evnt)
     {
-        _data.Setup = evnt.Data;
+        _data.Setup = evnt.SetupData;
+        _data.Units = evnt.Units;
         _phase.Change(new Setup.SetupPhase(_data, _mainBattle, _bus));
     }
 

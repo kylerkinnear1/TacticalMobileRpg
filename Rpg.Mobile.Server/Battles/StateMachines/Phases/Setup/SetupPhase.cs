@@ -11,7 +11,7 @@ public class SetupPhase(
 {
     public record CompletedEvent : IEvent;
     public record UnitPlacedEvent(Point Tile, int UnitId) : IEvent;
-    public record StartedEvent(BattleSetupPhaseData Data) : IEvent;
+    public record StartedEvent(List<BattleUnitData> Units, BattleSetupPhaseData SetupData) : IEvent;
     
     private ISubscription[] _subscriptions = [];
 
@@ -24,6 +24,7 @@ public class SetupPhase(
             .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
             .Select((x, i) => new BattleUnitData { UnitId = i + _data.Team0.Count, PlayerId = 1, Stats = x});
 
+        _data.Units = team1.Concat(team2).ToList();
         _data.Setup.PlaceOrderIds = team1
             .Zip(team2)
             .SelectMany(x => new[] { x.First.PlayerId, x.Second.PlayerId })
@@ -34,7 +35,7 @@ public class SetupPhase(
             _bus.Subscribe<TileClickedEvent>(TileClicked)
         ];
         
-        _bus.Publish(new StartedEvent(_data.Setup));
+        _bus.Publish(new StartedEvent(_data.Units, _data.Setup));
     }
 
     public void Execute(float deltaTime) { }

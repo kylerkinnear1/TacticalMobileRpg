@@ -132,9 +132,9 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             // Battle Network Events (from BattleNetwork)
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(e => 
                 AddEvent("🌐 SetupStarted", new { 
-                    CurrentPlaceOrder = e.Data.CurrentPlaceOrder,
-                    PlaceOrderCount = e.Data.PlaceOrderIds.Count,
-                    Units = e.Data.PlaceOrderIds
+                    CurrentPlaceOrder = e.SetupData.CurrentPlaceOrder,
+                    PlaceOrderCount = e.SetupData.PlaceOrderIds.Count,
+                    Units = e.SetupData.PlaceOrderIds
                         .Select(u => _data.Units.Single(x => x.UnitId == u))
                         .Select(u => new {
                         u.PlayerId,
