@@ -23,7 +23,10 @@ public class BattleClient : IBattleClient
 
     public delegate void SetupPhaseStartedHandler(string gameId, BattleSetupPhaseData data);
 
-    public Task TileClicked(string gameId, Point tile) => _hub.InvokeAsync(nameof(IBattleCommandApi.TileClicked), gameId, tile);
+    public async Task TileClicked(string gameId, Point tile)
+    {
+        await _hub.InvokeAsync(nameof(IBattleCommandApi.TileClicked), gameId, tile);
+    }
 
     public event SetupPhaseStartedHandler? SetupStarted;
 
