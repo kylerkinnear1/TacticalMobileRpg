@@ -67,6 +67,8 @@ public class SetupPhase : IBattlePhase
 
     private void UnitPlaced(BattleNetwork.UnitPlacedEvent evnt)
     {
+        _data.Setup.CurrentPlaceOrderIndex = evnt.CurrentUnitPlaceOrderIndex;
+        
         var unit = _data.Units.Single(x => x.UnitId == evnt.UnitId);
         var component = CreateBattleUnitComponent(unit);
         var state = new BattleUnitComponentStateMachine(_bus, component);
