@@ -11,7 +11,7 @@ public class SetupPhase(
 {
     public record CompletedEvent : IEvent;
     public record UnitPlacedEvent(Point Tile, BattleUnitData Unit) : IEvent;
-    public record StartedEvent(List<BattleUnitData> PlaceOrder) : IEvent;
+    public record StartedEvent(BattleSetupPhaseData Data) : IEvent;
     
     private ISubscription[] _subscriptions = [];
 
@@ -34,7 +34,7 @@ public class SetupPhase(
             _bus.Subscribe<TileClickedEvent>(TileClicked)
         ];
         
-        _bus.Publish(new StartedEvent(_data.Setup.PlaceOrder));
+        _bus.Publish(new StartedEvent(_data.Setup));
     }
 
     public void Execute(float deltaTime) { }

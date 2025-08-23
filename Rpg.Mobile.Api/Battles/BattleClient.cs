@@ -18,12 +18,12 @@ public class BattleClient : IBattleClient
         SetupEventHandlers();
     }
 
-    public delegate void SetupPhaseStartedHandler(string gameId, List<BattleUnitData> placeOrder);
+    public delegate void SetupPhaseStartedHandler(string gameId, BattleSetupPhaseData data);
     public event SetupPhaseStartedHandler? SetupStarted;
 
     private void SetupEventHandlers()
     {
-        _hub.On<string, List<BattleUnitData>>(nameof(IBattleEventApi.SetupStarted),
-            (gameId, placeOrder) => { SetupStarted?.Invoke(gameId, placeOrder); });
+        _hub.On<string, BattleSetupPhaseData>(nameof(IBattleEventApi.SetupStarted),
+            (gameId, data) => { SetupStarted?.Invoke(gameId, data); });
     }
 }

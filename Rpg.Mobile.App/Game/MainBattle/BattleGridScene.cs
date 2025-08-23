@@ -94,7 +94,7 @@ public class BattleGridScene : SceneBase
     
     private void SetupStarted(BattleNetwork.SetupStartedEvent evnt)
     {
-        _data.Setup.PlaceOrder = evnt.PlaceOrder;
+        _data.Setup = evnt.Data;
         _phase.Change(new SetupPhase(_data, _battle, _bus));
     }
 }
