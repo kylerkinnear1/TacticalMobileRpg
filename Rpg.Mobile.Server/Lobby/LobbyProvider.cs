@@ -219,11 +219,10 @@ public class LobbyProvider(
     {
         var battleData = _mapLoader.LoadBattleData();
         game.Data = battleData;
-
-        var bus = new EventBus();
+        
         game.BattlePhase = new BattlePhaseMachine(
             battleData,
-            bus,
+            game.Bus,
             _path,
             _attackTargetCalc,
             _magicTargetCalc,
