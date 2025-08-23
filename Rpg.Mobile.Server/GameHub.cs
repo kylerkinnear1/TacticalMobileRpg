@@ -25,6 +25,9 @@ public class GameHub : Hub<IEventApi>, ICommandApi
 
     public async Task EndGame(string gameId) =>
         await _lobbyProvider.EndGame(this, gameId);
+    
+    public async Task PlayerReady(string gameId) =>
+        await _lobbyProvider.PlayerReady(this, gameId);
 
     public async Task TileClicked(string gameId, Point tile) =>
         await _battleProvider.TileClicked(this, gameId, tile);

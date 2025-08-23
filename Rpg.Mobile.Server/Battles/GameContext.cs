@@ -12,4 +12,6 @@ public class GameContext
     public string? Player0ConnectionId { get; set; }
     public string? Player1ConnectionId { get; set; }
     public IEventBus Bus { get; set; } = new EventBus();
+    public bool Player0Ready { get; set; } = false;
+    public bool Player1Ready { get; set; } = false;
 }

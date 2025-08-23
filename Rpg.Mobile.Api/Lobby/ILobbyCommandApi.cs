@@ -7,6 +7,7 @@ public interface ILobbyCommandApi
     Task ConnectToGame(string gameId, List<BattleUnitType> team);
     Task LeaveGame(string gameId);
     Task EndGame(string gameId);
+    Task PlayerReady(string gameId);
 }
 
 public interface ILobbyEventApi

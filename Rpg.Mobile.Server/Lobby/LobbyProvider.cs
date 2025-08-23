@@ -16,6 +16,7 @@ public interface ILobbyProvider
     Task ConnectToGame(Hub<IEventApi> hub, string gameId, IEnumerable<BattleUnitType> team);
     Task LeaveGame(Hub<IEventApi> hub, string gameId);
     Task EndGame(Hub<IEventApi> hub, string gameId);
+    Task PlayerReady(Hub<IEventApi> hub, string gameId);
     Task OnDisconnectedAsync(Hub<IEventApi> hub, Exception? exception);
 }
 
@@ -150,6 +151,27 @@ public class LobbyProvider(
             await hub.Groups.RemoveFromGroupAsync(player0Id, gameId);
         if (!string.IsNullOrEmpty(player1Id))
             await hub.Groups.RemoveFromGroupAsync(player1Id, gameId);
+    }
+    
+    public async Task PlayerReady(Hub<IEventApi> hub, string gameId)
+    {
+        if (!_games.TryGetValue(gameId, out var game))
+            return;
+        
+        lock (game.Lock)
+        {
+            // Track which players are ready (add fields to GameContext)
+            if (hub.Context.ConnectionId == game.Player0ConnectionId)
+                game.Player0Ready = true;
+            else if (hub.Context.ConnectionId == game.Player1ConnectionId)
+                game.Player1Ready = true;
+            
+            // When both are ready, start setup
+            if (game.Player0Ready && game.Player1Ready)
+            {
+                game.BattlePhase!.Change(new SetupPhase(game.Data, game.Bus));
+            }
+        }
     }
 
     public async Task OnDisconnectedAsync(Hub<IEventApi> hub, Exception? exception)
