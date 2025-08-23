@@ -7,11 +7,6 @@ public enum BattleUnitType
 
 public class BattleUnitData
 {
-    public BattleUnitData()
-    {
-        
-    }
-    
     public int PlayerId { get; set; } = 0;
     public int UnitId { get; set; } = 0;
 
