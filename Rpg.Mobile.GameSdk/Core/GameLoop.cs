@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
-using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Graphics;
 using Rpg.Mobile.GameSdk.Inputs;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.GameSdk.Core;
 
@@ -14,7 +14,11 @@ public interface IGameLoop
     void ChangeScene(SceneBase scene);
 }
 
-public class GameLoop(SceneBase _scene, GraphicsView _view, IDispatcher _dispatcher, IMouse _mouse)
+public class GameLoop(
+    SceneBase _scene, 
+    GraphicsView _view, 
+    IDispatcher _dispatcher,
+    IMouse _mouse)
     : IGameLoop
 {
     private DateTime _lastUpdate = DateTime.UtcNow;

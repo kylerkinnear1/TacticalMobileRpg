@@ -6,6 +6,7 @@ using Rpg.Mobile.Api.Lobby;
 using Rpg.Mobile.App.Game;
 using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle;
+using Rpg.Mobile.App.Game.Splash;
 using Rpg.Mobile.App.Windows;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -27,9 +28,11 @@ public partial class MainPage : ContentPage
         
         var bus = new EventBus();
         var settings = DiContainer.Services!.GetRequiredService<GameSettings>();
-        var lobby = new LobbyScene(bus, settings);
-        var game = gameLoopFactory.Create(GameView, lobby, mouse);
 
+        var splash = new SplashScene();
+        var game = gameLoopFactory.Create(GameView, splash, mouse);
+
+        var lobby = new LobbyScene(bus, game, settings);
         _scenes = new SceneManager(lobby, game, bus, mouse, new PathCalculator());
 
         var hub = DiContainer.Services!.GetRequiredService<HubConnection>();
@@ -40,15 +43,16 @@ public partial class MainPage : ContentPage
 
     protected override void OnAppearing()
     {
-        _scenes.Subscribe();
+        _scenes.Start();
         _lobbyNetwork.Connect();
         _battleNetwork.Connect();
+        
         base.OnAppearing();
     }
 
     protected override void OnDisappearing()
     {
-        _scenes.Unsubscribe();
+        _scenes.Stop();
         _lobbyNetwork.Disconnect();
         _battleNetwork.Disconnect();
         base.OnDisappearing();

@@ -26,6 +26,7 @@ public class BattleGridScene : SceneBase
     private readonly BattleData _data;
     private readonly IEventBus _bus;
     private readonly IPathCalculator _path;
+    private readonly IGameLoop _game;
 
     private ITween<PointF>? _cameraTween;
     private ISubscription[] _subscriptions = [];
@@ -33,6 +34,7 @@ public class BattleGridScene : SceneBase
     private readonly BattlePhaseMachine _phase;
 
     public BattleGridScene(
+        IGameLoop game,
         IMouse mouse,
         BattleData data,
         IEventBus bus,
@@ -41,6 +43,7 @@ public class BattleGridScene : SceneBase
         _data = data;
         _bus = bus;
         _path = path;
+        _game = game;
         
         Add(_battle = new(new(0f, 0f), _path, _data, _bus));
         Add(_battleMenu = new(new(
@@ -71,6 +74,7 @@ public class BattleGridScene : SceneBase
         
         Add(_networkMonitor = new NetworkMonitorComponent(
             bus, 
+            game,
             new(
                 _miniMap.Bounds.Left, 
                 10f,  // Top of screen

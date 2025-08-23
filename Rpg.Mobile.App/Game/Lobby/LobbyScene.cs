@@ -16,13 +16,16 @@ public class LobbyScene : SceneBase
     private readonly IEventBus _bus;
     private readonly GameSettings _settings;
     private readonly NetworkMonitorComponent _networkMonitor;
+    private readonly IGameLoop _game;
 
     public LobbyScene( 
         IEventBus bus, 
+        IGameLoop game,
         GameSettings settings)
     {
         _bus = bus;
         _settings = settings;
+        _game = game;
         
         Add(_titleText = new TextboxComponent(
             new RectF(200f, 100f, 400f, 60f), 
@@ -57,6 +60,7 @@ public class LobbyScene : SceneBase
         
         Add(_networkMonitor = new NetworkMonitorComponent(
             bus,
+            game,
             new RectF(10f, 400f, 400f, 350f))
         {
             IgnoreCamera = true

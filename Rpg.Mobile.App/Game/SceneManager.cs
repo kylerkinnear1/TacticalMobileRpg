@@ -32,20 +32,22 @@ public class SceneManager
         _path = path;
     }
 
-    public void Subscribe()
+    public void Start()
     {
         _subscriptions = 
         [
             _bus.Subscribe<LobbyNetwork.GameStartedEvent>(e =>
             {
-                var battleScene = new BattleGridScene(_mouse, e.Battle, _bus, _path);
+                var battleScene = new BattleGridScene(_game, _mouse, e.Battle, _bus, _path);
                 _game.ChangeScene(battleScene);
             }),
             _bus.Subscribe<LobbyNetwork.GameEndedEvent>(_ => _game.ChangeScene(_lobby))
         ];
+        
+        _game.ChangeScene(_lobby);
     }
 
-    public void Unsubscribe()
+    public void Stop()
     {
         _subscriptions.DisposeAll();
     }

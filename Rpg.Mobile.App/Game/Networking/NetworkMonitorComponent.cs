@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle;
 using Rpg.Mobile.App.Game.UserInterface;
@@ -14,14 +15,20 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
     
     private readonly List<NetworkEvent> _events = new();
     private readonly IEventBus _bus;
+    private readonly IGameLoop _game;
     private readonly ButtonComponent _prevButton;
     private readonly ButtonComponent _nextButton;
+    private readonly ButtonComponent _copyButton;
     private readonly TextboxComponent _pageInfo;
+    private readonly TextboxComponent _statusMessage;
     private ISubscription[] _subscriptions = [];
     
     private int _currentPage = 0;
     private const int EventsPerPage = 5;
     private readonly JsonSerializerOptions _jsonOptions;
+    private string _statusText = "";
+    private DateTime? _statusMessageTime;
+    private const double StatusMessageDurationSeconds = 3.0;
 
     public Color BackColor { get; set; } = Colors.Black.WithAlpha(0.9f);
     public Color TextColor { get; set; } = Colors.Lime;
@@ -29,9 +36,10 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
     public float FontSize { get; set; } = 10f;
     public float HeaderFontSize { get; set; } = 12f;
 
-    public NetworkMonitorComponent(IEventBus bus, RectF bounds) : base(bounds)
+    public NetworkMonitorComponent(IEventBus bus, IGameLoop game, RectF bounds) : base(bounds)
     {
         _bus = bus;
+        _game = game;
         IgnoreCamera = true;
         
         _jsonOptions = new JsonSerializerOptions 
@@ -62,6 +70,17 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             FontSize = 12f
         });
 
+        // Copy to clipboard button
+        _copyButton = AddChild(new ButtonComponent(
+            new RectF(bounds.Width - 110f, bounds.Height - 40f, 100f, 30f),
+            "📋 Copy All",
+            OnCopyClick)
+        {
+            BackColor = Colors.DarkGreen,
+            TextColor = Colors.White,
+            FontSize = 12f
+        });
+
         _pageInfo = AddChild(new TextboxComponent(
             new RectF(150f, bounds.Height - 40f, 100f, 30f))
         {
@@ -70,9 +89,19 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             FontSize = 12f
         });
 
+        // Status message for copy feedback
+        _statusMessage = AddChild(new TextboxComponent(
+            new RectF(bounds.Width - 220f, bounds.Height - 75f, 210f, 25f))
+        {
+            BackColor = Colors.DarkGreen.WithAlpha(0.8f),
+            TextColor = Colors.White,
+            FontSize = 11f,
+            Visible = false
+        });
+
         SubscribeToEvents();
     }
-
+    
     private void SubscribeToEvents()
     {
         _subscriptions =
@@ -167,6 +196,66 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             _currentPage++;
     }
 
+    private void OnCopyClick(IEnumerable<PointF> touches)
+    {
+        if (_game == null)
+        {
+            ShowStatusMessage("Copy requires IGameLoop", Colors.Red);
+            return;
+        }
+
+        var logContent = BuildFullLog();
+        
+        // Use the async pattern with ContinueWith and game.Execute
+#if WINDOWS || MACCATALYST || IOS || ANDROID
+        Microsoft.Maui.ApplicationModel.DataTransfer.Clipboard
+            .SetTextAsync(logContent)
+            .ContinueWith(task => 
+            {
+                _game.Execute(() =>
+                {
+                    if (task.IsCompletedSuccessfully)
+                    {
+                        ShowStatusMessage("✓ Copied to clipboard!", Colors.DarkGreen);
+                    }
+                    else
+                    {
+                        ShowStatusMessage("✗ Copy failed", Colors.Red);
+                    }
+                });
+            });
+#else
+        ShowStatusMessage("✗ Clipboard not supported on this platform", Colors.Red);
+#endif
+    }
+
+    private string BuildFullLog()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("=== Network Events Log ===");
+        sb.AppendLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine($"Total Events: {_events.Count}");
+        sb.AppendLine();
+
+        foreach (var evt in _events)
+        {
+            sb.AppendLine($"[{evt.Timestamp:HH:mm:ss.fff}] {evt.Type}");
+            sb.AppendLine(evt.Payload);
+            sb.AppendLine("---");
+        }
+
+        return sb.ToString();
+    }
+
+    private void ShowStatusMessage(string message, Color backgroundColor)
+    {
+        _statusText = message;
+        _statusMessage.Label = message;
+        _statusMessage.BackColor = backgroundColor.WithAlpha(0.8f);
+        _statusMessage.Visible = true;
+        _statusMessageTime = DateTime.Now;
+    }
+
     public override void Update(float deltaTime)
     {
         var totalPages = Math.Max(1, (_events.Count + EventsPerPage - 1) / EventsPerPage);
@@ -174,6 +263,14 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
         
         _prevButton.Visible = _currentPage > 0;
         _nextButton.Visible = _currentPage < totalPages - 1;
+
+        // Hide status message after duration
+        if (_statusMessageTime.HasValue && 
+            (DateTime.Now - _statusMessageTime.Value).TotalSeconds > StatusMessageDurationSeconds)
+        {
+            _statusMessage.Visible = false;
+            _statusMessageTime = null;
+        }
     }
 
     public override void Render(ICanvas canvas, RectF dirtyRect)
