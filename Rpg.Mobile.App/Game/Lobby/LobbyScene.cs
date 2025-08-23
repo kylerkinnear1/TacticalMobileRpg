@@ -1,4 +1,5 @@
 ﻿using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.App.Game.Networking;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -14,6 +15,7 @@ public class LobbyScene : SceneBase
     private readonly TextboxComponent _statusText;
     private readonly IEventBus _bus;
     private readonly GameSettings _settings;
+    private readonly NetworkMonitorComponent _networkMonitor;
 
     public LobbyScene( 
         IEventBus bus, 
@@ -50,6 +52,13 @@ public class LobbyScene : SceneBase
             BackColor = Colors.DarkBlue,
             TextColor = Colors.White,
             FontSize = 18f,
+            IgnoreCamera = true
+        });
+        
+        Add(_networkMonitor = new NetworkMonitorComponent(
+            bus,
+            new RectF(10f, 400f, 400f, 350f))
+        {
             IgnoreCamera = true
         });
     }
