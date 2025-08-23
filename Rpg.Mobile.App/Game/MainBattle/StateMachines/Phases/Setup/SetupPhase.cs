@@ -31,7 +31,8 @@ public class SetupPhase : IBattlePhase
 
         _subscriptions =
         [
-            _bus.Subscribe<BattleNetwork.UnitPlacedEvent>(UnitPlaced)
+            _bus.Subscribe<BattleNetwork.UnitPlacedEvent>(UnitPlaced),
+            _bus.Subscribe<GridComponent.TileHoveredEvent>(TileHovered)
         ];
     }
 
@@ -102,4 +103,9 @@ public class SetupPhase : IBattlePhase
             (BattleUnitType.Ninja, 1) => Images.NinjaIdle02,
             _ => throw new ArgumentException()
         };
+    
+    private void TileHovered(GridComponent.TileHoveredEvent evnt)
+    {
+        _lastHoveredTile = evnt.Tile;
+    }
 }
