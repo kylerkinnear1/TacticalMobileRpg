@@ -1,6 +1,6 @@
 ﻿using Rpg.Mobile.Api.Battles;
 using Rpg.Mobile.Api.Battles.Data;
-using Rpg.Mobile.App.Game.Lobby;
+using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
@@ -19,19 +19,27 @@ public class BattleNetwork
 
     private readonly IBattleClient _battleClient;
     private readonly IEventBus _bus;
-    private ISubscription[] _subscriptions = [];
     private readonly IGameLoop _game;
+    private readonly GameSettings _settings;
     
-    public BattleNetwork(IBattleClient battleClient, IEventBus bus, IGameLoop game)
+    private ISubscription[] _subscriptions = [];
+
+    public BattleNetwork(IBattleClient battleClient, IEventBus bus, IGameLoop game, GameSettings settings)
     {
         _battleClient = battleClient;
         _bus = bus;
         _game = game;
+        _settings = settings;
     }
-    
+
     public void Connect()
     {
         _battleClient.SetupStarted += SetupStarted;
+
+        _subscriptions =
+        [
+            _bus.Subscribe<GridComponent.TileClickedEvent>(TileClicked)
+        ];
     }
 
     public void Disconnect()
@@ -43,5 +51,10 @@ public class BattleNetwork
     private void SetupStarted(string gameId, BattleSetupPhaseData data)
     {
         _game.Execute(() => _bus.Publish(new SetupStartedEvent(data)));
+    }
+    
+    private void TileClicked(GridComponent.TileClickedEvent evnt)
+    {
+        _battleClient.TileClicked(_settings.GameId, evnt.Tile);
     }
 }

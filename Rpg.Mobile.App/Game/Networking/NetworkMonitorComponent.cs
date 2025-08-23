@@ -118,7 +118,7 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             
             // Client -> Server events (outgoing)
             _bus.Subscribe<LobbyScene.JoinGameClickedEvent>(e => 
-                AddEvent("📤 JoinGame", new { e.GameId, e.Team })),
+                AddEvent("📤 JoinGame", new { e.Team })),
             
             // Battle Network Events (from BattleNetwork)
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(e => 

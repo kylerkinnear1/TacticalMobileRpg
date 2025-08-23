@@ -13,17 +13,21 @@ public class LobbyNetwork
     
     private readonly ILobbyClient _lobbyClient;
     private readonly IEventBus _bus;
-    private ISubscription[] _subscriptions = [];
     private readonly IGameLoop _game;
+    private readonly GameSettings _settings;
+    
+    private ISubscription[] _subscriptions = [];
 
     public LobbyNetwork(
         ILobbyClient lobbyClient,
         IEventBus bus,
-        IGameLoop game)
+        IGameLoop game,
+        GameSettings settings)
     {
         _lobbyClient = lobbyClient;
         _bus = bus;
         _game = game;
+        _settings = settings;
     }
     
     public void Connect()
@@ -56,7 +60,7 @@ public class LobbyNetwork
 
     private void JoinGameClicked(LobbyScene.JoinGameClickedEvent evnt)
     {
-        _lobbyClient.ConnectToGame(evnt.GameId, evnt.Team);
+        _lobbyClient.ConnectToGame(_settings.GameId, evnt.Team);
     }
 
     public void Dispose()

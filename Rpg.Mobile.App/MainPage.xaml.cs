@@ -36,8 +36,8 @@ public partial class MainPage : ContentPage
         _scenes = new SceneManager(lobby, game, bus, mouse, new PathCalculator());
 
         var hub = DiContainer.Services!.GetRequiredService<HubConnection>();
-        _lobbyNetwork = new(new LobbyClient(hub), bus, game);
-        _battleNetwork = new(new BattleClient(hub), bus, game);
+        _lobbyNetwork = new(new LobbyClient(hub), bus, game, settings);
+        _battleNetwork = new(new BattleClient(hub), bus, game, settings);
         game.Start();
     }
 
