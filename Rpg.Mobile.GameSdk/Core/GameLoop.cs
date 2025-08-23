@@ -50,7 +50,7 @@ public class GameLoop(SceneBase _scene, GraphicsView _view, IDispatcher _dispatc
 
     private void ProcessActionQueue()
     {
-        foreach (var action in _gameThreadActionQueue)
+        while (_gameThreadActionQueue.TryDequeue(out var action))
             action();
     }
 

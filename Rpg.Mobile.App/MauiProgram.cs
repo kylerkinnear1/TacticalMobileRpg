@@ -25,7 +25,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MainPage>();
 
         var settingsLoader = new SettingsLoader();
-        var settings = settingsLoader.LoadSettingsAsync().GetAwaiter().GetResult();
+        var settings = settingsLoader.LoadSettings();
         builder.Services.AddSingleton(settings);
         
         SetFullScreen(builder);

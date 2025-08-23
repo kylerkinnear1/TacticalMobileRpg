@@ -27,7 +27,7 @@ public class BattleGridScene : SceneBase
     private ITween<PointF>? _cameraTween;
     private ISubscription[] _subscriptions = [];
     
-    private readonly StateMachine<IBattlePhase> _phase = new();
+    private readonly BattlePhaseMachine _phase;
     
     public BattleGridScene(
         IMouse mouse,
@@ -56,6 +56,8 @@ public class BattleGridScene : SceneBase
         });
         
         ActiveCamera.Offset = new PointF(80f, 80f);
+        
+        _phase = new BattlePhaseMachine(data, _battle, _bus);
     }
 
     public override void Update(float deltaTime)
@@ -79,22 +81,18 @@ public class BattleGridScene : SceneBase
         _subscriptions =
         [
             _bus.Subscribe<GridComponent.TileHoveredEvent>(x => _hoverComponent.Label = $"{x.Tile.X}x{x.Tile.Y}"),
-            _bus.Subscribe<MiniMapComponent.MiniMapClickedEvent>(MiniMapClicked),
-            _bus.Subscribe<BattleNetwork.SetupStartedEvent>(SetupStarted)
+            _bus.Subscribe<MiniMapComponent.MiniMapClickedEvent>(MiniMapClicked)
         ];
         
+        _phase.Start();
         base.OnEnter();
     }
 
     public override void OnExit()
     {
         _subscriptions.DisposeAll();
+        _phase.Stop();
+        
         base.OnExit();
-    }
-    
-    private void SetupStarted(BattleNetwork.SetupStartedEvent evnt)
-    {
-        _data.Setup = evnt.Data;
-        _phase.Change(new SetupPhase(_data, _battle, _bus));
     }
 }
