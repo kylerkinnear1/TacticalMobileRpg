@@ -45,7 +45,6 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
         _jsonOptions = new JsonSerializerOptions 
         { 
             WriteIndented = true,
-            MaxDepth = 3,
             ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
         };
 
