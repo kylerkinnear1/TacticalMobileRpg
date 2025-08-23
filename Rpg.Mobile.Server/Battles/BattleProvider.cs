@@ -120,7 +120,12 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Group(gameId)
-                    .SetupStarted(gameId, x.Units, x.SetupData))
+                    .SetupStarted(gameId, x.Units, x.SetupData)),
+            bus.SubscribeAsync<SetupPhase.UnitPlacedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Group(gameId)
+                    .UnitPlaced(gameId, x.UnitId, x.CurrentPlaceOrderIndex, x.Tile))
         ]);
     }
     

@@ -10,7 +10,7 @@ public class SetupPhase(
     IEventBus _bus) : IBattlePhase
 {
     public record CompletedEvent : IEvent;
-    public record UnitPlacedEvent(Point Tile, int UnitId) : IEvent;
+    public record UnitPlacedEvent(Point Tile, int UnitId, int CurrentPlaceOrderIndex) : IEvent;
     public record StartedEvent(List<BattleUnitData> Units, BattleSetupPhaseData SetupData) : IEvent;
     
     private ISubscription[] _subscriptions = [];
@@ -50,7 +50,8 @@ public class SetupPhase(
         if (_data.UnitCoordinates.ContainsValue(evnt.Tile))
             return;
 
-        var currentOrigins = _data.Setup.CurrentPlaceOrder % 2 == 0
+        var unit = _data.Units.Single(x => x.UnitId == _data.Setup.PlaceOrderIds[_data.Setup.CurrentPlaceOrderIndex]);
+        var currentOrigins = unit.PlayerId == 0
             ? _data.Map.Player1Origins
             : _data.Map.Player2Origins;
 
@@ -58,7 +59,7 @@ public class SetupPhase(
             return;
 
         PlaceUnit(evnt.Tile);
-        if (_data.Setup.CurrentPlaceOrder >= _data.Setup.PlaceOrderIds.Count)
+        if (_data.Setup.CurrentPlaceOrderIndex >= _data.Setup.PlaceOrderIds.Count)
         {
             _bus.Publish(new CompletedEvent());
         }
@@ -66,10 +67,10 @@ public class SetupPhase(
 
     private void PlaceUnit(Point tile)
     {
-        var unit = _data.Setup.PlaceOrderIds[_data.Setup.CurrentPlaceOrder];
+        var unit = _data.Setup.PlaceOrderIds[_data.Setup.CurrentPlaceOrderIndex];
         _data.UnitCoordinates[unit] = tile;
-        _data.Setup.CurrentPlaceOrder++;
+        _data.Setup.CurrentPlaceOrderIndex++;
         var point = _data.UnitCoordinates[unit];
-        _bus.Publish(new UnitPlacedEvent(point, unit));
+        _bus.Publish(new UnitPlacedEvent(point, unit, _data.Setup.CurrentPlaceOrderIndex));
     }
 }

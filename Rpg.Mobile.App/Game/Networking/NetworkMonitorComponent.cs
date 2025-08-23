@@ -113,61 +113,23 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
         [
             // Lobby Network Events (from LobbyNetwork)
             _bus.Subscribe<LobbyNetwork.GameStartedEvent>(e => 
-                AddEvent("🌐 GameStarted", new { 
-                    e.GameId, 
-                    MapSize = $"{e.Battle.Map.Width()}x{e.Battle.Map.Height()}",
-                    Team0Count = e.Battle.Team0.Count,
-                    Team1Count = e.Battle.Team1.Count
-                })),
+                AddEvent("🌐 GameStarted", e)),
             _bus.Subscribe<LobbyNetwork.GameEndedEvent>(e => 
-                AddEvent("🌐 GameEnded", new { e.GameId })),
+                AddEvent("🌐 GameEnded", e)),
             
             // Client -> Server events (outgoing)
             _bus.Subscribe<LobbyScene.JoinGameClickedEvent>(e => 
-                AddEvent("📤 JoinGame", new { e.Team })),
+                AddEvent("📤 JoinGame", e)),
             
             // Battle Network Events (from BattleNetwork)
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(e => 
-                AddEvent("🌐 SetupStarted", new { 
-                    CurrentPlaceOrder = e.SetupData.CurrentPlaceOrder,
-                    PlaceOrderCount = e.SetupData.PlaceOrderIds.Count,
-                    Units = e.SetupData.PlaceOrderIds
-                        .Select(u => e.Units.Single(x => x.UnitId == u))
-                        .Select(u => new {
-                        u.PlayerId,
-                        u.Stats.UnitType,
-                        HP = u.Stats.MaxHealth,
-                        MP = u.Stats.MaxMp
-                    })
-                })),
+                AddEvent("🌐 SetupStarted", e)),
             
             _bus.Subscribe<BattleNetwork.UnitPlacedEvent>(e => 
-                AddEvent("🌐 UnitPlaced", new { 
-                    e.Tile,
-                    Unit = new { 
-                        e.Unit.PlayerId, 
-                        e.Unit.Stats.UnitType,
-                        HP = $"{e.Unit.RemainingHealth}/{e.Unit.Stats.MaxHealth}",
-                        MP = $"{e.Unit.RemainingMp}/{e.Unit.Stats.MaxMp}"
-                    }
-                })),
+                AddEvent("🌐 UnitPlaced", e)),
             
             _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(e => 
-                AddEvent("🌐 UnitsDamaged", new { 
-                    DamagedCount = e.DamagedUnits.Count,
-                    DefeatedCount = e.DefeatedUnits.Count,
-                    Damages = e.DamagedUnits.Select(d => new { 
-                        UnitType = d.Unit.Stats.UnitType,
-                        PlayerId = d.Unit.PlayerId,
-                        Damage = d.Damage,
-                        RemainingHP = d.Unit.RemainingHealth
-                    }),
-                    Defeated = e.DefeatedUnits.Select(u => new {
-                        u.Stats.UnitType,
-                        u.PlayerId
-                    })
-                }))
-        ];
+                AddEvent("🌐 UnitsDamaged", e))];
     }
 
     private void AddEvent(string type, object payload)

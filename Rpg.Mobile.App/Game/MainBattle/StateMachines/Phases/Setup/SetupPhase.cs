@@ -38,7 +38,7 @@ public class SetupPhase : IBattlePhase
 
     public void Execute(float deltaTime)
     {
-        var currentOrigins = _data.Setup.CurrentPlaceOrder % 2 == 0
+        var currentOrigins = _data.Setup.CurrentPlaceOrderIndex % 2 == 0
             ? _data.Map.Player1Origins
             : _data.Map.Player2Origins;
 
@@ -67,7 +67,7 @@ public class SetupPhase : IBattlePhase
 
     private void UnitPlaced(BattleNetwork.UnitPlacedEvent evnt)
     {
-        var unit = evnt.Unit;
+        var unit = _data.Units.Single(x => x.UnitId == evnt.UnitId);
         var component = CreateBattleUnitComponent(unit);
         var state = new BattleUnitComponentStateMachine(_bus, component);
         _mainBattle.Units[unit] = state;
@@ -75,9 +75,9 @@ public class SetupPhase : IBattlePhase
 
         component.Position = _mainBattle.GetPositionForTile(evnt.Tile, component.Bounds.Size);
 
-        if (_data.Setup.CurrentPlaceOrder < _data.Setup.PlaceOrderIds.Count)
+        if (_data.Setup.CurrentPlaceOrderIndex < _data.Setup.PlaceOrderIds.Count)
         {
-            var nextUnit = _data.Units.Single(x => x.UnitId == _data.Setup.PlaceOrderIds[_data.Setup.CurrentPlaceOrder]);
+            var nextUnit = _data.Units.Single(x => x.UnitId == _data.Setup.PlaceOrderIds[_data.Setup.CurrentPlaceOrderIndex]);
             _mainBattle.PlaceUnitSpriteComponent.Sprite = GetUnitSprite(nextUnit.Stats.UnitType, nextUnit.PlayerId);
         }
     }

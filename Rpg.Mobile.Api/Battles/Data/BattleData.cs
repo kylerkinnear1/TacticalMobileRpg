@@ -55,7 +55,7 @@ public class BattleData
 
 public class BattleSetupPhaseData
 {
-    public int CurrentPlaceOrder { get; set; } = 0;
+    public int CurrentPlaceOrderIndex { get; set; } = 0;
     public List<int> PlaceOrderIds { get; set; } = new();
 }
 

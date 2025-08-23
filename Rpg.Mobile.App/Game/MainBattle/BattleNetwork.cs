@@ -15,7 +15,7 @@ public class BattleNetwork
         List<(BattleUnitData Unit, int Damage)> DamagedUnits,
         List<BattleUnitData> DefeatedUnits) : IEvent;
 
-    public record UnitPlacedEvent(BattleUnitData Unit, Point Tile) : IEvent;
+    public record UnitPlacedEvent(int UnitId, int CurrentUnitPlaceOrderIndex, Point Tile) : IEvent;
 
     private readonly IBattleClient _battleClient;
     private readonly IEventBus _bus;
@@ -35,6 +35,7 @@ public class BattleNetwork
     public void Connect()
     {
         _battleClient.SetupStarted += SetupStarted;
+        _battleClient.UnitPlaced += UnitPlaced;
 
         _subscriptions =
         [
@@ -42,9 +43,16 @@ public class BattleNetwork
         ];
     }
 
+    private void UnitPlaced(string gameId, int unitId, int currentPlaceOrderIndex, Point tile)
+    {
+        _game.Execute(() => _bus.Publish(new UnitPlacedEvent(unitId, currentPlaceOrderIndex, tile)));
+    }
+
     public void Disconnect()
     {
         _battleClient.SetupStarted -= SetupStarted;
+        _battleClient.UnitPlaced -= UnitPlaced;
+        
         _subscriptions.DisposeAll();
     }
     
