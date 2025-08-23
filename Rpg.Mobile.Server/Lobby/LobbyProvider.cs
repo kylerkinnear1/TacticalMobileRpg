@@ -72,6 +72,11 @@ public class LobbyProvider(
                 .Group(gameId)
                 .GameStarted(gameId, battleData);
         }
+
+        lock (game.Lock)
+        {
+            game.BattlePhase!.Change(new SetupPhase(game.Data, game.Bus));
+        }
     }
 
     public async Task LeaveGame(Hub<IEventApi> hub, string gameId)
@@ -218,7 +223,7 @@ public class LobbyProvider(
     
     private BattleData StartGame(GameContext game, Hub<IEventApi> hub, string gameId)
     {
-        var battleData = _mapLoader.LoadBattleData();
+        var battleData = _mapLoader.LoadBattleData(game.Data.Team0, game.Data.Team1);
         game.Data = battleData;
         
         game.BattlePhase = new BattlePhaseMachine(
@@ -231,7 +236,6 @@ public class LobbyProvider(
             _attackDamage);
         
         _battleProvider.SubscribeToGame(hub, gameId, game.Bus);
-        game.BattlePhase.Change(new SetupPhase(game.Data, game.Bus));
         return battleData;
     }
 }
