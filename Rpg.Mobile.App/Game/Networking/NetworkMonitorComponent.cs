@@ -17,7 +17,6 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
     private readonly List<NetworkEvent> _events = new();
     private readonly IEventBus _bus;
     private readonly IGameLoop _game;
-    private readonly BattleData _data;
     
     private readonly ButtonComponent _prevButton;
     private readonly ButtonComponent _nextButton;
@@ -42,12 +41,10 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
     public NetworkMonitorComponent(
         IEventBus bus, 
         IGameLoop game, 
-        RectF bounds,
-        BattleData data) : base(bounds)
+        RectF bounds) : base(bounds)
     {
         _bus = bus;
         _game = game;
-        _data = data;
         
         IgnoreCamera = true;
         
@@ -135,7 +132,7 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
                     CurrentPlaceOrder = e.SetupData.CurrentPlaceOrder,
                     PlaceOrderCount = e.SetupData.PlaceOrderIds.Count,
                     Units = e.SetupData.PlaceOrderIds
-                        .Select(u => _data.Units.Single(x => x.UnitId == u))
+                        .Select(u => e.Units.Single(x => x.UnitId == u))
                         .Select(u => new {
                         u.PlayerId,
                         u.Stats.UnitType,

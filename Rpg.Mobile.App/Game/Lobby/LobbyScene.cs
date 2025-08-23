@@ -61,8 +61,7 @@ public class LobbyScene : SceneBase
         Add(_networkMonitor = new NetworkMonitorComponent(
             bus,
             game,
-            new RectF(10f, 400f, 400f, 350f),
-            new BattleData())
+            new RectF(10f, 400f, 400f, 350f))
         {
             IgnoreCamera = true
         });

@@ -83,8 +83,7 @@ public class BattleGridScene : SceneBase
                 10f,  // Top of screen
                 400f, // Width
                 350f  // Height
-            ),
-            data)
+            ))
         {
             IgnoreCamera = true
         });
