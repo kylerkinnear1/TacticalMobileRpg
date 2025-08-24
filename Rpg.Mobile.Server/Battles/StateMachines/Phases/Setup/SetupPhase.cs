@@ -27,7 +27,7 @@ public class SetupPhase(
         _data.Units = team1.Concat(team2).ToList();
         _data.Setup.PlaceOrderIds = team1
             .Zip(team2)
-            .SelectMany(x => new[] { x.First.PlayerId, x.Second.PlayerId })
+            .SelectMany(x => new[] { x.First.UnitId, x.Second.UnitId })
             .ToList();
         
         _subscriptions = 
