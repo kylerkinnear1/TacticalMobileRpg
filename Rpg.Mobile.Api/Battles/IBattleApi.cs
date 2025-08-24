@@ -25,6 +25,6 @@ public interface IBattleEventApi
     Task IdleStepEnded(string gameId, int unitId);
 
     Task SelectingAttackTargetStarted(string gameId, List<Point> attackTargetTiles);
-    Task SelectingMagicTargetStarted(string gameId, List<Point> magicTargetTiles);
+    Task SelectingMagicTargetStarted(string gameId, SpellData spell, List<Point> magicTargetTiles);
     Task SelectingSpellStarted(string gameId, List<SpellData> spells);
 }

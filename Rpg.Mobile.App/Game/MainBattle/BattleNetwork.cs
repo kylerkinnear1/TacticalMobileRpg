@@ -24,7 +24,7 @@ public class BattleNetwork
     public record IdleStepEndedEvent(int UnitId) : IEvent;
     public record UnitMovedEvent(int UnitId, Point Tile) : IEvent;
     public record SelectingAttackTargetStartedEvent(List<Point> AttackTargetTiles) : IEvent;
-    public record SelectingMagicTargetStartedEvent(List<Point> MagicTargetTiles) : IEvent;
+    public record SelectingMagicTargetStartedEvent(SpellData Spell, List<Point> MagicTargetTiles) : IEvent;
     public record SelectingSpellStartedEvent(List<SpellData> Spells) : IEvent;
 
     private readonly IBattleClient _battleClient;
@@ -121,9 +121,9 @@ public class BattleNetwork
         _game.Execute(() => _bus.Publish(new SelectingAttackTargetStartedEvent(attackTargetTiles)));
     }
 
-    private void SelectingMagicTargetStarted(string gameId, List<Point> magicTargetTiles)
+    private void SelectingMagicTargetStarted(string gameId, SpellData spell, List<Point> magicTargetTiles)
     {
-        _game.Execute(() => _bus.Publish(new SelectingMagicTargetStartedEvent(magicTargetTiles)));
+        _game.Execute(() => _bus.Publish(new SelectingMagicTargetStartedEvent(spell, magicTargetTiles)));
     }
     
     private void SelectingSpellStarted(string gameId, List<SpellData> spells)

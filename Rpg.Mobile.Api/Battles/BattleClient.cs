@@ -38,7 +38,7 @@ public interface IBattleClient
     public delegate void SelectingAttackTargetStartedHandler(string gameId, List<Point> attackTargetTiles);
     event SelectingAttackTargetStartedHandler? SelectingAttackTargetStarted;
 
-    public delegate void SelectingMagicTargetStartedHandler(string gameId, List<Point> magicTargetTiles);
+    public delegate void SelectingMagicTargetStartedHandler(string gameId, SpellData spell, List<Point> magicTargetTiles);
     event SelectingMagicTargetStartedHandler? SelectingMagicTargetStarted;
     
     public delegate void SelectingSpellStartedHandler(string gameId, List<SpellData> spells);
@@ -121,8 +121,8 @@ public class BattleClient : IBattleClient
         _hub.On<string, List<Point>>(nameof(IBattleEventApi.SelectingAttackTargetStarted),
             (gameId, attackTargetTiles) => SelectingAttackTargetStarted?.Invoke(gameId, attackTargetTiles));
 
-        _hub.On<string, List<Point>>(nameof(IBattleEventApi.SelectingMagicTargetStarted),
-            (gameId, magicTargetTiles) => SelectingMagicTargetStarted?.Invoke(gameId, magicTargetTiles));
+        _hub.On<string, SpellData, List<Point>>(nameof(IBattleEventApi.SelectingMagicTargetStarted),
+            (gameId, spell, magicTargetTiles) => SelectingMagicTargetStarted?.Invoke(gameId, spell, magicTargetTiles));
         
         _hub.On<string, List<SpellData>>(nameof(IBattleEventApi.SelectingSpellStarted),
             (gameId, spells) => SelectingSpellStarted?.Invoke(gameId, spells));

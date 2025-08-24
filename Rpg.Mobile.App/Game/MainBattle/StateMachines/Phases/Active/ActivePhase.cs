@@ -89,6 +89,7 @@ public class ActivePhase : IBattlePhase
     private void SelectingMagicTargetStarted(BattleNetwork.SelectingMagicTargetStartedEvent evnt)
     {
         _data.Active.SpellTargetTiles = evnt.MagicTargetTiles;
+        _data.Active.CurrentSpell = evnt.Spell;
         _step.Change(new SelectingMagicTargetStep(_mainBattle, _menu, _data, _bus, _magicTargetCalculator));
     }
     
