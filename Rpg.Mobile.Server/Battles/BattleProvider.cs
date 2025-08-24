@@ -167,7 +167,17 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Groups(gameId)
-                    .SelectingAttackTargetStarted(gameId, x.AttackTargetTiles))
+                    .SelectingAttackTargetStarted(gameId, x.AttackTargetTiles)),
+            bus.SubscribeAsync<SelectingMagicTargetStep.StartedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Group(gameId)
+                    .SelectingMagicTargetStarted(gameId, x.SpellTargetTiles)),
+            bus.SubscribeAsync<SelectingSpellStep.StartedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Group(gameId)
+                    .SelectingSpellStarted(gameId, x.Spells))
         ]);
     }
     

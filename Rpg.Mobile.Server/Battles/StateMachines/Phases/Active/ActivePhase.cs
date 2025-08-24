@@ -26,7 +26,6 @@ public class ActivePhase(
     public record AttackClickedEvent(int PlayerId) : IEvent;
     public record NotEnoughMpEvent(SpellData Spell) : IEvent;
     public record SpellSelectedEvent(int PlayerId, SpellType Spell) : IEvent;
-    public record ActiveSpellChangedEvent(SpellData Spell) : IEvent;
     public record UnitMovedEvent(int UnitId, Point Tile) : IEvent;
     public record BackClickedEvent(int PlayerId) : IEvent;
     
@@ -59,8 +58,6 @@ public class ActivePhase(
         }
         
         _data.Active.CurrentSpell = spell;
-        
-        _bus.Publish(new ActiveSpellChangedEvent(spell));
         _step.Change(new SelectingMagicTargetStep(
             _data,
             _bus,

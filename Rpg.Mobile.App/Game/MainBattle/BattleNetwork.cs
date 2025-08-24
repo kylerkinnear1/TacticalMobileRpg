@@ -2,6 +2,7 @@
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
@@ -23,6 +24,8 @@ public class BattleNetwork
     public record IdleStepEndedEvent(int UnitId) : IEvent;
     public record UnitMovedEvent(int UnitId, Point Tile) : IEvent;
     public record SelectingAttackTargetStartedEvent(List<Point> AttackTargetTiles) : IEvent;
+    public record SelectingMagicTargetStartedEvent(List<Point> MagicTargetTiles) : IEvent;
+    public record SelectingSpellStartedEvent(List<SpellData> Spells) : IEvent;
 
     private readonly IBattleClient _battleClient;
     private readonly IEventBus _bus;
@@ -49,6 +52,8 @@ public class BattleNetwork
         _battleClient.IdleStepEnded += IdleStepEnded;
         _battleClient.UnitMoved += UnitMoved;
         _battleClient.SelectingAttackTargetStarted += SelectingAttackTargetStarted;
+        _battleClient.SelectingMagicTargetStarted += SelectingMagicTargetStarted;
+        _battleClient.SelectingSpellStarted += SelectingSpellStarted;
 
         _subscriptions =
         [
@@ -56,7 +61,8 @@ public class BattleNetwork
             _bus.Subscribe<ActivePhase.AttackClickedEvent>(evnt => _battleClient.AttackClicked(_settings.GameId)),
             _bus.Subscribe<ActivePhase.MagicClickedEvent>(evnt => _battleClient.MagicClicked(_settings.GameId)),
             _bus.Subscribe<ActivePhase.WaitClickedEvent>(evnt => _battleClient.WaitClicked(_settings.GameId)),
-            _bus.Subscribe<ActivePhase.BackClickedEvent>(evnt => _battleClient.BackClicked(_settings.GameId))
+            _bus.Subscribe<ActivePhase.BackClickedEvent>(evnt => _battleClient.BackClicked(_settings.GameId)),
+            _bus.Subscribe<SelectingSpellStep.SpellSelectedEvent>(evnt => _battleClient.SpellSelected(_settings.GameId, evnt.Spell.Type))
         ];
     }
 
@@ -70,10 +76,11 @@ public class BattleNetwork
         _battleClient.IdleStepEnded -= IdleStepEnded;
         _battleClient.UnitMoved -= UnitMoved;
         _battleClient.SelectingAttackTargetStarted -= SelectingAttackTargetStarted;
+        _battleClient.SelectingSpellStarted -= SelectingSpellStarted;
         
         _subscriptions.DisposeAll();
     }
-
+    
     private void UnitPlaced(string gameId, int unitId, int currentPlaceOrderIndex, Point tile)
     {
         _game.Execute(() => _bus.Publish(new UnitPlacedEvent(unitId, currentPlaceOrderIndex, tile)));
@@ -112,5 +119,15 @@ public class BattleNetwork
     private void SelectingAttackTargetStarted(string gameId, List<Point> attackTargetTiles)
     {
         _game.Execute(() => _bus.Publish(new SelectingAttackTargetStartedEvent(attackTargetTiles)));
+    }
+
+    private void SelectingMagicTargetStarted(string gameId, List<Point> magicTargetTiles)
+    {
+        _game.Execute(() => _bus.Publish(new SelectingMagicTargetStartedEvent(magicTargetTiles)));
+    }
+    
+    private void SelectingSpellStarted(string gameId, List<SpellData> spells)
+    {
+        _game.Execute(() => _bus.Publish(new SelectingSpellStartedEvent(spells)));
     }
 }

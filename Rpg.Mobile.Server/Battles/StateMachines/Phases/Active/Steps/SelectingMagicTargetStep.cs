@@ -13,6 +13,7 @@ public class SelectingMagicTargetStep(
     ISelectingMagicTargetCalculator _magicTargetCalculator,
     IPathCalculator _path) : ActivePhase.IStep
 {
+    public record StartedEvent(SpellData ActiveSpell, List<Point> SpellTargetTiles) : IEvent;
     public record MagicTargetSelectedEvent(Point Target) : IEvent;
     
     private BattleData Data => _data;
@@ -21,6 +22,11 @@ public class SelectingMagicTargetStep(
     
     public void Enter()
     {
+        _subscriptions =
+        [
+            _bus.Subscribe<TileClickedEvent>(TileClicked)
+        ];
+        
         var gridToUnit = _data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
         var legalTargets = _path
             .CreateFanOutArea(
@@ -35,11 +41,7 @@ public class SelectingMagicTargetStep(
             .ToList();
 
         _data.Active.SpellTargetTiles.Set(legalTargets);
-
-        _subscriptions =
-        [
-            _bus.Subscribe<TileClickedEvent>(TileClicked)
-        ];
+        _bus.Publish(new StartedEvent(_data.Active.CurrentSpell!, legalTargets));
     }
 
     public void Execute(float deltaTime) { }

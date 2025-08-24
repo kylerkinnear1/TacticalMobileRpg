@@ -51,10 +51,11 @@ public class ActivePhase : IBattlePhase
         _subscriptions =
         [
             _bus.Subscribe<BattleNetwork.IdleStepStartedEvent>(IdleStepStarted),
-            _bus.Subscribe<BattleNetwork.SelectingAttackTargetStartedEvent>(SelectingAttackTargetStarted)
+            _bus.Subscribe<BattleNetwork.SelectingAttackTargetStartedEvent>(SelectingAttackTargetStarted),
+            _bus.Subscribe<BattleNetwork.SelectingMagicTargetStartedEvent>(SelectingMagicTargetStarted),
+            _bus.Subscribe<BattleNetwork.SelectingSpellStartedEvent>(SelectingSpellStarted)
         ];
     }
-    
     public void Execute(float deltaTime)
     {
         var currentUnitPosition = _data.UnitCoordinates[_data.CurrentUnit().UnitId];
@@ -79,9 +80,21 @@ public class ActivePhase : IBattlePhase
         _step.Change(new IdleStep(_menu, _bus, _data, _mainBattle));
     }
     
-    private void SelectingAttackTargetStarted(BattleNetwork.SelectingAttackTargetStartedEvent _evnt)
+    private void SelectingAttackTargetStarted(BattleNetwork.SelectingAttackTargetStartedEvent evnt)
     {
-        _data.Active.AttackTargetTiles = _evnt.AttackTargetTiles;
+        _data.Active.AttackTargetTiles = evnt.AttackTargetTiles;
         _step.Change(new SelectingAttackTargetStep(_mainBattle, _menu, _bus, _data, _attackTargetCalculator));
+    }
+    
+    private void SelectingMagicTargetStarted(BattleNetwork.SelectingMagicTargetStartedEvent evnt)
+    {
+        _data.Active.SpellTargetTiles = evnt.MagicTargetTiles;
+        _step.Change(new SelectingMagicTargetStep(_mainBattle, _menu, _data, _bus, _magicTargetCalculator));
+    }
+    
+    private void SelectingSpellStarted(BattleNetwork.SelectingSpellStartedEvent evnt)
+    {
+        _data.CurrentUnit().Spells = evnt.Spells;
+        _step.Change(new SelectingSpellStep(_data, _menu, _bus));
     }
 }

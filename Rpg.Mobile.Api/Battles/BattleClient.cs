@@ -12,6 +12,7 @@ public interface IBattleClient
     Task MagicClicked(string gameId);
     Task WaitClicked(string gameId);
     Task BackClicked(string gameId);
+    Task SpellSelected(string gameId, SpellType spell);
     
     public delegate void SetupPhaseStartedHandler(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);
     event SetupPhaseStartedHandler? SetupStarted;
@@ -36,6 +37,12 @@ public interface IBattleClient
 
     public delegate void SelectingAttackTargetStartedHandler(string gameId, List<Point> attackTargetTiles);
     event SelectingAttackTargetStartedHandler? SelectingAttackTargetStarted;
+
+    public delegate void SelectingMagicTargetStartedHandler(string gameId, List<Point> magicTargetTiles);
+    event SelectingMagicTargetStartedHandler? SelectingMagicTargetStarted;
+    
+    public delegate void SelectingSpellStartedHandler(string gameId, List<SpellData> spells);
+    event SelectingSpellStartedHandler? SelectingSpellStarted;
 }
 
 public class BattleClient : IBattleClient
@@ -72,6 +79,11 @@ public class BattleClient : IBattleClient
         await _hub.InvokeAsync(nameof(IBattleCommandApi.BackClicked), gameId);
     }
 
+    public async Task SpellSelected(string gameId, SpellType spell)
+    {
+        await _hub.InvokeAsync(nameof(IBattleCommandApi.SpellSelected), gameId, spell);
+    }
+
     public event SetupPhaseStartedHandler? SetupStarted;
     public event UnitPlacedHandler? UnitPlaced;
     public event NewRoundStartedHandler? NewRoundStarted;
@@ -80,6 +92,8 @@ public class BattleClient : IBattleClient
     public event IdleStepEndedHandler? IdleStepEnded;
     public event UnitMovedHandler? UnitMoved;
     public event SelectingAttackTargetStartedHandler? SelectingAttackTargetStarted;
+    public event SelectingMagicTargetStartedHandler? SelectingMagicTargetStarted;
+    public event SelectingSpellStartedHandler? SelectingSpellStarted;
 
     private void SetupEventHandlers()
     {
@@ -106,5 +120,11 @@ public class BattleClient : IBattleClient
 
         _hub.On<string, List<Point>>(nameof(IBattleEventApi.SelectingAttackTargetStarted),
             (gameId, attackTargetTiles) => SelectingAttackTargetStarted?.Invoke(gameId, attackTargetTiles));
+
+        _hub.On<string, List<Point>>(nameof(IBattleEventApi.SelectingMagicTargetStarted),
+            (gameId, magicTargetTiles) => SelectingMagicTargetStarted?.Invoke(gameId, magicTargetTiles));
+        
+        _hub.On<string, List<SpellData>>(nameof(IBattleEventApi.SelectingSpellStarted),
+            (gameId, spells) => SelectingSpellStarted?.Invoke(gameId, spells));
     }
 }
