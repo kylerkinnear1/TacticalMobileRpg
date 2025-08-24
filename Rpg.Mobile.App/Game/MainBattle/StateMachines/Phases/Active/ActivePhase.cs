@@ -53,6 +53,8 @@ public class ActivePhase : IBattlePhase
                 currentUnitPosition.Y * MainBattleComponent.TileWidth, 
                 MainBattleComponent.TileWidth, 
                 MainBattleComponent.TileWidth));
+        
+        _step.Execute(deltaTime);
     }
 
     public void Leave()
