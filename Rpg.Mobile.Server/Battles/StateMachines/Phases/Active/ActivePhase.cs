@@ -24,6 +24,7 @@ public class ActivePhase(
     public record CompletedEvent(int UnitId) : IEvent;
     public record MagicClickedEvent(int PlayerId) : IEvent;
     public record AttackClickedEvent(int PlayerId) : IEvent;
+    public record WaitClickedEvent(int PlayerId) : IEvent;
     public record NotEnoughMpEvent(SpellData Spell) : IEvent;
     public record SpellSelectedEvent(int PlayerId, SpellType Spell) : IEvent;
     public record UnitMovedEvent(int UnitId, Point Tile) : IEvent;
@@ -40,7 +41,8 @@ public class ActivePhase(
                 _path))),
             _bus.Subscribe<MagicClickedEvent>(_ => _step.Change(new SelectingSpellStep(_data, _bus))),
             _bus.Subscribe<BackClickedEvent>(BackClicked),
-            _bus.Subscribe<SpellSelectedEvent>(SpellSelected)
+            _bus.Subscribe<SpellSelectedEvent>(SpellSelected),
+            _bus.Subscribe<WaitClickedEvent>(WaitClicked)
         ];
 
         _data.Active.ActiveUnitStartPosition = _data.UnitCoordinates[_data.CurrentUnit().UnitId];
@@ -63,6 +65,11 @@ public class ActivePhase(
             _bus,
             _magicTargetCalculator,
             _path));
+    }
+
+    private void WaitClicked(WaitClickedEvent evnt)
+    {
+        _bus.Publish(new CompletedEvent(_data.CurrentUnit().UnitId));
     }
 
     public void Execute(float deltaTime)

@@ -103,7 +103,7 @@ public class BattleProvider : IBattleProvider
         {
             var playerId = GetPlayerId(game, hub.Context.ConnectionId);
             if (playerId.HasValue)
-                game.Bus.Publish(new IdleStep.CompletedEvent(game.Data.CurrentUnit().UnitId));
+                game.Bus.Publish(new ActivePhase.WaitClickedEvent(game.Data.CurrentUnit().UnitId));
         }
 
         return Task.CompletedTask;

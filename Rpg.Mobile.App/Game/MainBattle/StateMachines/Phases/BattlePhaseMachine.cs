@@ -42,7 +42,7 @@ public class BattlePhaseMachine
         [
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(SetupStarted),
             _bus.Subscribe<BattleNetwork.NewRoundStartedEvent>(NewRoundStarted),
-            _bus.Subscribe<BattleNetwork.ActivePhaseStartedEvent>(ActivePhaseStarted),
+            _bus.Subscribe<BattleNetwork.ActivePhaseStartedEvent>(ActivePhaseStarted)
         ];
 
     public void Stop() => _subscriptions.DisposeAll();
