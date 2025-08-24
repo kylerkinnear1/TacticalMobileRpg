@@ -41,8 +41,7 @@ public class ActivePhase(
                 _path))),
             _bus.Subscribe<MagicClickedEvent>(_ => _step.Change(new SelectingSpellStep(_data, _bus))),
             _bus.Subscribe<BackClickedEvent>(BackClicked),
-            _bus.Subscribe<SpellSelectedEvent>(SpellSelected),
-            _bus.Subscribe<IdleStep.CompletedEvent>(evnt => _bus.Publish(new CompletedEvent(evnt.UnitId)))
+            _bus.Subscribe<SpellSelectedEvent>(SpellSelected)
         ];
 
         _data.Active.ActiveUnitStartPosition = _data.UnitCoordinates[_data.CurrentUnit().UnitId];
