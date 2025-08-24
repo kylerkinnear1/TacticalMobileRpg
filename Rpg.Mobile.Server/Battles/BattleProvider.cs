@@ -6,6 +6,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.NewRound;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Setup;
 
 namespace Rpg.Mobile.Server.Battles;
@@ -101,7 +102,7 @@ public class BattleProvider : IBattleProvider
         {
             var playerId = GetPlayerId(game, hub.Context.ConnectionId);
             if (playerId.HasValue)
-                game.Bus.Publish(new IdleStep.CompletedEvent(game.Data.CurrentUnit()));
+                game.Bus.Publish(new IdleStep.CompletedEvent(game.Data.CurrentUnit().UnitId));
         }
 
         return Task.CompletedTask;
@@ -125,7 +126,27 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Group(gameId)
-                    .UnitPlaced(gameId, x.UnitId, x.CurrentPlaceOrderIndex, x.Tile))
+                    .UnitPlaced(gameId, x.UnitId, x.CurrentPlaceOrderIndex, x.Tile)),
+            bus.SubscribeAsync<NewRoundPhase.StartedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Groups(gameId)
+                    .NewRoundStarted(gameId, x.TurnOrderIds, x.ActiveUnitIndex)),
+            bus.SubscribeAsync<ActivePhase.StartedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Groups(gameId)
+                    .ActivePhaseStarted(gameId, x.ActivePhase)),
+            bus.SubscribeAsync<IdleStep.StartedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Groups(gameId)
+                    .IdleStepStarted(gameId, x.WalkableTiles)),
+            bus.SubscribeAsync<IdleStep.CompletedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Groups(gameId)
+                    .IdleStepEnded(gameId, x.UnitId))
         ]);
     }
     

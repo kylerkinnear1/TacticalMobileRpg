@@ -16,6 +16,10 @@ public class BattleNetwork
         List<BattleUnitData> DefeatedUnits) : IEvent;
 
     public record UnitPlacedEvent(int UnitId, int CurrentUnitPlaceOrderIndex, Point Tile) : IEvent;
+    public record NewRoundStartedEvent(List<int> TurnOrderIds, int ActiveUnitIndex) : IEvent;
+    public record ActivePhaseStartedEvent(BattleActivePhaseData ActivePhaseData) : IEvent;
+    public record IdleStepStartedEvent(List<Point> WalkableTiles) : IEvent;
+    public record IdleStepEndedEvent(int UnitId) : IEvent;
 
     private readonly IBattleClient _battleClient;
     private readonly IEventBus _bus;
@@ -36,29 +40,57 @@ public class BattleNetwork
     {
         _battleClient.SetupStarted += SetupStarted;
         _battleClient.UnitPlaced += UnitPlaced;
+        _battleClient.NewRoundStarted += NewRoundStarted;
+        _battleClient.ActivePhaseStarted += ActivePhaseStarted;
+        _battleClient.IdleStepStarted += IdleStepStarted;
+        _battleClient.IdleStepEnded += IdleStepEnded;
 
         _subscriptions =
         [
             _bus.Subscribe<GridComponent.TileClickedEvent>(TileClicked)
         ];
     }
+    
+    public void Disconnect()
+    {
+        _battleClient.SetupStarted -= SetupStarted;
+        _battleClient.UnitPlaced -= UnitPlaced;
+        _battleClient.NewRoundStarted -= NewRoundStarted;
+        _battleClient.ActivePhaseStarted -= ActivePhaseStarted;
+        _battleClient.IdleStepStarted -= IdleStepStarted;
+        _battleClient.IdleStepEnded -= IdleStepEnded;
+        
+        _subscriptions.DisposeAll();
+    }
 
     private void UnitPlaced(string gameId, int unitId, int currentPlaceOrderIndex, Point tile)
     {
         _game.Execute(() => _bus.Publish(new UnitPlacedEvent(unitId, currentPlaceOrderIndex, tile)));
     }
-
-    public void Disconnect()
-    {
-        _battleClient.SetupStarted -= SetupStarted;
-        _battleClient.UnitPlaced -= UnitPlaced;
-        
-        _subscriptions.DisposeAll();
-    }
     
     private void SetupStarted(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data)
     {
         _game.Execute(() => _bus.Publish(new SetupStartedEvent(units, data)));
+    }
+    
+    private void NewRoundStarted(string gameId, List<int> turnOrderIds, int activeUnitIndex)
+    {
+        _game.Execute(() => _bus.Publish(new NewRoundStartedEvent(turnOrderIds, activeUnitIndex)));
+    }
+
+    private void ActivePhaseStarted(string gameId, BattleActivePhaseData activePhaseData)
+    {
+        _game.Execute(() => _bus.Publish(new ActivePhaseStartedEvent(activePhaseData)));
+    }
+
+    private void IdleStepStarted(string gameId, List<Point> walkableTiles)
+    {
+        _game.Execute(() => _bus.Publish(new IdleStepStartedEvent(walkableTiles)));
+    }
+
+    private void IdleStepEnded(string gameId, int unitId)
+    {
+        _game.Execute(() => _bus.Publish(new IdleStepEndedEvent(unitId)));
     }
     
     private void TileClicked(GridComponent.TileClickedEvent evnt)

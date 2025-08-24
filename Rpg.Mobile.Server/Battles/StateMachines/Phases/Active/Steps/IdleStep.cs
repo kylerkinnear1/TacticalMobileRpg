@@ -10,12 +10,18 @@ public class IdleStep(
     IEventBus _bus,
     IPathCalculator _path) : ActivePhase.IStep
 {
-    public record CompletedEvent(BattleUnitData CurrentUnit) : IEvent;
+    public record StartedEvent(List<Point> WalkableTiles) : IEvent;
+    public record CompletedEvent(int UnitId) : IEvent;
 
     private ISubscription[] _subscriptions = [];
     
     public void Enter()
     {
+        _subscriptions =
+        [
+            _bus.Subscribe<TileClickedEvent>(TileClicked)
+        ];
+        
         var walkableTiles = _path
             .CreateFanOutArea(_data.Active.ActiveUnitStartPosition, _data.Map.Corner(), _data.CurrentUnit().Stats.Movement)
             .Where(x => 
@@ -24,11 +30,8 @@ public class IdleStep(
                 _data.Map.Tiles[x.X, x.Y].Type != TerrainType.Rock)
             .ToList();
         _data.Active.WalkableTiles = walkableTiles;
-
-        _subscriptions =
-        [
-            _bus.Subscribe<TileClickedEvent>(TileClicked)
-        ];
+        
+        _bus.Publish(new StartedEvent(_data.Active.WalkableTiles));
     }
 
     public void Execute(float deltaTime) { }
@@ -37,7 +40,7 @@ public class IdleStep(
     {
         _data.Active.WalkableTiles.Clear();
         _subscriptions.DisposeAll();
-        _bus.Publish(new CompletedEvent(_data.CurrentUnit()));
+        _bus.Publish(new CompletedEvent(_data.CurrentUnit().UnitId));
     }
 
     private void TileClicked(TileClickedEvent evnt)

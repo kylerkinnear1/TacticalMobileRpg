@@ -20,9 +20,10 @@ public class ActivePhase(
     private ISubscription[] _subscriptions = [];
     private readonly StateMachine<IStep> _step = new();
 
+    public record StartedEvent(BattleActivePhaseData ActivePhase) : IEvent;
+    public record CompletedEvent(int UnitId) : IEvent;
     public record MagicClickedEvent(int PlayerId) : IEvent;
     public record AttackClickedEvent(int PlayerId) : IEvent;
-    public record CompletedEvent(BattleUnitData Unit) : IEvent;
     public record NotEnoughMpEvent(SpellData Spell) : IEvent;
     public record SpellSelectedEvent(int PlayerId, SpellType Spell) : IEvent;
     public record ActiveSpellChangedEvent(SpellData Spell) : IEvent;
@@ -41,10 +42,12 @@ public class ActivePhase(
             _bus.Subscribe<MagicClickedEvent>(_ => _step.Change(new SelectingSpellStep(_data, _bus))),
             _bus.Subscribe<BackClickedEvent>(BackClicked),
             _bus.Subscribe<SpellSelectedEvent>(SpellSelected),
-            _bus.Subscribe<IdleStep.CompletedEvent>(evnt => _bus.Publish(new CompletedEvent(evnt.CurrentUnit)))
+            _bus.Subscribe<IdleStep.CompletedEvent>(evnt => _bus.Publish(new CompletedEvent(evnt.UnitId)))
         ];
 
         _data.Active.ActiveUnitStartPosition = _data.UnitCoordinates[_data.CurrentUnit().UnitId];
+        
+        _bus.Publish(new StartedEvent(_data.Active));
         _step.Change(new IdleStep(_data, _bus, _path));
     }
 

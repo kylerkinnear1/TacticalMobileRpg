@@ -17,4 +17,9 @@ public interface IBattleEventApi
     Task UnitMoved(string gameId, Point tile);
     Task SetupStarted(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);
     Task UnitPlaced(string gameId, int unitId, int currentPlaceOrderIndex, Point tile);
+
+    Task NewRoundStarted(string gameId, List<int> turnOrderIds, int activeUnitIndex);
+    Task ActivePhaseStarted(string gameId, BattleActivePhaseData activePhaseData);
+    Task IdleStepStarted(string gameId, List<Point> walkableTiles);
+    Task IdleStepEnded(string gameId, int unitId);
 }

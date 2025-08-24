@@ -14,6 +14,18 @@ public interface IBattleClient
     
     public delegate void UnitPlacedHandler(string gameId, int unitId, int currentPlaceOrderIndex, Point tile);
     event UnitPlacedHandler? UnitPlaced;
+    
+    public delegate void NewRoundStartedHandler(string gameId, List<int> turnOrderIds, int activeUnitIndex);
+    event NewRoundStartedHandler? NewRoundStarted;
+
+    public delegate void ActivePhaseStartedHandler(string gameId, BattleActivePhaseData activePhaseData);
+    event ActivePhaseStartedHandler? ActivePhaseStarted;
+
+    public delegate void IdleStepStartedHandler(string gameId, List<Point> walkableTiles);
+    event IdleStepStartedHandler? IdleStepStarted;
+
+    public delegate void IdleStepEndedHandler(string gameId, int unitId);
+    event IdleStepEndedHandler? IdleStepEnded;
 }
 
 public class BattleClient : IBattleClient
@@ -32,6 +44,10 @@ public class BattleClient : IBattleClient
 
     public event SetupPhaseStartedHandler? SetupStarted;
     public event UnitPlacedHandler? UnitPlaced;
+    public event NewRoundStartedHandler? NewRoundStarted;
+    public event ActivePhaseStartedHandler? ActivePhaseStarted;
+    public event IdleStepStartedHandler? IdleStepStarted;
+    public event IdleStepEndedHandler? IdleStepEnded;
 
     private void SetupEventHandlers()
     {
@@ -40,5 +56,17 @@ public class BattleClient : IBattleClient
 
         _hub.On<string, int, int, Point>(nameof(IBattleEventApi.UnitPlaced),
             (gameId, unitId, currentPlaceOrderIndex, tile) => UnitPlaced?.Invoke(gameId, unitId, currentPlaceOrderIndex, tile));
+        
+        _hub.On<string, List<int>, int>(nameof(IBattleEventApi.NewRoundStarted),
+            (gameId, turnOrderIds, activeUnitIndex) => NewRoundStarted?.Invoke(gameId, turnOrderIds, activeUnitIndex));
+
+        _hub.On<string, BattleActivePhaseData>(nameof(IBattleEventApi.ActivePhaseStarted),
+            (gameId, activePhaseData) => ActivePhaseStarted?.Invoke(gameId, activePhaseData));
+
+        _hub.On<string, List<Point>>(nameof(IBattleEventApi.IdleStepStarted),
+            (gameId, walkableTiles) => IdleStepStarted?.Invoke(gameId, walkableTiles));
+
+        _hub.On<string, int>(nameof(IBattleEventApi.IdleStepEnded),
+            (gameId, unitId) => IdleStepEnded?.Invoke(gameId, unitId));
     }
 }

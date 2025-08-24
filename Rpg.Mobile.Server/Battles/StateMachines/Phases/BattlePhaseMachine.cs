@@ -57,7 +57,7 @@ public class BattlePhaseMachine : IDisposable
     
     private void StartFirstRound()
     {
-        _phase.Change(new NewRoundPhase(_data));
+        _phase.Change(new NewRoundPhase(_data, _bus));
         _phase.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
     }
 
@@ -66,7 +66,7 @@ public class BattlePhaseMachine : IDisposable
         _data.Active.ActiveUnitIndex = (_data.Active.ActiveUnitIndex + 1) % _data.Active.TurnOrderIds.Count;
 
         if (_data.Active.ActiveUnitIndex == 0)
-            _phase.Change(new NewRoundPhase(_data));
+            _phase.Change(new NewRoundPhase(_data, _bus));
 
         _phase.Change(new ActivePhase(_bus, _data, _attackTargetCalculator, _magicTargetCalculator, _path));
     }
