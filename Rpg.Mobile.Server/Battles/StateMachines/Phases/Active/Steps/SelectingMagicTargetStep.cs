@@ -24,7 +24,7 @@ public class SelectingMagicTargetStep(
         var gridToUnit = _data.UnitCoordinates.ToLookup(x => x.Value, x => x.Key);
         var legalTargets = _path
             .CreateFanOutArea(
-                Data.UnitCoordinates[_data.CurrentUnit().PlayerId],
+                Data.UnitCoordinates[_data.CurrentUnit().UnitId],
                 Data.Map.Corner(),
                 Data.Active.CurrentSpell!.MinRange,
                 Data.Active.CurrentSpell.MaxRange)

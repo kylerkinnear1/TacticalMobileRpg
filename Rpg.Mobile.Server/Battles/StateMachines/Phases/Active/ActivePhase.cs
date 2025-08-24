@@ -80,7 +80,7 @@ public class ActivePhase(
 
     private void BackClicked(BackClickedEvent evnt)
     {
-        _data.UnitCoordinates[_data.CurrentUnit().PlayerId] = _data.Active.ActiveUnitStartPosition;
+        _data.UnitCoordinates[_data.CurrentUnit().UnitId] = _data.Active.ActiveUnitStartPosition;
         _bus.Publish(new UnitMovedEvent(_data.CurrentUnit().UnitId, _data.Active.ActiveUnitStartPosition));
     }
 }

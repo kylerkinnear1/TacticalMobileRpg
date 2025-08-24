@@ -30,7 +30,7 @@ public class SelectingAttackTargetStep(
 
         var legalTargets = _path
             .CreateFanOutArea(
-                _data.UnitCoordinates[_data.CurrentUnit().PlayerId],
+                _data.UnitCoordinates[_data.CurrentUnit().UnitId],
                 _data.Map.Corner(),
                 _data.CurrentUnit().Stats.AttackMinRange,
                 _data.CurrentUnit().Stats.AttackMaxRange)
