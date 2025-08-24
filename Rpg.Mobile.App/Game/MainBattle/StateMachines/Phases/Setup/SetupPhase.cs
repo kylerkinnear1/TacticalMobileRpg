@@ -73,7 +73,7 @@ public class SetupPhase : IBattlePhase
         var unit = _data.Units.Single(x => x.UnitId == evnt.UnitId);
         var component = CreateBattleUnitComponent(unit);
         var state = new BattleUnitComponentStateMachine(_bus, component);
-        _mainBattle.Units[unit] = state;
+        _mainBattle.Units[unit.UnitId] = state;
         _mainBattle.AddChild(component);
 
         component.Position = _mainBattle.GetPositionForTile(evnt.Tile, component.Bounds.Size);

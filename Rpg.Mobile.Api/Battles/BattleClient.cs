@@ -26,6 +26,9 @@ public interface IBattleClient
 
     public delegate void IdleStepEndedHandler(string gameId, int unitId);
     event IdleStepEndedHandler? IdleStepEnded;
+
+    public delegate void UnitMovedHandler(string gameId, int unitId, Point tile);
+    event UnitMovedHandler? UnitMoved;
 }
 
 public class BattleClient : IBattleClient
@@ -48,6 +51,7 @@ public class BattleClient : IBattleClient
     public event ActivePhaseStartedHandler? ActivePhaseStarted;
     public event IdleStepStartedHandler? IdleStepStarted;
     public event IdleStepEndedHandler? IdleStepEnded;
+    public event UnitMovedHandler? UnitMoved;
 
     private void SetupEventHandlers()
     {
@@ -68,5 +72,8 @@ public class BattleClient : IBattleClient
 
         _hub.On<string, int>(nameof(IBattleEventApi.IdleStepEnded),
             (gameId, unitId) => IdleStepEnded?.Invoke(gameId, unitId));
+
+        _hub.On<string, int, Point>(nameof(IBattleEventApi.UnitMoved),
+            (gameId, unitId, tile) => UnitMoved?.Invoke(gameId, unitId, tile));
     }
 }

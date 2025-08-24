@@ -20,6 +20,7 @@ public class BattleNetwork
     public record ActivePhaseStartedEvent(BattleActivePhaseData ActivePhaseData) : IEvent;
     public record IdleStepStartedEvent(List<Point> WalkableTiles) : IEvent;
     public record IdleStepEndedEvent(int UnitId) : IEvent;
+    public record UnitMovedEvent(int UnitId, Point Tile) : IEvent;
 
     private readonly IBattleClient _battleClient;
     private readonly IEventBus _bus;
@@ -44,13 +45,14 @@ public class BattleNetwork
         _battleClient.ActivePhaseStarted += ActivePhaseStarted;
         _battleClient.IdleStepStarted += IdleStepStarted;
         _battleClient.IdleStepEnded += IdleStepEnded;
+        _battleClient.UnitMoved += UnitMoved;
 
         _subscriptions =
         [
             _bus.Subscribe<GridComponent.TileClickedEvent>(TileClicked)
         ];
     }
-    
+
     public void Disconnect()
     {
         _battleClient.SetupStarted -= SetupStarted;
@@ -59,6 +61,7 @@ public class BattleNetwork
         _battleClient.ActivePhaseStarted -= ActivePhaseStarted;
         _battleClient.IdleStepStarted -= IdleStepStarted;
         _battleClient.IdleStepEnded -= IdleStepEnded;
+        _battleClient.UnitMoved -= UnitMoved;
         
         _subscriptions.DisposeAll();
     }
@@ -91,6 +94,11 @@ public class BattleNetwork
     private void IdleStepEnded(string gameId, int unitId)
     {
         _game.Execute(() => _bus.Publish(new IdleStepEndedEvent(unitId)));
+    }
+    
+    private void UnitMoved(string gameId, int unitId, Point tile)
+    {
+        _game.Execute(() => _bus.Publish(new UnitMovedEvent(unitId, tile)));
     }
     
     private void TileClicked(GridComponent.TileClickedEvent evnt)

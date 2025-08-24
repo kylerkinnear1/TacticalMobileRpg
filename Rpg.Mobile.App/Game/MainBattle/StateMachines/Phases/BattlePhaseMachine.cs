@@ -6,7 +6,7 @@ using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases;
 
-public class BattlePhaseMachine : IDisposable
+public class BattlePhaseMachine
 {
     private readonly BattleData _data;
     private readonly MainBattleComponent _mainBattle;
@@ -57,10 +57,5 @@ public class BattlePhaseMachine : IDisposable
     {
         _data.Active = evnt.ActivePhaseData;
         _phase.Change(new ActivePhase(_data, _mainBattle, _menu, _bus));
-    }
-
-    public void Dispose()
-    {
-        _subscriptions.DisposeAll();
     }
 }

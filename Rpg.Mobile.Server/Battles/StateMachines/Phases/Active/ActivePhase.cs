@@ -27,7 +27,7 @@ public class ActivePhase(
     public record NotEnoughMpEvent(SpellData Spell) : IEvent;
     public record SpellSelectedEvent(int PlayerId, SpellType Spell) : IEvent;
     public record ActiveSpellChangedEvent(SpellData Spell) : IEvent;
-    public record UnitMovedEvent(Point Tile) : IEvent;
+    public record UnitMovedEvent(int UnitId, Point Tile) : IEvent;
     public record BackClickedEvent(int PlayerId) : IEvent;
     
     public void Enter()
@@ -82,6 +82,6 @@ public class ActivePhase(
     private void BackClicked(BackClickedEvent evnt)
     {
         _data.UnitCoordinates[_data.CurrentUnit().PlayerId] = _data.Active.ActiveUnitStartPosition;
-        _bus.Publish(new UnitMovedEvent(_data.Active.ActiveUnitStartPosition));
+        _bus.Publish(new UnitMovedEvent(_data.CurrentUnit().UnitId, _data.Active.ActiveUnitStartPosition));
     }
 }

@@ -116,7 +116,7 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Group(gameId)
-                    .UnitMoved(gameId, x.Tile)),
+                    .UnitMoved(gameId, x.UnitId, x.Tile)),
             bus.SubscribeAsync<SetupPhase.StartedEvent>(async x =>
                 await hub
                     .Clients

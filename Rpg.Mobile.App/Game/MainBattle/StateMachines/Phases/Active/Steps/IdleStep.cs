@@ -33,10 +33,9 @@ public class IdleStep : ActivePhase.IStep
 
         _subscriptions =
         [
-            _bus.Subscribe<GridComponent.TileClickedEvent>(TileClicked)
+            _bus.Subscribe<BattleNetwork.UnitMovedEvent>(UnitMoved)
         ];
     }
-    
     public void Execute(float deltaTime)
     {
         var walkShadows = _data.Active.WalkableTiles.Select(x => new RectF(
@@ -53,15 +52,11 @@ public class IdleStep : ActivePhase.IStep
         _subscriptions.DisposeAll();
     }
     
-    private void TileClicked(GridComponent.TileClickedEvent evnt)
+    private void UnitMoved(BattleNetwork.UnitMovedEvent evnt)
     {
-        if (!_data.Active.WalkableTiles.Contains(evnt.Tile))
-        {
-            return;
-        }
-        
-        _data.UnitCoordinates[_data.CurrentUnit().UnitId] = evnt.Tile;
-        var finalTarget = _mainBattle.GetPositionForTile(evnt.Tile, _mainBattle.CurrentUnit.Unit.Bounds.Size);
-        _mainBattle.Units[_data.CurrentUnit()].MoveTo(finalTarget, speed: 500f);
+        _data.UnitCoordinates[evnt.UnitId] = evnt.Tile;
+        var unitComponent = _mainBattle.Units[evnt.UnitId];
+        var finalTarget = _mainBattle.GetPositionForTile(evnt.Tile, unitComponent.Unit.Bounds.Size);
+        _mainBattle.Units[evnt.UnitId].MoveTo(finalTarget, speed: 500f);
     }
 }

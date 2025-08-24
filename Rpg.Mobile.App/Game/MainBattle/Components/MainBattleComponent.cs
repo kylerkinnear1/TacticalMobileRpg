@@ -22,9 +22,9 @@ public class MainBattleComponent : ComponentBase
     public readonly TargetIndicatorComponent AttackTargetHighlight;
     public readonly TargetIndicatorComponent CurrentTileHighlight;
     public readonly SpriteComponent PlaceUnitSpriteComponent;
-    public readonly Dictionary<BattleUnitData, BattleUnitComponentStateMachine> Units = new();
+    public readonly Dictionary<int, BattleUnitComponentStateMachine> Units = new();
 
-    public BattleUnitComponentStateMachine CurrentUnit => Units[_data.CurrentUnit()];
+    public BattleUnitComponentStateMachine CurrentUnit => Units[_data.CurrentUnit().UnitId];
 
     private readonly BattleData _data;
     private readonly IPathCalculator _path;
