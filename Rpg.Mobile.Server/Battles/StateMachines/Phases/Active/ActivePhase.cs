@@ -59,6 +59,8 @@ public class ActivePhase(
             return;
         }
         
+        // TODO: Not enough MP
+        
         _data.Active.CurrentSpell = spell;
         _step.Change(new SelectingMagicTargetStep(
             _data,

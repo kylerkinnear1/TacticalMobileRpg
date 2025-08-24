@@ -11,18 +11,6 @@ public class SelectingSpellStep(
     public record StartedEvent(List<SpellData> Spells) : IEvent;
 
     private ISubscription[] _subscriptions = [];
-    
-    public void SpellSelected(SpellData spell)
-    {
-        if (spell.MpCost > _data.CurrentUnit().RemainingMp)
-        {
-            _bus.Publish(new ActivePhase.NotEnoughMpEvent(spell));
-            return;
-        }
-
-        _data.Active.CurrentSpell = spell;
-        _bus.Publish(new ActivePhase.SpellSelectedEvent(0, spell.Type));
-    }
 
     public void Enter()
     {
