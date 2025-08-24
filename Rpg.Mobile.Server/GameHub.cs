@@ -44,6 +44,9 @@ public class GameHub : Hub<IEventApi>, ICommandApi
     public async Task WaitClicked(string gameId) =>
         await _battleProvider.WaitClicked(this, gameId);
 
+    public async Task BackClicked(string gameId) =>
+        await _battleProvider.BackClicked(this, gameId);
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await _lobbyProvider.OnDisconnectedAsync(this, exception);

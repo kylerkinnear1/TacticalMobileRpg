@@ -50,7 +50,6 @@ public class ActivePhase : IBattlePhase
     {
         _subscriptions =
         [
-            _bus.Subscribe<BackClickedEvent>(BackClicked),
             _bus.Subscribe<BattleNetwork.IdleStepStartedEvent>(IdleStepStarted),
             _bus.Subscribe<BattleNetwork.SelectingAttackTargetStartedEvent>(SelectingAttackTargetStarted)
         ];
@@ -72,20 +71,6 @@ public class ActivePhase : IBattlePhase
     public void Leave()
     {
         _subscriptions.DisposeAll();
-    }
-
-    private void BackClicked(BackClickedEvent evnt)
-    {
-        var position = _mainBattle.GetPositionForTile(
-            _data.Active.ActiveUnitStartPosition, 
-            _mainBattle.CurrentUnit.Unit.Bounds.Size);
-        _mainBattle.CurrentUnit.MoveTo(
-            position, 
-            () => _step.Change(new IdleStep(
-                _menu,
-                _bus,
-                _data,
-                _mainBattle)));
     }
     
     private void IdleStepStarted(BattleNetwork.IdleStepStartedEvent evnt)

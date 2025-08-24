@@ -80,7 +80,6 @@ public class ActivePhase(
 
     private void BackClicked(BackClickedEvent evnt)
     {
-        _data.UnitCoordinates[_data.CurrentUnit().UnitId] = _data.Active.ActiveUnitStartPosition;
-        _bus.Publish(new UnitMovedEvent(_data.CurrentUnit().UnitId, _data.Active.ActiveUnitStartPosition));
+        _step.Change(new IdleStep(_data, _bus, _path));
     }
 }

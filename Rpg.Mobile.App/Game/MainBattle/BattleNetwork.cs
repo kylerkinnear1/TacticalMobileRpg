@@ -55,7 +55,8 @@ public class BattleNetwork
             _bus.Subscribe<GridComponent.TileClickedEvent>(evnt => _battleClient.TileClicked(_settings.GameId, evnt.Tile)),
             _bus.Subscribe<ActivePhase.AttackClickedEvent>(evnt => _battleClient.AttackClicked(_settings.GameId)),
             _bus.Subscribe<ActivePhase.MagicClickedEvent>(evnt => _battleClient.MagicClicked(_settings.GameId)),
-            _bus.Subscribe<ActivePhase.WaitClickedEvent>(evnt => _battleClient.WaitClicked(_settings.GameId))
+            _bus.Subscribe<ActivePhase.WaitClickedEvent>(evnt => _battleClient.WaitClicked(_settings.GameId)),
+            _bus.Subscribe<ActivePhase.BackClickedEvent>(evnt => _battleClient.BackClicked(_settings.GameId))
         ];
     }
 

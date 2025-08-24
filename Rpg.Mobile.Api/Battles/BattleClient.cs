@@ -11,6 +11,7 @@ public interface IBattleClient
     Task AttackClicked(string gameId);
     Task MagicClicked(string gameId);
     Task WaitClicked(string gameId);
+    Task BackClicked(string gameId);
     
     public delegate void SetupPhaseStartedHandler(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);
     event SetupPhaseStartedHandler? SetupStarted;
@@ -64,6 +65,11 @@ public class BattleClient : IBattleClient
     public async Task WaitClicked(string gameId)
     {
         await _hub.InvokeAsync(nameof(IBattleCommandApi.WaitClicked), gameId);
+    }
+
+    public async Task BackClicked(string gameId)
+    {
+        await _hub.InvokeAsync(nameof(IBattleCommandApi.BackClicked), gameId);
     }
 
     public event SetupPhaseStartedHandler? SetupStarted;

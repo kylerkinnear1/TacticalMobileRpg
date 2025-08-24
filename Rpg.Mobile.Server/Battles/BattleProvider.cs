@@ -18,6 +18,7 @@ public interface IBattleProvider
     Task MagicClicked(GameHub hub, string gameId);
     Task SpellSelected(GameHub hub, string gameId, SpellType spellType);
     Task WaitClicked(GameHub hub, string gameId);
+    Task BackClicked(GameHub hub, string gameId);
 
     void SubscribeToGame(Hub<IEventApi> hub, string gameId, IEventBus Bus);
     void UnsubscribeFromGame(string gameId);
@@ -107,7 +108,22 @@ public class BattleProvider : IBattleProvider
 
         return Task.CompletedTask;
     }
-    
+
+    public Task BackClicked(GameHub hub, string gameId)
+    {
+        if (!_games.TryGetValue(gameId, out var game))
+            return Task.CompletedTask;
+
+        lock (game.Lock)
+        {
+            var playerId = GetPlayerId(game, hub.Context.ConnectionId);
+            if (playerId.HasValue)
+                game.Bus.Publish(new ActivePhase.BackClickedEvent(playerId.Value));
+        }
+
+        return Task.CompletedTask;
+    }
+
     public void SubscribeToGame(Hub<IEventApi> hub, string gameId, IEventBus bus)
     {
         _gameSubscriptions.GetOrAdd(gameId, _ =>

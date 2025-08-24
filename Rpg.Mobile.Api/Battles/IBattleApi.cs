@@ -10,6 +10,7 @@ public interface IBattleCommandApi
     Task MagicClicked(string gameId);
     Task SpellSelected(string gameId, SpellType spellType);
     Task WaitClicked(string gameId);
+    Task BackClicked(string gameId);
 }
 
 public interface IBattleEventApi
