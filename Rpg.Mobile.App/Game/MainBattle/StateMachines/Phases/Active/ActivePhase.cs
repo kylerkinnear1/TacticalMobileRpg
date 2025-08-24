@@ -39,7 +39,8 @@ public class ActivePhase : IBattlePhase
     {
         _subscriptions =
         [
-            _bus.Subscribe<BackClickedEvent>(BackClicked)
+            _bus.Subscribe<BackClickedEvent>(BackClicked),
+            _bus.Subscribe<BattleNetwork.IdleStepStartedEvent>(IdleStepStarted)
         ];
     }
 
@@ -71,5 +72,11 @@ public class ActivePhase : IBattlePhase
                 _bus,
                 _data,
                 _mainBattle)));
+    }
+    
+    private void IdleStepStarted(BattleNetwork.IdleStepStartedEvent evnt)
+    {
+        _data.Active.WalkableTiles = evnt.WalkableTiles;
+        _step.Change(new IdleStep(_menu, _bus, _data, _mainBattle));
     }
 }

@@ -90,7 +90,7 @@ public class BattleGridScene : SceneBase
         
         ActiveCamera.Offset = new PointF(80f, 80f);
         
-        _phase = new BattlePhaseMachine(data, _battle, _bus);
+        _phase = new BattlePhaseMachine(data, _battle, _battleMenu, _bus);
     }
 
     public override void Update(float deltaTime)
