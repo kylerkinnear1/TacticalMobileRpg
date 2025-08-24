@@ -23,7 +23,7 @@ public class SetupPhase(
             .ToList();
         var team2 = _data.Team1
             .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
-            .Select((x, i) => CreateBattleUnitData(0, i + _data.Team0.Count, x))
+            .Select((x, i) => CreateBattleUnitData(1, i + _data.Team0.Count, x))
             .ToList();
         
         _data.Units = team1.Concat(team2).ToList();
