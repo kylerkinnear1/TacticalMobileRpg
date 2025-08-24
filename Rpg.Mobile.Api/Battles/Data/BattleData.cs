@@ -36,14 +36,14 @@ public class BattleData
         
         // TODO: workaround
         foreach (var unit in data.Setup.PlaceOrderIds
-                     .Select(x => data.Units.Single(y => y.PlayerId == x))
+                     .Select(x => data.Units.Single(y => y.UnitId == x))
                      .Where(x => x.Stats.UnitType == BattleUnitType.Mage))
         {
             unit.Spells = new() { SpellPresets.Fire1, SpellPresets.Fire2 };
         }
 
         foreach (var unit in data.Setup.PlaceOrderIds
-                     .Select(x => data.Units.Single(y => y.PlayerId == x))
+                     .Select(x => data.Units.Single(y => y.UnitId == x))
                      .Where(x => x.Stats.UnitType == BattleUnitType.Healer))
         {
             unit.Spells = new() { SpellPresets.Cure1 };
