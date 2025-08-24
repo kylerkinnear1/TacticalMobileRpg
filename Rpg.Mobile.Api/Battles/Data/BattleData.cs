@@ -22,35 +22,6 @@ public class BattleData
     // TODO: Remove
     public BattleUnitData CurrentUnit() =>
         Units.Single(x => x.UnitId == Active.TurnOrderIds[Active.ActiveUnitIndex]);
-    
-    // TODO: Remove
-    public static BattleData FromMap(
-        MapData map,
-        List<BattleUnitType> team0,
-        List<BattleUnitType> team1)
-    {
-        var data = new BattleData();
-        data.Map = map;
-        data.Team0 = team0;
-        data.Team1 = team1;
-        
-        // TODO: workaround
-        foreach (var unit in data.Setup.PlaceOrderIds
-                     .Select(x => data.Units.Single(y => y.UnitId == x))
-                     .Where(x => x.Stats.UnitType == BattleUnitType.Mage))
-        {
-            unit.Spells = new() { SpellPresets.Fire1, SpellPresets.Fire2 };
-        }
-
-        foreach (var unit in data.Setup.PlaceOrderIds
-                     .Select(x => data.Units.Single(y => y.UnitId == x))
-                     .Where(x => x.Stats.UnitType == BattleUnitType.Healer))
-        {
-            unit.Spells = new() { SpellPresets.Cure1 };
-        }
-
-        return data;
-    }
 }
 
 public class BattleSetupPhaseData

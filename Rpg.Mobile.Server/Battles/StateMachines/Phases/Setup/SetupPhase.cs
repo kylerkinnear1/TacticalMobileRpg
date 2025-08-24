@@ -19,11 +19,13 @@ public class SetupPhase(
     {
         var team1 = _data.Team0
             .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
-            .Select((x, i) => new BattleUnitData { UnitId = i, PlayerId = 0, Stats = x});
+            .Select((x, i) => CreateBattleUnitData(0, i, x))
+            .ToList();
         var team2 = _data.Team1
             .Select(x => _data.Map.BaseStats.Single(y => x == y.UnitType))
-            .Select((x, i) => new BattleUnitData { UnitId = i + _data.Team0.Count, PlayerId = 1, Stats = x});
-
+            .Select((x, i) => CreateBattleUnitData(0, i + _data.Team0.Count, x))
+            .ToList();
+        
         _data.Units = team1.Concat(team2).ToList();
         _data.Setup.PlaceOrderIds = team1
             .Zip(team2)
@@ -36,6 +38,24 @@ public class SetupPhase(
         ];
         
         _bus.Publish(new StartedEvent(_data.Units, _data.Setup));
+    }
+
+    private static BattleUnitData CreateBattleUnitData(int playerId, int unitId, BattleUnitStats x)
+    {
+        return new BattleUnitData
+        {
+            UnitId = unitId,
+            PlayerId = playerId, 
+            Stats = x,
+            RemainingHealth = x.MaxHealth,
+            RemainingMp = x.MaxMp,
+            Spells = x.UnitType switch
+            {
+                BattleUnitType.Healer => [SpellPresets.Cure1],
+                BattleUnitType.Mage => [SpellPresets.Fire1, SpellPresets.Fire2],
+                _ => []
+            }
+        };
     }
 
     public void Execute(float deltaTime) { }
