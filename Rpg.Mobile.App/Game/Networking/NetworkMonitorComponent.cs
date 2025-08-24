@@ -3,6 +3,8 @@ using System.Text.Json;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle;
+using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -111,25 +113,30 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
     {
         _subscriptions =
         [
-            // Lobby Network Events (from LobbyNetwork)
+
             _bus.Subscribe<LobbyNetwork.GameStartedEvent>(e => 
                 AddEvent("🌐 GameStarted", e)),
             _bus.Subscribe<LobbyNetwork.GameEndedEvent>(e => 
                 AddEvent("🌐 GameEnded", e)),
-            
-            // Client -> Server events (outgoing)
-            _bus.Subscribe<LobbyScene.JoinGameClickedEvent>(e => 
-                AddEvent("📤 JoinGame", e)),
-            
-            // Battle Network Events (from BattleNetwork)
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(e => 
                 AddEvent("🌐 SetupStarted", e)),
-            
             _bus.Subscribe<BattleNetwork.UnitPlacedEvent>(e => 
                 AddEvent("🌐 UnitPlaced", e)),
-            
+            _bus.Subscribe<BattleNetwork.NewRoundStartedEvent>(e => 
+                AddEvent("🌐 NewRoundStarted", e)),
+            _bus.Subscribe<BattleNetwork.ActivePhaseStartedEvent>(e => 
+                AddEvent("🌐 ActivePhaseStarted", e)),
+            _bus.Subscribe<BattleNetwork.IdleStepStartedEvent>(e => 
+                AddEvent("🌐 IdleStepStarted", e)),
+            _bus.Subscribe<BattleNetwork.IdleStepEndedEvent>(e => 
+                AddEvent("🌐 IdleStepEnded", e)),
+            _bus.Subscribe<BattleNetwork.UnitMovedEvent>(e => 
+                AddEvent("🌐 UnitMoved", e)),
+            _bus.Subscribe<BattleNetwork.SelectingAttackTargetStartedEvent>(e => 
+                AddEvent("🌐 SelectingAttackTargetStarted", e)),
             _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(e => 
-                AddEvent("🌐 UnitsDamaged", e))];
+                AddEvent("🌐 UnitsDamaged", e)),
+        ];
     }
 
     private void AddEvent(string type, object payload)
@@ -151,7 +158,7 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             _events.Add(new NetworkEvent(DateTime.Now, type, $"[Serialization Error: {ex.Message}]"));
         }
     }
-
+    
     private void OnPrevClick(IEnumerable<PointF> touches)
     {
         if (_currentPage > 0)
@@ -273,7 +280,7 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
             
             // Event header with icon
             canvas.FontSize = FontSize;
-            canvas.FontColor = HeaderColor;
+            canvas.FontColor = GetEventColor(evt.Type);
             var timeStr = evt.Timestamp.ToString("HH:mm:ss.fff");
             canvas.DrawString($"[{timeStr}] {evt.Type}", 
                 10f, yOffset, Bounds.Width - 20f, 15f,
@@ -313,6 +320,18 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
                 10f, 50f, Bounds.Width - 20f, 20f,
                 HorizontalAlignment.Center, VerticalAlignment.Top);
         }
+    }
+
+    private Color GetEventColor(string eventType)
+    {
+        if (eventType.StartsWith("📤")) return Colors.Orange;        // Outgoing
+        if (eventType.StartsWith("🌐")) return Colors.Cyan;          // Incoming network
+        if (eventType.StartsWith("🖱️")) return Colors.Gray;          // Mouse/hover
+        if (eventType.StartsWith("🗺️")) return Colors.Yellow;        // Map
+        if (eventType.StartsWith("🏃")) return Colors.LightGreen;    // Movement
+        if (eventType.StartsWith("✅")) return Colors.Green;         // Completed
+        if (eventType.StartsWith("🔙")) return Colors.Purple;        // Back/UI
+        return HeaderColor;
     }
 
     public void Dispose()
