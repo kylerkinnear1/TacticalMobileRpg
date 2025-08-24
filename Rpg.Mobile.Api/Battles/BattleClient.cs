@@ -8,6 +8,9 @@ namespace Rpg.Mobile.Api.Battles;
 public interface IBattleClient
 {
     Task TileClicked(string gameId, Point tile);
+    Task AttackClicked(string gameId);
+    Task MagicClicked(string gameId);
+    Task WaitClicked(string gameId);
     
     public delegate void SetupPhaseStartedHandler(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);
     event SetupPhaseStartedHandler? SetupStarted;
@@ -43,6 +46,21 @@ public class BattleClient : IBattleClient
     public async Task TileClicked(string gameId, Point tile)
     {
         await _hub.InvokeAsync(nameof(IBattleCommandApi.TileClicked), gameId, tile);
+    }
+
+    public async Task AttackClicked(string gameId)
+    {
+        await _hub.InvokeAsync(nameof(IBattleCommandApi.AttackClicked), gameId);
+    }
+
+    public async Task MagicClicked(string gameId)
+    {
+        await _hub.InvokeAsync(nameof(IBattleCommandApi.MagicClicked), gameId);
+    }
+
+    public async Task WaitClicked(string gameId)
+    {
+        await _hub.InvokeAsync(nameof(IBattleCommandApi.WaitClicked), gameId);
     }
 
     public event SetupPhaseStartedHandler? SetupStarted;

@@ -1,6 +1,7 @@
 ﻿using Rpg.Mobile.Api.Battles;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.MainBattle.Components;
+using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
 using Rpg.Mobile.GameSdk.Core;
 using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
@@ -49,10 +50,13 @@ public class BattleNetwork
 
         _subscriptions =
         [
-            _bus.Subscribe<GridComponent.TileClickedEvent>(TileClicked)
+            _bus.Subscribe<GridComponent.TileClickedEvent>(evnt => _battleClient.TileClicked(_settings.GameId, evnt.Tile)),
+            _bus.Subscribe<ActivePhase.AttackClickedEvent>(evnt => _battleClient.AttackClicked(_settings.GameId)),
+            _bus.Subscribe<ActivePhase.MagicClickedEvent>(evnt => _battleClient.MagicClicked(_settings.GameId)),
+            _bus.Subscribe<ActivePhase.WaitClickedEvent>(evnt => _battleClient.WaitClicked(_settings.GameId))
         ];
     }
-
+    
     public void Disconnect()
     {
         _battleClient.SetupStarted -= SetupStarted;
@@ -99,10 +103,5 @@ public class BattleNetwork
     private void UnitMoved(string gameId, int unitId, Point tile)
     {
         _game.Execute(() => _bus.Publish(new UnitMovedEvent(unitId, tile)));
-    }
-    
-    private void TileClicked(GridComponent.TileClickedEvent evnt)
-    {
-        _battleClient.TileClicked(_settings.GameId, evnt.Tile);
     }
 }
