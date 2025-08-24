@@ -15,6 +15,8 @@ public class SceneManager
     private readonly IEventBus _bus;
     private readonly IMouse _mouse;
     private readonly IPathCalculator _path;
+    private readonly ISelectingAttackTargetCalculator _attackTargetCalculator;
+    private readonly ISelectingMagicTargetCalculator _magicTargetCalculator;
 
     private ISubscription[] _subscriptions = [];
 
@@ -23,13 +25,17 @@ public class SceneManager
         IGameLoop game,
         IEventBus bus,
         IMouse mouse,
-        IPathCalculator path)
+        IPathCalculator path, 
+        ISelectingAttackTargetCalculator attackTargetCalculator, 
+        ISelectingMagicTargetCalculator magicTargetCalculator)
     {
         _lobby = lobby;
         _game = game;
         _bus = bus;
         _mouse = mouse;
         _path = path;
+        _attackTargetCalculator = attackTargetCalculator;
+        _magicTargetCalculator = magicTargetCalculator;
     }
 
     public void Start()
@@ -38,7 +44,15 @@ public class SceneManager
         [
             _bus.Subscribe<LobbyNetwork.GameStartedEvent>(e =>
             {
-                var battleScene = new BattleGridScene(_game, _mouse, e.Battle, _bus, _path);
+                var battleScene = new BattleGridScene(
+                    _game, 
+                    _mouse, 
+                    e.Battle, 
+                    _bus, 
+                    _path, 
+                    _attackTargetCalculator, 
+                    _magicTargetCalculator);
+                
                 _game.ChangeScene(battleScene);
             }),
             _bus.Subscribe<LobbyNetwork.GameEndedEvent>(_ => _game.ChangeScene(_lobby))

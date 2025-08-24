@@ -22,6 +22,7 @@ public class BattleNetwork
     public record IdleStepStartedEvent(List<Point> WalkableTiles) : IEvent;
     public record IdleStepEndedEvent(int UnitId) : IEvent;
     public record UnitMovedEvent(int UnitId, Point Tile) : IEvent;
+    public record SelectingAttackTargetStartedEvent(List<Point> AttackTargetTiles) : IEvent;
 
     private readonly IBattleClient _battleClient;
     private readonly IEventBus _bus;
@@ -47,6 +48,7 @@ public class BattleNetwork
         _battleClient.IdleStepStarted += IdleStepStarted;
         _battleClient.IdleStepEnded += IdleStepEnded;
         _battleClient.UnitMoved += UnitMoved;
+        _battleClient.SelectingAttackTargetStarted += SelectingAttackTargetStarted;
 
         _subscriptions =
         [
@@ -56,7 +58,7 @@ public class BattleNetwork
             _bus.Subscribe<ActivePhase.WaitClickedEvent>(evnt => _battleClient.WaitClicked(_settings.GameId))
         ];
     }
-    
+
     public void Disconnect()
     {
         _battleClient.SetupStarted -= SetupStarted;
@@ -66,6 +68,7 @@ public class BattleNetwork
         _battleClient.IdleStepStarted -= IdleStepStarted;
         _battleClient.IdleStepEnded -= IdleStepEnded;
         _battleClient.UnitMoved -= UnitMoved;
+        _battleClient.SelectingAttackTargetStarted -= SelectingAttackTargetStarted;
         
         _subscriptions.DisposeAll();
     }
@@ -103,5 +106,10 @@ public class BattleNetwork
     private void UnitMoved(string gameId, int unitId, Point tile)
     {
         _game.Execute(() => _bus.Publish(new UnitMovedEvent(unitId, tile)));
+    }
+    
+    private void SelectingAttackTargetStarted(string gameId, List<Point> attackTargetTiles)
+    {
+        _game.Execute(() => _bus.Publish(new SelectingAttackTargetStartedEvent(attackTargetTiles)));
     }
 }

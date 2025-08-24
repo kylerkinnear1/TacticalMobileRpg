@@ -32,6 +32,9 @@ public interface IBattleClient
 
     public delegate void UnitMovedHandler(string gameId, int unitId, Point tile);
     event UnitMovedHandler? UnitMoved;
+
+    public delegate void SelectingAttackTargetStartedHandler(string gameId, List<Point> attackTargetTiles);
+    event SelectingAttackTargetStartedHandler? SelectingAttackTargetStarted;
 }
 
 public class BattleClient : IBattleClient
@@ -70,6 +73,7 @@ public class BattleClient : IBattleClient
     public event IdleStepStartedHandler? IdleStepStarted;
     public event IdleStepEndedHandler? IdleStepEnded;
     public event UnitMovedHandler? UnitMoved;
+    public event SelectingAttackTargetStartedHandler? SelectingAttackTargetStarted;
 
     private void SetupEventHandlers()
     {
@@ -93,5 +97,8 @@ public class BattleClient : IBattleClient
 
         _hub.On<string, int, Point>(nameof(IBattleEventApi.UnitMoved),
             (gameId, unitId, tile) => UnitMoved?.Invoke(gameId, unitId, tile));
+
+        _hub.On<string, List<Point>>(nameof(IBattleEventApi.SelectingAttackTargetStarted),
+            (gameId, attackTargetTiles) => SelectingAttackTargetStarted?.Invoke(gameId, attackTargetTiles));
     }
 }

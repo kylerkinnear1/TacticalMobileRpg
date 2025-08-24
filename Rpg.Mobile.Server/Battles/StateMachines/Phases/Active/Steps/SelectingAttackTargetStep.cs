@@ -12,12 +12,18 @@ public class SelectingAttackTargetStep(
     ISelectingAttackTargetCalculator _attackTargetCalculator,
     IPathCalculator _path) : ActivePhase.IStep
 {
+    public record StartedEvent(List<Point> AttackTargetTiles) : IEvent;
     public record AttackTargetSelectedEvent(int TargetId) : IEvent;
     
     private ISubscription[] _subscriptions = [];
     
     public void Enter()
     {
+        _subscriptions =
+                [
+                    _bus.Subscribe<TileClickedEvent>(TileClicked)
+                ];
+        
         var gridToUnit = _data.UnitCoordinates
             .ToLookup(x => x.Value, x => x.Key);
 
@@ -31,11 +37,7 @@ public class SelectingAttackTargetStep(
             .ToList();
 
         _data.Active.AttackTargetTiles.Set(legalTargets);
-
-        _subscriptions =
-        [
-            _bus.Subscribe<TileClickedEvent>(TileClicked)
-        ];
+        _bus.Publish(new StartedEvent(legalTargets));
     }
 
     public void Execute(float deltaTime) { }

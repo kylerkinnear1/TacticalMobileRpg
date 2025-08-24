@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles.Calculators;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -12,6 +13,8 @@ public class BattlePhaseMachine
     private readonly MainBattleComponent _mainBattle;
     private readonly BattleMenuComponent _menu;
     private readonly IEventBus _bus;
+    private readonly ISelectingAttackTargetCalculator _attackTargetCalculator;
+    private readonly ISelectingMagicTargetCalculator _magicTargetCalculator;
     
     private ISubscription[] _subscriptions = [];
     private readonly StateMachine<IBattlePhase> _phase = new();
@@ -20,12 +23,16 @@ public class BattlePhaseMachine
         BattleData data,
         MainBattleComponent mainBattle,
         BattleMenuComponent menu,
-        IEventBus bus)
+        IEventBus bus,
+        ISelectingAttackTargetCalculator attackTargetCalculator,
+        ISelectingMagicTargetCalculator magicTargetCalculator)
     {
         _data = data;
         _mainBattle = mainBattle;
         _menu = menu;
         _bus = bus;
+        _attackTargetCalculator = attackTargetCalculator;
+        _magicTargetCalculator = magicTargetCalculator;
     }
 
     public void Execute(float deltaTime) => _phase.Execute(deltaTime);
@@ -56,6 +63,6 @@ public class BattlePhaseMachine
     private void ActivePhaseStarted(BattleNetwork.ActivePhaseStartedEvent evnt)
     {
         _data.Active = evnt.ActivePhaseData;
-        _phase.Change(new ActivePhase(_data, _mainBattle, _menu, _bus));
+        _phase.Change(new ActivePhase(_data, _mainBattle, _menu, _bus, _attackTargetCalculator, _magicTargetCalculator));
     }
 }

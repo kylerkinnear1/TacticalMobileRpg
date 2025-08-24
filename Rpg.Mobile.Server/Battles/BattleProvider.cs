@@ -146,7 +146,12 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Groups(gameId)
-                    .IdleStepEnded(gameId, x.UnitId))
+                    .IdleStepEnded(gameId, x.UnitId)),
+            bus.SubscribeAsync<SelectingAttackTargetStep.StartedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Groups(gameId)
+                    .SelectingAttackTargetStarted(gameId, x.AttackTargetTiles))
         ]);
     }
     

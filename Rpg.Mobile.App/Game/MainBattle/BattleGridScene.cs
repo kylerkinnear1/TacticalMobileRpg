@@ -30,6 +30,8 @@ public class BattleGridScene : SceneBase
     private readonly IEventBus _bus;
     private readonly IPathCalculator _path;
     private readonly IGameLoop _game;
+    private readonly ISelectingAttackTargetCalculator _attackTargetCalculator;
+    private readonly ISelectingMagicTargetCalculator _magicTargetCalculator;
 
     private ITween<PointF>? _cameraTween;
     private ISubscription[] _subscriptions = [];
@@ -41,12 +43,16 @@ public class BattleGridScene : SceneBase
         IMouse mouse,
         BattleData data,
         IEventBus bus,
-        IPathCalculator path)
+        IPathCalculator path,
+        ISelectingAttackTargetCalculator attackTargetCalculator,
+        ISelectingMagicTargetCalculator magicTargetCalculator)
     {
         _data = data;
         _bus = bus;
         _path = path;
         _game = game;
+        _attackTargetCalculator = attackTargetCalculator;
+        _magicTargetCalculator = magicTargetCalculator;
         
         Add(_battle = new(new(0f, 0f), _path, _data, _bus));
         Add(_battleMenu = new(new(
@@ -90,7 +96,7 @@ public class BattleGridScene : SceneBase
         
         ActiveCamera.Offset = new PointF(80f, 80f);
         
-        _phase = new BattlePhaseMachine(data, _battle, _battleMenu, _bus);
+        _phase = new BattlePhaseMachine(data, _battle, _battleMenu, _bus, _attackTargetCalculator, _magicTargetCalculator);
     }
 
     public override void Update(float deltaTime)

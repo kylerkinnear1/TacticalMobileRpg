@@ -4,6 +4,7 @@ using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.App.Game.UserInterface;
 using Rpg.Mobile.GameSdk.StateManagement;
+using Rpg.Mobile.GameSdk.Utilities;
 
 namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Active.Steps;
 
@@ -58,6 +59,7 @@ public class SelectingAttackTargetStep : ActivePhase.IStep
     {
         _mainBattle.AttackTargetHighlight.Visible = false;
         _mainBattle.AttackShadow.Shadows.Clear();
+        _subscriptions.DisposeAll();
     }
     
     private void TileHovered(GridComponent.TileHoveredEvent evnt)

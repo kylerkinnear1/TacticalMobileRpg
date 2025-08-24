@@ -22,4 +22,6 @@ public interface IBattleEventApi
     Task ActivePhaseStarted(string gameId, BattleActivePhaseData activePhaseData);
     Task IdleStepStarted(string gameId, List<Point> walkableTiles);
     Task IdleStepEnded(string gameId, int unitId);
+
+    Task SelectingAttackTargetStarted(string gameId, List<Point> attackTargetTiles);
 }

@@ -33,7 +33,13 @@ public partial class MainPage : ContentPage
         var game = gameLoopFactory.Create(GameView, splash, mouse);
 
         var lobby = new LobbyScene(bus, game, settings);
-        _scenes = new SceneManager(lobby, game, bus, mouse, new PathCalculator());
+        _scenes = new SceneManager(lobby,
+            game,
+            bus,
+            mouse,
+            new PathCalculator(),
+            new SelectingAttackTargetCalculator(),
+            new SelectingMagicTargetCalculator());
 
         var hub = DiContainer.Services!.GetRequiredService<HubConnection>();
         _lobbyNetwork = new(new LobbyClient(hub), bus, game, settings);
