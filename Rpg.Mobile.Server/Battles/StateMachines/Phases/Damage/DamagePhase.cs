@@ -68,7 +68,7 @@ public class DamagePhase(
         var defeatedUnits = new List<BattleUnitData>();
         var damagedUnits = new List<(BattleUnitData Unit, int Damage)>();
 
-        foreach (var target in targetIds.Select(x => _data.Units.Single(y => x == y.PlayerId)))
+        foreach (var target in targetIds.Select(x => _data.Units.Single(y => x == y.UnitId)))
         {
             target.RemainingHealth = damage >= 0
                 ? Math.Max(target.RemainingHealth - damage, 0)
