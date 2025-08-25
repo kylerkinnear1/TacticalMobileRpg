@@ -89,5 +89,20 @@ public class BattlePhaseMachine
         _data.CurrentUnit().RemainingMp = evnt.RemainingMp;
         _data.Active.TurnOrderIds = evnt.ActiveTurnOrderIds;
         _phase.Change(new DamagePhase(_mainBattle, _bus, _data));
+        
+        var positions = evnt.DamagedUnits
+            .Select(x => (_mainBattle.Units[x.Unit.UnitId].Unit.Position, x.Damage))
+            .ToList();
+
+        _mainBattle.DamageIndicator.SetDamage(positions);
+        _mainBattle.DamageIndicator.Visible = true;
+
+        var defeatedComponents = evnt.DefeatedUnits
+            .Select(x => _mainBattle.Units[x.UnitId]);
+        
+        foreach (var component in defeatedComponents)
+        {
+            component.Unit.Visible = false;
+        }
     }
 }

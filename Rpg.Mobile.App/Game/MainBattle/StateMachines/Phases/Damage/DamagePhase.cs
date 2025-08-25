@@ -12,9 +12,7 @@ public class DamagePhase : IBattlePhase
     private readonly MainBattleComponent _mainBattle;
     private readonly IEventBus _bus;
     private readonly BattleData _data;
-
-    private ISubscription[] _subscriptions = [];
-
+    
     public DamagePhase(MainBattleComponent mainBattle, IEventBus bus, BattleData data)
     {
         _mainBattle = mainBattle;
@@ -25,10 +23,6 @@ public class DamagePhase : IBattlePhase
     public void Enter()
     {
         _mainBattle.DamageIndicator.Visible = true;
-        _subscriptions =
-        [
-            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(ApplyDamage)
-        ];
     }
     
     public void Leave()
@@ -42,23 +36,5 @@ public class DamagePhase : IBattlePhase
             return;
         
         _bus.Publish(new CompletedEvent(_data.CurrentUnit()));
-    }
-    
-    private void ApplyDamage(BattleNetwork.UnitsDamagedEvent evnt)
-    {
-        var positions = evnt.DamagedUnits
-            .Select(x => (_mainBattle.Units[x.Unit.UnitId].Unit.Position, x.Damage))
-            .ToList();
-
-        _mainBattle.DamageIndicator.SetDamage(positions);
-        _mainBattle.DamageIndicator.Visible = true;
-
-        var defeatedComponents = evnt.DefeatedUnits
-            .Select(x => _mainBattle.Units[x.UnitId]);
-        
-        foreach (var component in defeatedComponents)
-        {
-            component.Unit.Visible = false;
-        }
     }
 }
