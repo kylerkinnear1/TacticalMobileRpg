@@ -12,11 +12,6 @@ namespace Rpg.Mobile.App.Game.MainBattle;
 public class BattleNetwork
 {
     public record SetupStartedEvent(List<BattleUnitData> Units, BattleSetupPhaseData SetupData) : IEvent;
-    
-    public record UnitsDamagedEvent(
-        List<(BattleUnitData Unit, int Damage)> DamagedUnits,
-        List<BattleUnitData> DefeatedUnits) : IEvent;
-
     public record UnitPlacedEvent(int UnitId, int CurrentUnitPlaceOrderIndex, Point Tile) : IEvent;
     public record NewRoundStartedEvent(List<int> TurnOrderIds, int ActiveUnitIndex) : IEvent;
     public record ActivePhaseStartedEvent(BattleActivePhaseData ActivePhaseData) : IEvent;
@@ -54,6 +49,7 @@ public class BattleNetwork
         _battleClient.SelectingAttackTargetStarted += SelectingAttackTargetStarted;
         _battleClient.SelectingMagicTargetStarted += SelectingMagicTargetStarted;
         _battleClient.SelectingSpellStarted += SelectingSpellStarted;
+        _battleClient.UnitsDamaged += UnitsDamaged;
 
         _subscriptions =
         [
@@ -65,7 +61,7 @@ public class BattleNetwork
             _bus.Subscribe<SelectingSpellStep.SpellSelectedEvent>(evnt => _battleClient.SpellSelected(_settings.GameId, evnt.Spell.Type))
         ];
     }
-
+    
     public void Disconnect()
     {
         _battleClient.SetupStarted -= SetupStarted;
@@ -77,6 +73,7 @@ public class BattleNetwork
         _battleClient.UnitMoved -= UnitMoved;
         _battleClient.SelectingAttackTargetStarted -= SelectingAttackTargetStarted;
         _battleClient.SelectingSpellStarted -= SelectingSpellStarted;
+        _battleClient.UnitsDamaged -= UnitsDamaged;
         
         _subscriptions.DisposeAll();
     }
@@ -129,5 +126,12 @@ public class BattleNetwork
     private void SelectingSpellStarted(string gameId, List<SpellData> spells)
     {
         _game.Execute(() => _bus.Publish(new SelectingSpellStartedEvent(spells)));
+    }
+    
+    private void UnitsDamaged(
+        string gameId, 
+        IBattleEventApi.UnitsDamagedEvent evnt)
+    {
+        _game.Execute(() => _bus.Publish(evnt));
     }
 }

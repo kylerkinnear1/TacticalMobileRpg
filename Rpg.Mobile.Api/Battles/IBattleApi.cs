@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using Rpg.Mobile.Api.Battles.Data;
+using Rpg.Mobile.GameSdk.StateManagement;
 
 namespace Rpg.Mobile.Api.Battles;
 
@@ -15,6 +16,14 @@ public interface IBattleCommandApi
 
 public interface IBattleEventApi
 {
+    public record UnitsDamagedEvent(
+        List<(BattleUnitData Unit, int Damage)> DamagedUnits,
+        List<BattleUnitData> DefeatedUnits,
+        List<int> ActiveTurnOrderIds,
+        Dictionary<int, Point> UnitCoordinates,
+        int ActiveActiveUnitIndex,
+        int RemainingMp) : IEvent;
+
     Task UnitMoved(string gameId, int unitId, Point tile);
     Task SetupStarted(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);
     Task UnitPlaced(string gameId, int unitId, int currentPlaceOrderIndex, Point tile);
@@ -27,4 +36,5 @@ public interface IBattleEventApi
     Task SelectingAttackTargetStarted(string gameId, List<Point> attackTargetTiles);
     Task SelectingMagicTargetStarted(string gameId, SpellData spell, List<Point> magicTargetTiles);
     Task SelectingSpellStarted(string gameId, List<SpellData> spells);
+    Task UnitsDamaged(string gameId, UnitsDamagedEvent evnt);
 }

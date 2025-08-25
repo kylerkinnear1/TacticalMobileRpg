@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Rpg.Mobile.Api.Battles;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.Lobby;
 using Rpg.Mobile.App.Game.MainBattle;
@@ -134,7 +135,7 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
                 AddEvent("🌐 UnitMoved", e)),
             _bus.Subscribe<BattleNetwork.SelectingAttackTargetStartedEvent>(e => 
                 AddEvent("🌐 SelectingAttackTargetStarted", e)),
-            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(e => 
+            _bus.Subscribe<IBattleEventApi.UnitsDamagedEvent>(e => 
                 AddEvent("🌐 UnitsDamaged", e)),
         ];
     }

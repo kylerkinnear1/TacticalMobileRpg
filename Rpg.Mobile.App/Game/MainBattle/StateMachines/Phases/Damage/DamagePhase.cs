@@ -1,4 +1,5 @@
-﻿using Rpg.Mobile.Api.Battles.Data;
+﻿using Rpg.Mobile.Api.Battles;
+using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.App.Game.MainBattle.Components;
 using Rpg.Mobile.GameSdk.StateManagement;
 
@@ -26,7 +27,7 @@ public class DamagePhase : IBattlePhase
         _mainBattle.DamageIndicator.Visible = true;
         _subscriptions =
         [
-            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(ApplyDamage)
+            _bus.Subscribe<IBattleEventApi.UnitsDamagedEvent>(ApplyDamage)
         ];
     }
     
@@ -43,7 +44,7 @@ public class DamagePhase : IBattlePhase
         _bus.Publish(new CompletedEvent(_data.CurrentUnit()));
     }
     
-    private void ApplyDamage(BattleNetwork.UnitsDamagedEvent evnt)
+    private void ApplyDamage(IBattleEventApi.UnitsDamagedEvent evnt)
     {
         var positions = evnt.DamagedUnits
             .Select(x => (_mainBattle.Units[x.Unit.UnitId].Unit.Position, x.Damage))

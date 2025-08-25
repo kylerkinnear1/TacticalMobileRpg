@@ -43,6 +43,11 @@ public interface IBattleClient
     
     public delegate void SelectingSpellStartedHandler(string gameId, List<SpellData> spells);
     event SelectingSpellStartedHandler? SelectingSpellStarted;
+    
+    public delegate void UnitsDamagedHandler(
+        string gameId, 
+        IBattleEventApi.UnitsDamagedEvent evnt);
+    event UnitsDamagedHandler? UnitsDamaged;
 }
 
 public class BattleClient : IBattleClient
@@ -94,6 +99,7 @@ public class BattleClient : IBattleClient
     public event SelectingAttackTargetStartedHandler? SelectingAttackTargetStarted;
     public event SelectingMagicTargetStartedHandler? SelectingMagicTargetStarted;
     public event SelectingSpellStartedHandler? SelectingSpellStarted;
+    public event UnitsDamagedHandler? UnitsDamaged;
 
     private void SetupEventHandlers()
     {
@@ -126,5 +132,8 @@ public class BattleClient : IBattleClient
         
         _hub.On<string, List<SpellData>>(nameof(IBattleEventApi.SelectingSpellStarted),
             (gameId, spells) => SelectingSpellStarted?.Invoke(gameId, spells));
+
+        _hub.On<string, IBattleEventApi.UnitsDamagedEvent>(nameof(IBattleEventApi.UnitsDamaged),
+            (gameId, evnt) => UnitsDamaged?.Invoke(gameId, evnt));
     }
 }

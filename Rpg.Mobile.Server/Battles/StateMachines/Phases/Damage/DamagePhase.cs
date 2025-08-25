@@ -16,10 +16,14 @@ public class DamagePhase(
 {
     public record CompletedEvent(BattleUnitData Unit) : IEvent;
 
-    public record UnitsDamaged(
+    public record UnitsDamagedEvent(
         List<(BattleUnitData Unit, int Damage)> DamagedUnits,
-        List<BattleUnitData> DefeatedUnits) : IEvent;
-    
+        List<BattleUnitData> DefeatedUnits,
+        List<int> ActiveTurnOrderIds,
+        Dictionary<int, Point> UnitCoordinates,
+        int ActiveActiveUnitIndex,
+        int RemainingMp) : IEvent;
+
     public void Enter()
     {
     }
@@ -85,6 +89,12 @@ public class DamagePhase(
         if (_data.Active.ActiveUnitIndex >= _data.Active.TurnOrderIds.Count)
             _data.Active.ActiveUnitIndex = 0;
         
-        _bus.Publish(new UnitsDamaged(damagedUnits, defeatedUnits));
+        _bus.Publish(new UnitsDamagedEvent(
+            damagedUnits, 
+            defeatedUnits,
+            _data.Active.TurnOrderIds,
+            _data.UnitCoordinates,
+            _data.Active.ActiveUnitIndex,
+            _data.CurrentUnit().RemainingMp));
     }
 }

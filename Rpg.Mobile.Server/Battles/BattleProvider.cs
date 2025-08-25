@@ -6,6 +6,7 @@ using Rpg.Mobile.GameSdk.StateManagement;
 using Rpg.Mobile.GameSdk.Utilities;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Active.Steps;
+using Rpg.Mobile.Server.Battles.StateMachines.Phases.Damage;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.NewRound;
 using Rpg.Mobile.Server.Battles.StateMachines.Phases.Setup;
 
@@ -177,7 +178,18 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Group(gameId)
-                    .SelectingSpellStarted(gameId, x.Spells))
+                    .SelectingSpellStarted(gameId, x.Spells)),
+            bus.SubscribeAsync<DamagePhase.UnitsDamagedEvent>(async x =>
+                await hub
+                    .Clients
+                    .Group(gameId)
+                    .UnitsDamaged(gameId, new(
+                        x.DamagedUnits,
+                        x.DefeatedUnits,
+                        x.ActiveTurnOrderIds,
+                        x.UnitCoordinates,
+                        x.ActiveActiveUnitIndex,
+                        x.RemainingMp)))
         ]);
     }
     
