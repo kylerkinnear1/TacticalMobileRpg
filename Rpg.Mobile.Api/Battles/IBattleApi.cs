@@ -16,13 +16,15 @@ public interface IBattleCommandApi
 
 public interface IBattleEventApi
 {
-    public record UnitsDamagedEvent(
-        List<(BattleUnitData Unit, int Damage)> DamagedUnits,
-        List<BattleUnitData> DefeatedUnits,
-        List<int> ActiveTurnOrderIds,
-        Dictionary<int, Point> UnitCoordinates,
-        int ActiveActiveUnitIndex,
-        int RemainingMp) : IEvent;
+    public class UnitsDamagedEvent
+    {
+        public List<(BattleUnitData Unit, int Damage)> DamagedUnits { get; set; } = [];
+        public List<BattleUnitData> DefeatedUnits { get; set; } = [];
+        public List<int> ActiveTurnOrderIds { get; set; } = [];
+        public Dictionary<int, Point> UnitCoordinates { get; set; } = new();
+        public int ActiveActiveUnitIndex { get; set; }
+        public int RemainingMp { get; set; }
+    }
 
     Task UnitMoved(string gameId, int unitId, Point tile);
     Task SetupStarted(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);

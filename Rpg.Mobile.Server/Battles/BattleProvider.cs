@@ -183,13 +183,15 @@ public class BattleProvider : IBattleProvider
                 await hub
                     .Clients
                     .Group(gameId)
-                    .UnitsDamaged(gameId, new(
-                        x.DamagedUnits,
-                        x.DefeatedUnits,
-                        x.ActiveTurnOrderIds,
-                        x.UnitCoordinates,
-                        x.ActiveActiveUnitIndex,
-                        x.RemainingMp)))
+                    .UnitsDamaged(gameId, new()
+                    {
+                        DamagedUnits = x.DamagedUnits,
+                        DefeatedUnits = x.DefeatedUnits,
+                        ActiveTurnOrderIds = x.ActiveTurnOrderIds,
+                        UnitCoordinates = x.UnitCoordinates,
+                        ActiveActiveUnitIndex = x.ActiveActiveUnitIndex,
+                        RemainingMp = x.RemainingMp
+                    }))
         ]);
     }
     

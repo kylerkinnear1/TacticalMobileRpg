@@ -45,7 +45,7 @@ public class BattlePhaseMachine
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(SetupStarted),
             _bus.Subscribe<BattleNetwork.NewRoundStartedEvent>(NewRoundStarted),
             _bus.Subscribe<BattleNetwork.ActivePhaseStartedEvent>(ActivePhaseStarted),
-            _bus.Subscribe<IBattleEventApi.UnitsDamagedEvent>(UnitsDamaged)
+            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(UnitsDamaged)
         ];
     
     public void Stop() => _subscriptions.DisposeAll();
@@ -70,7 +70,7 @@ public class BattlePhaseMachine
             _magicTargetCalculator));
     }
     
-    private void UnitsDamaged(IBattleEventApi.UnitsDamagedEvent evnt)
+    private void UnitsDamaged(BattleNetwork.UnitsDamagedEvent evnt)
     {
         foreach (var unit in evnt.DamagedUnits)
         {

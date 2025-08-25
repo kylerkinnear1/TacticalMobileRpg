@@ -21,6 +21,13 @@ public class BattleNetwork
     public record SelectingAttackTargetStartedEvent(List<Point> AttackTargetTiles) : IEvent;
     public record SelectingMagicTargetStartedEvent(SpellData Spell, List<Point> MagicTargetTiles) : IEvent;
     public record SelectingSpellStartedEvent(List<SpellData> Spells) : IEvent;
+    public record UnitsDamagedEvent(
+        List<(BattleUnitData Unit, int Damage)> DamagedUnits,
+        List<BattleUnitData> DefeatedUnits,
+        List<int> ActiveTurnOrderIds,
+        Dictionary<int, Point> UnitCoordinates,
+        int ActiveActiveUnitIndex,
+        int RemainingMp) : IEvent;
 
     private readonly IBattleClient _battleClient;
     private readonly IEventBus _bus;
@@ -128,10 +135,14 @@ public class BattleNetwork
         _game.Execute(() => _bus.Publish(new SelectingSpellStartedEvent(spells)));
     }
     
-    private void UnitsDamaged(
-        string gameId, 
-        IBattleEventApi.UnitsDamagedEvent evnt)
+    private void UnitsDamaged(string gameId, IBattleEventApi.UnitsDamagedEvent evnt)
     {
-        _game.Execute(() => _bus.Publish(evnt));
+        _game.Execute(() => _bus.Publish(new UnitsDamagedEvent(
+            evnt.DamagedUnits,
+            evnt.DefeatedUnits,
+            evnt.ActiveTurnOrderIds,
+            evnt.UnitCoordinates,
+            evnt.ActiveActiveUnitIndex,
+            evnt.RemainingMp)));
     }
 }

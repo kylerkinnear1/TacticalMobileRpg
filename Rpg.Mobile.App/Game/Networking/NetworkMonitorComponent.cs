@@ -135,7 +135,7 @@ public class NetworkMonitorComponent : ComponentBase, IDisposable
                 AddEvent("🌐 UnitMoved", e)),
             _bus.Subscribe<BattleNetwork.SelectingAttackTargetStartedEvent>(e => 
                 AddEvent("🌐 SelectingAttackTargetStarted", e)),
-            _bus.Subscribe<IBattleEventApi.UnitsDamagedEvent>(e => 
+            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(e => 
                 AddEvent("🌐 UnitsDamaged", e)),
         ];
     }

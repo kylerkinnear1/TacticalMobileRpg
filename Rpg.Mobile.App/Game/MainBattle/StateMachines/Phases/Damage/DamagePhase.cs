@@ -27,7 +27,7 @@ public class DamagePhase : IBattlePhase
         _mainBattle.DamageIndicator.Visible = true;
         _subscriptions =
         [
-            _bus.Subscribe<IBattleEventApi.UnitsDamagedEvent>(ApplyDamage)
+            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(ApplyDamage)
         ];
     }
     
@@ -44,7 +44,7 @@ public class DamagePhase : IBattlePhase
         _bus.Publish(new CompletedEvent(_data.CurrentUnit()));
     }
     
-    private void ApplyDamage(IBattleEventApi.UnitsDamagedEvent evnt)
+    private void ApplyDamage(BattleNetwork.UnitsDamagedEvent evnt)
     {
         var positions = evnt.DamagedUnits
             .Select(x => (_mainBattle.Units[x.Unit.UnitId].Unit.Position, x.Damage))
