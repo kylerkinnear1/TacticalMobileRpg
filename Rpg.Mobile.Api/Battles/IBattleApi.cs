@@ -16,16 +16,6 @@ public interface IBattleCommandApi
 
 public interface IBattleEventApi
 {
-    public class UnitsDamagedEvent
-    {
-        public List<(BattleUnitData Unit, int Damage)> DamagedUnits { get; set; } = [];
-        public List<BattleUnitData> DefeatedUnits { get; set; } = [];
-        public List<int> ActiveTurnOrderIds { get; set; } = [];
-        public Dictionary<int, Point> UnitCoordinates { get; set; } = new();
-        public int ActiveActiveUnitIndex { get; set; }
-        public int RemainingMp { get; set; }
-    }
-
     Task UnitMoved(string gameId, int unitId, Point tile);
     Task SetupStarted(string gameId, List<BattleUnitData> units, BattleSetupPhaseData data);
     Task UnitPlaced(string gameId, int unitId, int currentPlaceOrderIndex, Point tile);
@@ -38,5 +28,5 @@ public interface IBattleEventApi
     Task SelectingAttackTargetStarted(string gameId, List<Point> attackTargetTiles);
     Task SelectingMagicTargetStarted(string gameId, SpellData spell, List<Point> magicTargetTiles);
     Task SelectingSpellStarted(string gameId, List<SpellData> spells);
-    Task UnitsDamaged(string gameId, UnitsDamagedEvent evnt);
+    Task UnitsDamaged(string gameId, UnitsDamagedData evnt);
 }

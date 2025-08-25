@@ -22,7 +22,7 @@ public class BattleNetwork
     public record SelectingMagicTargetStartedEvent(SpellData Spell, List<Point> MagicTargetTiles) : IEvent;
     public record SelectingSpellStartedEvent(List<SpellData> Spells) : IEvent;
     public record UnitsDamagedEvent(
-        List<(BattleUnitData Unit, int Damage)> DamagedUnits,
+        List<DamageAssignmentData> DamagedUnits,
         List<BattleUnitData> DefeatedUnits,
         List<int> ActiveTurnOrderIds,
         Dictionary<int, Point> UnitCoordinates,
@@ -135,7 +135,7 @@ public class BattleNetwork
         _game.Execute(() => _bus.Publish(new SelectingSpellStartedEvent(spells)));
     }
     
-    private void UnitsDamaged(string gameId, IBattleEventApi.UnitsDamagedEvent evnt)
+    private void UnitsDamaged(string gameId, UnitsDamagedData evnt)
     {
         _game.Execute(() => _bus.Publish(new UnitsDamagedEvent(
             evnt.DamagedUnits,

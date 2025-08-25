@@ -74,8 +74,8 @@ public class BattlePhaseMachine
     {
         foreach (var unit in evnt.DamagedUnits)
         {
-            var unitIndex = _data.Units.FindIndex(x => x.UnitId == unit.Unit.UnitId);
-            _data.Units[unitIndex] = unit.Unit;
+            var unitIndex = _data.Units.FindIndex(x => x.UnitId == unit.UnitId);
+            _data.Units[unitIndex].RemainingHealth = unit.RemainingHealth;
         }
 
         foreach (var unit in evnt.DefeatedUnits)
@@ -91,7 +91,7 @@ public class BattlePhaseMachine
         _phase.Change(new DamagePhase(_mainBattle, _bus, _data));
         
         var positions = evnt.DamagedUnits
-            .Select(x => (_mainBattle.Units[x.Unit.UnitId].Unit.Position, x.Damage))
+            .Select(x => (_mainBattle.Units[x.UnitId].Unit.Position, x.Damage))
             .ToList();
 
         _mainBattle.DamageIndicator.SetDamage(positions);

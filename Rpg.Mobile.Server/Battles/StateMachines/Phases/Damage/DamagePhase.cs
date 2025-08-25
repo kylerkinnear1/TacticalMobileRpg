@@ -1,3 +1,4 @@
+using Rpg.Mobile.Api.Battles;
 using Rpg.Mobile.Api.Battles.Calculators;
 using Rpg.Mobile.Api.Battles.Data;
 using Rpg.Mobile.GameSdk.StateManagement;
@@ -17,7 +18,7 @@ public class DamagePhase(
     public record CompletedEvent(BattleUnitData Unit) : IEvent;
 
     public record UnitsDamagedEvent(
-        List<(BattleUnitData Unit, int Damage)> DamagedUnits,
+        List<DamageAssignmentData> DamagedUnits,
         List<BattleUnitData> DefeatedUnits,
         List<int> ActiveTurnOrderIds,
         Dictionary<int, Point> UnitCoordinates,
@@ -66,7 +67,7 @@ public class DamagePhase(
     private void ApplyDamage(IEnumerable<int> targetIds, int damage)
     {
         var defeatedUnits = new List<BattleUnitData>();
-        var damagedUnits = new List<(BattleUnitData Unit, int Damage)>();
+        var damagedUnits = new List<DamageAssignmentData>();
 
         foreach (var target in targetIds.Select(x => _data.Units.Single(y => x == y.UnitId)))
         {
@@ -74,7 +75,7 @@ public class DamagePhase(
                 ? Math.Max(target.RemainingHealth - damage, 0)
                 : Math.Min(target.RemainingHealth - damage, target.Stats.MaxHealth);
             
-            damagedUnits.Add((target, damage));
+            damagedUnits.Add(new() { UnitId = target.UnitId, Damage = damage, RemainingHealth = target.RemainingHealth });
 
             if (target.RemainingHealth <= 0)
             {
