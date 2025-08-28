@@ -15,8 +15,8 @@ public class DamagePhase(
     IMagicDamageCalculator _magicDamageCalc,
     IEventBus _bus) : IBattlePhase
 {
-    public record CompletedEvent(BattleUnitData Unit) : IEvent;
-
+    public record CompletedEvent : IEvent;
+    
     public record UnitsDamagedEvent(
         List<DamageAssignmentData> DamagedUnits,
         List<BattleUnitData> DefeatedUnits,
@@ -35,6 +35,7 @@ public class DamagePhase(
 
     public void Leave()
     {
+        _bus.Publish(new CompletedEvent());
     }
     
     public void PerformAttack(SelectingAttackTargetStep.AttackTargetSelectedEvent evnt)
