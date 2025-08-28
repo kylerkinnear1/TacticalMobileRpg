@@ -14,6 +14,8 @@ public interface IStateMachine : IStateMachine<IState>
 
 public interface IStateMachine<T> where T : class, IState
 {
+    T? State { get; }
+
     void Change(T? newState);
 }
 
@@ -23,17 +25,19 @@ public class StateMachine : StateMachine<IState>
     public StateMachine() : base() { }
 }
 
-public class StateMachine<T>(T? _currentState) : IStateMachine<T> 
+public class StateMachine<T>(T? state) : IStateMachine<T>
     where T : class, IState
 {
+    public T? State { get; private set; } = state;
+
     public StateMachine() : this(null) { }
 
     public void Change(T? newState)
     {
-        _currentState?.Leave();
-        _currentState = newState;
-        _currentState?.Enter();
+        State?.Leave();
+        State = newState;
+        State?.Enter();
     }
 
-    public void Execute(float deltaTime) => _currentState?.Execute(deltaTime);
+    public void Execute(float deltaTime) => State?.Execute(deltaTime);
 }

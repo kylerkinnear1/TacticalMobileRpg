@@ -45,9 +45,21 @@ public class BattlePhaseMachine
             _bus.Subscribe<BattleNetwork.SetupStartedEvent>(SetupStarted),
             _bus.Subscribe<BattleNetwork.NewRoundStartedEvent>(NewRoundStarted),
             _bus.Subscribe<BattleNetwork.ActivePhaseStartedEvent>(ActivePhaseStarted),
-            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(UnitsDamaged)
+            _bus.Subscribe<BattleNetwork.UnitsDamagedEvent>(UnitsDamaged),
+            _bus.Subscribe<DamagePhase.CompletedEvent>(DamagePhaseCompleted)
         ];
-    
+
+    private void DamagePhaseCompleted(DamagePhase.CompletedEvent evnt)
+    {
+        _phase.Change(new ActivePhase(
+            _data,
+            _mainBattle,
+            _menu,
+            _bus,
+            _attackTargetCalculator,
+            _magicTargetCalculator));
+    }
+
     public void Stop() => _subscriptions.DisposeAll();
 
     private void SetupStarted(BattleNetwork.SetupStartedEvent evnt)
@@ -66,7 +78,15 @@ public class BattlePhaseMachine
     private void ActivePhaseStarted(BattleNetwork.ActivePhaseStartedEvent evnt)
     {
         _data.Active = evnt.ActivePhaseData;
-        _phase.Change(new ActivePhase(_data, _mainBattle, _menu, _bus, _attackTargetCalculator,
+        if (_phase.State is DamagePhase)
+            return;
+        
+        _phase.Change(new ActivePhase(
+            _data, 
+            _mainBattle, 
+            _menu, 
+            _bus, 
+            _attackTargetCalculator,
             _magicTargetCalculator));
     }
     

@@ -7,7 +7,7 @@ namespace Rpg.Mobile.App.Game.MainBattle.StateMachines.Phases.Damage;
 
 public class DamagePhase : IBattlePhase
 {
-    public record CompletedEvent(BattleUnitData BattleUnit) : IEvent;
+    public record CompletedEvent : IEvent;
     
     private readonly MainBattleComponent _mainBattle;
     private readonly IEventBus _bus;
@@ -35,6 +35,6 @@ public class DamagePhase : IBattlePhase
         if (_mainBattle.DamageIndicator.IsPlaying)
             return;
         
-        _bus.Publish(new CompletedEvent(_data.CurrentUnit()));
+        _bus.Publish(new CompletedEvent());
     }
 }
