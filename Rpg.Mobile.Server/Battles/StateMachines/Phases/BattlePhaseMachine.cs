@@ -76,6 +76,7 @@ public class BattlePhaseMachine : IDisposable
         var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc, _bus);
         _phase.Change(phase);
         phase.PerformAttack(evnt);
+        UnitTurnEnded();
     }
 
     private void ApplyDamage(SelectingMagicTargetStep.MagicTargetSelectedEvent evnt)
@@ -83,6 +84,7 @@ public class BattlePhaseMachine : IDisposable
         var phase = new DamagePhase(_data, _path, _attackDamageCalc, _magicDamageCalc, _bus);
         _phase.Change(phase);
         phase.CastSpell(evnt);
+        UnitTurnEnded();
     }
 
     public void Dispose() => _subscriptions.DisposeAll();
